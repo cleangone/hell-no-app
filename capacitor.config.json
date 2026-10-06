@@ -3,6 +3,12 @@
   "appName": "hell-no",
   "webDir": "dist",
   "server": {
-    "iosScheme": "https"
+    "iosScheme": "https",
+    "hostname": "localhost"
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": false
+    }
   }
 }

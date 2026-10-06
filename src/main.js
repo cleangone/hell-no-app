@@ -29,19 +29,6 @@ const vuetify = createVuetify({
    icons: { defaultSet: 'mdi', aliases, sets: { mdi } } 
 })
 
-const errorRegex = /img is null|^. is null|^. is not defined/   // "s is null"
-// app.config.errorHandler = (err, vm, info) => {
-//    if (err.message.match(errorRegex)) { 
-//       console.log("Known Error: " + err.name + " - " + err.message) 
-//    }
-//    else {
-//       logStore.addError("app.config.errorHandler Error: " + err.name + " - " + err.message)
-    
-//       // console.log("Routing to Home on error")
-//       // router.push(Route.HOME.url)        
-//    } 
-// }
-
 app.use(createPinia())
 app.use(router)
 app.use(createHead())

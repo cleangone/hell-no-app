@@ -169,8 +169,6 @@
          <div v-if="isStandalone">Standalone</div>
       </div>
 
-      <MessageSetup disableDisplay/>
-
       <!-- Bottom nav for mobile -->
       <v-layout v-if="viewMgr.isMobile" style="height:60px">
          <v-bottom-navigation v-model="navIndex" color="primary" style="min-height:60px" grow>
@@ -219,7 +217,6 @@
    import { useLocalStore }   from '@/stores/localStore'
    import GalleryThumbConfig  from '@/components/gallery/thumb/GalleryThumbConfig.vue'
    import ItemThumbConfig     from '@/components/item/thumb/ItemThumbConfig.vue'
-   import MessageSetup        from '@/components/notification/MessageSetup.vue'
    import DarkButton          from '@/components/util/DarkButton.vue'
    import LinkOrText          from '@/components/util/LinkOrText.vue'
    import Icon                from '@/components/util/icon/Icon.vue'

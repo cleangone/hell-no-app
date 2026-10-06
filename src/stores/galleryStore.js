@@ -1,7 +1,7 @@
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/firebase'
-import { collection, doc, query, where, setDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, serverTimestamp } from "firebase/firestore"
+import { collection, getDocs, doc, query, where, setDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, serverTimestamp } from "firebase/firestore"
 import { useFirestore } from '@vueuse/firebase/useFirestore'
 import { useUserStore } from './userStore'
 import { dateUuid, getMapObjsById } from '@/utils/utils'
@@ -40,9 +40,41 @@ import { ImageType, State } from '@/utils/constants'
 
 const TABLE = 'galleries'
 
+
+async function loadGalleries() {
+  try {
+    console.log("--> Starting timeout loadGalleries query...");
+    
+    // 8-second safety timeout
+    const timeout = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("Firestore Query Timed Out")), 8000)
+    );
+
+    const snap = await Promise.race([
+      getDocs(collection(db, "galleries")),
+      timeout
+    ]);
+
+    console.log("--> SUCCESS! Galleries count:", snap.size);
+  } catch (err) {
+    console.error("--> ERROR CODE:", err?.code);
+    console.error("--> ERROR MESSAGE:", err?.message);
+    console.error("--> FULL ERROR:", err);
+  }
+}
+
 export const useGalleryStore = defineStore('gallery', () => {
    const userStore = useUserStore()
    const galleryCollection = collection(db, TABLE)
+
+onMounted(async () => {
+  console.log("--> Vue mounted, running loadGalleries...");
+  await loadGalleries();
+});
+
+
+
+
    function galleryDoc(galleryId) { return doc(db, TABLE, galleryId) }
 
    const galleries = useFirestore(galleryCollection)      

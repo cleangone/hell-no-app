@@ -8,9 +8,12 @@ export default defineConfig({
    plugins: [
       vue(),
       VitePWA({
+         injectRegister: null, // Prevents generating registerSW.js
+         selfDestroying: true,  // Automatically unregisters any legacy SW cached in WebView
+       
          registerType: 'autoUpdate',
          devOptions: { enabled: true },
-         injectRegister: 'auto',
+         // injectRegister: 'auto',
          // includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
          includeAssets: ['**/*'],
          manifest: {
@@ -33,80 +36,6 @@ export default defineConfig({
                }
             ]
          },
-         workbox: {
-            cleanupOutdatedCaches: false,
-            importScripts: ["firebase-messaging-sw.js"],
-            globPatterns: ['**/*.{js,css,html,ico,png,svg,jpg}'],
-            runtimeCaching: [
-               {
-                  urlPattern: /^localhost/,
-                  handler: 'NetworkFirst',
-               },
-               {
-                  // https://hell-no.gallery/
-                  urlPattern: /^https:\/\/hell-no\.gallery/,
-                  handler: 'NetworkFirst',
-                  options: { 
-                     cacheName: 'hell-no-cache',
-                  }
-               },
-               {  
-                  // https://www.google.com
-                  urlPattern: /^https:\/\/www\.google\.com/,
-                  handler: 'NetworkFirst',
-                  options: { 
-                     cacheName: 'google-cache',
-                     cacheableResponse: { statuses: [0, 200] }
-                  }
-               },
-               // {
-               //    // https://firestore.googleapis.com
-               //    urlPattern: ({ url }) => { return url.hostname == "firestore.googleapis.com" },
-               //    // urlPattern: /^https:\/\/firestore\.googleapis\.com/,
-               //    handler: 'NetworkFirst',
-               //    options: { 
-               //       cacheName: 'firestore-cache',
-               //       cacheableResponse: { statuses: [0, 200] }
-               //    }
-               // },
-               // {
-               //    //  https://identitytoolkit.googleapis.com
-               //    urlPattern: /^https:\/\/identitytoolkit\.googleapis\.com/,
-               //    handler: 'NetworkFirst',
-               //    options: { 
-               //       cacheName: 'identity-cache',
-               //       cacheableResponse: { statuses: [0, 200] }
-               //    }
-               // },
-               {
-                  //  https://securetoken.googleapis.com
-                  urlPattern: /^https:\/\/securetoken\.googleapis\.com/,
-                  handler: 'NetworkFirst',
-                  options: { 
-                     cacheName: 'token-cache',
-                     cacheableResponse: { statuses: [0, 200] }
-                  }
-               },
-               {
-                  // https://firebasestorage.googleapis.com/v0/b/gallery-a1fcb.appspot.com/
-                  urlPattern: ({ url }) => { 
-                     return url.hostname == "firebasestorage.googleapis.com" && 
-                            url.pathname.startsWith("/v0/b/gallery-a1fcb.appspot.com") &&
-                            !url.pathname.includes("&random=") 
-                  },
-                  // urlPattern: /^https:\/\/firebasestorage\.googleapis\.com\/v0\/b\/gallery-a1fcb\.appspot\.com/,
-                  handler: 'CacheFirst',
-                  options: {
-                     cacheName: 'image-cache',
-                     cacheableResponse: { statuses: [0, 200] },
-                     expiration: {
-                        maxEntries: 1000,
-                        maxAgeSeconds: 60 * 60 * 24 * 365 // 365 days
-                     }
-                  }
-               },
-            ]
-         }
       })
    ],
    resolve: {
