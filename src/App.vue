@@ -15,12 +15,6 @@
                      <v-btn v-bind="props" icon="mdi-menu" class="icon-btn" size="medium" variant="text"></v-btn>
                   </template>
                   <v-list>
-                     <!-- <v-list-item @click="toggleDark()">
-                        <template v-slot:prepend>
-                           <v-icon :icon="isDark?'mdi-brightness-5':'mdi-brightness-3'" class="menu-icon"></v-icon>
-                        </template>
-                        <v-list-item-title>{{isDark ? "Light mode" : "Dark mode"}}</v-list-item-title>
-                     </v-list-item> -->
                      <v-list-item @click="toggleSoloMode()">
                         <template v-slot:prepend>
                            <v-icon :icon="viewMgr.solo?'mdi-account-multiple': 'mdi-account'" class="menu-icon"></v-icon>
@@ -39,12 +33,6 @@
                         </template>
                         <v-list-item-title>Messages</v-list-item-title>
                      </v-list-item>
-                     <!-- <v-list-item @click="toRoute(Route.ACCOUNT)">
-                        <template v-slot:prepend>
-                           <v-icon icon="mdi-cog" class="menu-icon"></v-icon>
-                        </template>
-                        <v-list-item-title>Settings</v-list-item-title>
-                     </v-list-item> -->
                   </v-list>
                </v-menu>
                <Icon v-if="currentRouteName!=Route.HOME.name" icon="mdi-chevron-left" @click="router.back()"/>
@@ -52,7 +40,7 @@
             <!-- top left links for desktop -->
             <nav v-else>
                <LinkOrText :currentRoute="currentRoute" :targetRoute="Route.HOME"/>
-               <span v-if="!inRoutes(Route.ACCOUNT, Route.ADMIN, Route.REGISTER)">
+               <span v-if="!inRoutes(Route.ACCOUNT, Route.REGISTER)">
                   | <LinkOrText :currentRoute="currentRoute" :targetRoute="Route.GALLERIES" :targetId="Defaults.SITE_ID" :url="Route.GALLERIES.url + Defaults.SITE_ID"/>
                   <span v-if="userExists && !viewMgr.solo && groupMgr.myThumbGroupsExist">
                      | <LinkOrText :currentRoute="currentRoute" :targetRoute="Route.GROUPS"/>
@@ -81,14 +69,11 @@
                <span v-else-if="isRoute(Route.MESSAGE)">{{ Route.MESSAGE.display }}</span>
                <span v-else-if="isRoute(Route.LOGIN)">{{ Route.LOGIN.display }}</span>
                <span v-else-if="isRoute(Route.ACCOUNT)" class="text-subtitle-1">{{ pageName }}</span>
-               <span v-else-if="isRoute(Route.ADMIN)"   class="text-subtitle-1">{{ Route.ADMIN.display }}</span>
                <span v-else-if="isRoute(Route.ADD_ITEM)">Add Item</span>
                <span v-else-if="isRoute(Route.EDIT_ITEM)">Edit Item</span>
             </div>
             <nav v-else>
-               <!-- <span v-if="currentRoute == Route.MESSAGE.name" class="text-h6">Messages</span> -->
                <span v-if="isRoute(Route.ACCOUNT)" class="title-sm">{{ pageName }}</span>
-               <span v-if="isRoute(Route.ADMIN)"   class="text-subtitle-1">{{ Route.ADMIN.display }}</span>
             </nav>
          </v-col>
          <!-- top right icons -->
@@ -135,16 +120,7 @@
                      <v-list-item @click="toRoute(Route.ACCOUNT)">
                         <v-list-item-title>My Account</v-list-item-title>
                      </v-list-item>
-                     <v-list-item v-if="userIsAdmin" @click="toRoute(Route.ADMIN)">
-                        <v-list-item-title>Admin</v-list-item-title>
-                     </v-list-item>
-                     <v-list-item v-for="profile in myProfiles" @click="swapToUser(profile.id)">
-                        <v-list-item-title>Swap to profile {{ profile.username }}</v-list-item-title>
-                     </v-list-item>
-                     <v-list-item v-if="userOwnerId" @click="swapBack">
-                        <v-list-item-title>Swap Back from Profile</v-list-item-title>
-                     </v-list-item>
-                     <v-list-item v-else @click="logout">
+                     <v-list-item @click="logout">
                         <v-list-item-title>Logout</v-list-item-title>
                      </v-list-item>
                   </v-list>
@@ -202,14 +178,12 @@
 </template>
 
 <script setup>
-   import { computed, onErrorCaptured, onMounted, ref } from 'vue'
+   import { computed, ref, onMounted } from 'vue'
    import { useRoute, useRouter } from 'vue-router'
    import { Head } from '@unhead/vue/components'
    import { useDark, useToggle } from '@vueuse/core'
    import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"
    import { useUserStore }    from '@/stores/userStore'
-   import { useUserMgr }      from '@/stores/userMgr'
-   import { useAdminStore }   from '@/stores/adminStore'
    import { useGroupMgr }     from '@/stores/groupMgr'
    import { useNotificationStore } from '@/stores/notificationStore'
    import { useViewStore }    from '@/stores/viewStore'
@@ -225,7 +199,6 @@
    import ToggleIcon          from '@/components/util/icon/ToggleIcon.vue'
    import IconButton          from '@/components/util/IconButton.vue'
    import ShakeIcon          from '@/components/util/icon/ShakeIcon.vue'
-   import YouTubeAudio        from '@/components/util/YouTubeAudio.vue'
    import ViewedSortButton    from '@/views/viewed/ViewedSortButton.vue'
    import { handleError }     from '@/utils/utils'
    import { daysOld }         from '@/utils/dateUtils'
@@ -235,8 +208,7 @@
    const route  = useRoute()
    const router = useRouter()
    const userStore  = useUserStore()
-   const userMgr    = useUserMgr()
-   const adminStore = useAdminStore()
+
    const groupMgr   = useGroupMgr()
    const notificationStore = useNotificationStore()
    const viewStore  = useViewStore()
@@ -272,13 +244,7 @@
       window.addEventListener('resize', setWindowSize)
    })
 
-   onErrorCaptured((err) => { return handleError(err, "App") })
-
-   const isDark = useDark()
-   const toggleDark = useToggle(isDark)
-
    router.beforeEach((to, from) => {
-      if (to.name == Route.ADMIN.name   && !adminStore.isAdmin)   { return {name: Route.HOME.name}  }
       if (to.name == Route.ACCOUNT.name && !userStore.userExists) { return {name: Route.LOGIN.name} }
    })
 
@@ -302,9 +268,7 @@
    })
    const userExists  = computed(() => userStore.userExists)
    const userId      = computed(() => userStore.userId)
-   const userIsAdmin = computed(() => adminStore.isAdmin)
    const userOwnerId = computed(() => userStore.user.ownerId) 
-   const myProfiles  = computed(() => userMgr.myProfiles) 
    
    const activeNotificationsExist = computed(() => notificationStore.myActiveNotifications.length)
 
@@ -354,11 +318,6 @@
       toRoute(Route.HOME)
    }
 
-   const swapBack = () => { if (userOwnerId.value) { swapToUser(userOwnerId.value) } }
-   const swapToUser = (userId) => { 
-      userStore.userId = userId
-      router.push(Route.HOME.url)
-   }
    const logout = () => { viewMgr.logout() }
 </script>
 

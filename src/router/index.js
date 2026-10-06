@@ -3,7 +3,6 @@ import HomeView      from '../views/HomeView.vue'
 import AboutView     from '../views/AboutView.vue'
 import AccountView   from '../views/AccountView.vue'
 import AddItemView   from '../views/item/AddItemView.vue'
-import AdminView     from '../views/AdminView.vue'
 import ArtistView    from '../views/ArtistView.vue'
 import EditItemView  from '../views/item/EditItemView.vue'
 import FavoritesView from '../views/FavoritesView.vue'
@@ -25,13 +24,6 @@ import UserView      from '../views/UserView.vue'
 import ViewedView    from '../views/viewed/ViewedView.vue'
 import { Route } from '@/utils/constants'
 
-// lazy load not working - chunk retrieval error
-// Account works, but others do not
-// const MessageView   = () => import('../views/MessageView.vue')
-// const AboutView     = () => import('../views/AboutView.vue')
-// const AccountView   = () => import('../views/AccountView.vue')
-// const AdminView     = () => import('../views/AdminView.vue')
-
 const router = createRouter({
    history: createWebHistory(import.meta.env.BASE_URL),
    routes: [
@@ -39,7 +31,6 @@ const router = createRouter({
       createRoute(Route.ABOUT,      AboutView),
       createRoute(Route.ACCOUNT,    AccountView),
       createRoute(Route.ADD_ITEM,   AddItemView),
-      createRoute(Route.ADMIN,      AdminView),
       createRoute(Route.ARTIST,     ArtistView,    ':id'),
       createRoute(Route.EDIT_ITEM,  EditItemView,  ':id'),
       createRoute(Route.FAVORITES,  FavoritesView),
@@ -61,11 +52,6 @@ const router = createRouter({
       createRoute(Route.SEARCH,     SearchView),
       createRoute(Route.USER,       UserView,      ':id'),
       createRoute(Route.VIEWED,     ViewedView,    ':id'),
-      
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      // component: () => import('../views/AboutView.vue')
   ]
 })
 

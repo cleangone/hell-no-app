@@ -9,8 +9,6 @@ export const useChatMgr = defineStore('chatMgr', () => {
    
    function getPostCount(chatId) { return postStore.getPosts(chatId).length }
 
-   // todo - orphans replies
-   // only admin can delete chat, thus has permission to delete posts
    function deleteChat(chatId) {
       const posts = postStore.getPosts(chatId)
       if (posts.length) { 

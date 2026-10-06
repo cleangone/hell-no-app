@@ -126,14 +126,6 @@ export const useViewStore = defineStore('view', () => {
       return isVisible
    }
 
-   const adminSelectedUserId = ref(null)
-   function setAdminSelectedUserId(id) { adminSelectedUserId.value = id }
-   
-   const adminItemHeaders = ref(null)
-   function setAdminItemHeaders(headers) { adminItemHeaders.value = headers }
-   const adminGalleryHeaders = ref(null)
-   function setAdminGalleryHeaders(headers) { adminGalleryHeaders.value = headers }
-   
    const showChildGalleries = ref(false)
    function setShowChildGalleries(showChild){ showChildGalleries.value = showChild }
    
@@ -203,8 +195,6 @@ export const useViewStore = defineStore('view', () => {
       editInPlace, 
       isMobileSwipe, toggleMobileSwipe,
       accountGalleryId, setAccountGalleryId, 
-      adminSelectedUserId, setAdminSelectedUserId,
-      adminItemHeaders, setAdminItemHeaders, adminGalleryHeaders, setAdminGalleryHeaders,
       showChildGalleries, setShowChildGalleries,
       sortRecentViewed, toggleSortRecentViewed,
       getVisiblity, getIdVisiblity, setVisiblity, resetVisiblity,

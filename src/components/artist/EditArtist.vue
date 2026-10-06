@@ -78,9 +78,6 @@
          action: akaPrimaryId || artistMgr.hasAKAs(props.artist.id) ? ActionType.PROCESS : "" 
       })
 
-      // users can edit artists they created if they own all the items linked to the artist 
-      // admin can update any
-
       // ugly workaround - backend updates allNames of this artist and any related by aka 
       // item update eventually done by backend and incorporate otherArtists
       if (props.artist.fullName != fullName || props.artist.shortName != shortName.value) {

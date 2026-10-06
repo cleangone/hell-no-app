@@ -188,7 +188,6 @@ export const Route = {
    ABOUT:     { name: 'about',     url: '/about',     display: 'About' },
    ACCOUNT:   { name: 'account',   url: '/account',   display: 'My Account' },
    ADD_ITEM:  { name: 'add-item',  url: '/add-item',  display: 'Add Item' },
-   ADMIN:     { name: 'admin',     url: '/admin',     display: 'Admin' },
    ARTIST:    { name: 'artist',    url: '/artist/'    },
    BROADCAST: { name: 'broadcast', url: '/broadcast'  },
    EDIT_ITEM: { name: 'edit-item', url: '/edit-item/',display: 'Edit Item' },
