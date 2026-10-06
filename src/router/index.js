@@ -6,7 +6,6 @@ import AddItemView   from '../views/item/AddItemView.vue'
 import ArtistView    from '../views/ArtistView.vue'
 import EditItemView  from '../views/item/EditItemView.vue'
 import FavoritesView from '../views/FavoritesView.vue'
-import FeedView      from '../views/FeedView.vue'
 import ForgotView    from '../views/ForgotView.vue'
 import GalleryView   from '../views/gallery/GalleryView.vue'
 import GalleriesView from '../views/gallery/GalleriesView.vue'
@@ -34,7 +33,6 @@ const router = createRouter({
       createRoute(Route.ARTIST,     ArtistView,    ':id'),
       createRoute(Route.EDIT_ITEM,  EditItemView,  ':id'),
       createRoute(Route.FAVORITES,  FavoritesView),
-      createRoute(Route.FEED,       FeedView),
       createRoute(Route.FORGOT,     ForgotView),
       createRoute(Route.GALLERY,    GalleryView,   ':id'),
       createRoute(Route.GALLERIES,  GalleriesView, ':id'),

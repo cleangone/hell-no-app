@@ -42,9 +42,9 @@
                <LinkOrText :currentRoute="currentRoute" :targetRoute="Route.HOME"/>
                <span v-if="!inRoutes(Route.ACCOUNT, Route.REGISTER)">
                   | <LinkOrText :currentRoute="currentRoute" :targetRoute="Route.GALLERIES" :targetId="Defaults.SITE_ID" :url="Route.GALLERIES.url + Defaults.SITE_ID"/>
-                  <span v-if="userExists && !viewMgr.solo && groupMgr.myThumbGroupsExist">
+                  <!-- <span v-if="userExists && !viewMgr.solo && groupMgr.myThumbGroupsExist">
                      | <LinkOrText :currentRoute="currentRoute" :targetRoute="Route.GROUPS"/>
-                  </span> 
+                  </span>  -->
                   | <LinkOrText :currentRoute="currentRoute" :targetRoute="Route.SEARCH"/>
                   <span v-if="userExists && !viewMgr.solo">
                      | <LinkOrText :currentRoute="currentRoute" :targetRoute="Route.MESSAGE"/>
@@ -82,7 +82,7 @@
             <div v-if="viewMgr.isMobile">
                <span v-if="inRoutes(Route.HOME, Route.USER)" style="white-space: nowrap">
                   <!-- <Icon icon="mdi-dice-multiple" @click="toRoute(Route.RANDOM)"/> -->
-                  <ShakeIcon v-if="activeNotificationsExist" icon="mdi-bell-ring" size="small" @click="toRoute(Route.MESSAGE)" class="mr-n1"/>
+                  <!-- <ShakeIcon v-if="activeNotificationsExist" icon="mdi-bell-ring" size="small" @click="toRoute(Route.MESSAGE)" class="mr-n1"/> -->
                   <DarkButton class="mr-n2"/>
                </span>
                <span v-else-if="isRoute(Route.GALLERIES)" class="text-no-wrap">
@@ -108,7 +108,7 @@
             <div v-else-if="userExists">
                <SearchBox class="mr-2"/>
                <RouterLink :to="isMyUserPage ? Route.ACCOUNT.url : Route.USER.url + userId">{{ displayName }}</RouterLink>
-               <ShakeIcon v-if="activeNotificationsExist" icon="mdi-bell-ring" size="small" @click="toRoute(Route.MESSAGE)" class="mx-1"/>
+               <!-- <ShakeIcon v-if="activeNotificationsExist" icon="mdi-bell-ring" size="small" @click="toRoute(Route.MESSAGE)" class="mx-1"/> -->
                <v-menu>
                   <template v-slot:activator="{ props }">
                      <v-btn v-bind="props" icon="mdi-account" size="medium" variant="text" class="icon-btn"/>
@@ -184,8 +184,8 @@
    import { useDark, useToggle } from '@vueuse/core'
    import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"
    import { useUserStore }    from '@/stores/userStore'
-   import { useGroupMgr }     from '@/stores/groupMgr'
-   import { useNotificationStore } from '@/stores/notificationStore'
+   // import { useGroupMgr }     from '@/stores/groupMgr'
+   // import { useNotificationStore } from '@/stores/notificationStore'
    import { useViewStore }    from '@/stores/viewStore'
    import { useViewMgr }      from '@/stores/viewMgr'
    import { useLocalStore }   from '@/stores/localStore'
@@ -209,13 +209,13 @@
    const router = useRouter()
    const userStore  = useUserStore()
 
-   const groupMgr   = useGroupMgr()
-   const notificationStore = useNotificationStore()
+   // const groupMgr   = useGroupMgr()
+   // const notificationStore = useNotificationStore()
    const viewStore  = useViewStore()
    const viewMgr    = useViewMgr()
    const localStore = useLocalStore()
    const windowSize = ref({})
-   useNotificationStore() // instantiated ahead of time for messages/onMounted
+   // useNotificationStore() // instantiated ahead of time for messages/onMounted
    
    onMounted(async() => {
       // console.log("App.onMounted")
@@ -268,9 +268,9 @@
    })
    const userExists  = computed(() => userStore.userExists)
    const userId      = computed(() => userStore.userId)
-   const userOwnerId = computed(() => userStore.user.ownerId) 
+   // const userOwnerId = computed(() => userStore.user.ownerId) 
    
-   const activeNotificationsExist = computed(() => notificationStore.myActiveNotifications.length)
+   // const activeNotificationsExist = computed(() => notificationStore.myActiveNotifications.length)
 
    const displayName = computed(() => {
       const currUser = user.value // ugly - check user, which drives update of localStore.soloMode

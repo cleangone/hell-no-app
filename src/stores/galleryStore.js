@@ -1,12 +1,13 @@
-import { computed, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/firebase'
-import { collection, getDocs, doc, query, where, setDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, serverTimestamp } from "firebase/firestore"
-import { useFirestore } from '@vueuse/firebase/useFirestore'
+import { collection, doc, setDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, serverTimestamp } from "firebase/firestore"
+import { FirebaseFirestore } from '@capacitor-firebase/firestore'
 import { useUserStore } from './userStore'
-import { dateUuid, getMapObjsById } from '@/utils/utils'
+import { dateUuid, getMapObjsById, isPublic } from '@/utils/utils'
 import { ImageType, State } from '@/utils/constants'   
    
+
 /*
    Gallery
       id
@@ -40,44 +41,77 @@ import { ImageType, State } from '@/utils/constants'
 
 const TABLE = 'galleries'
 
-
-async function loadGalleries() {
-  try {
-    console.log("--> Starting timeout loadGalleries query...");
-    
-    // 8-second safety timeout
-    const timeout = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error("Firestore Query Timed Out")), 8000)
-    );
-
-    const snap = await Promise.race([
-      getDocs(collection(db, "galleries")),
-      timeout
-    ]);
-
-    console.log("--> SUCCESS! Galleries count:", snap.size);
-  } catch (err) {
-    console.error("--> ERROR CODE:", err?.code);
-    console.error("--> ERROR MESSAGE:", err?.message);
-    console.error("--> FULL ERROR:", err);
-  }
-}
-
 export const useGalleryStore = defineStore('gallery', () => {
+ 
+   const galleries = ref([]) 
+   const loading   = ref(false)
+   const error     = ref(null)
+   let listenerCallbackId = null 
+   
+
+
    const userStore = useUserStore()
    const galleryCollection = collection(db, TABLE)
 
-onMounted(async () => {
-  console.log("--> Vue mounted, running loadGalleries...");
-  await loadGalleries();
-});
+
+
+   const subscribeToGalleries = async () => {
+      console.log("subscribeToGalleries");
+
+      if (listenerCallbackId) return;
+
+
+      loading.value = true;
+      console.log("Attaching Native iOS Firestore Listener...");
+
+      try {
+        // addCollectionSnapshotListener returns { callbackId }
+        const { callbackId } = await FirebaseFirestore.addCollectionSnapshotListener(
+          {
+            reference: 'galleries',
+            compositeFilter: null,
+            queryConstraints: []
+          },
+          (event, err) => {
+            if (err) {
+              console.error("Native Firestore Error:", err);
+              error.value = err.message;
+              loading.value = false;
+              return;
+            }
+
+            if (event?.snapshots) {
+               galleries.value = event.snapshots.map(snapshot => snapshot.data);
+               console.log(`[Native Sync] Updated ${galleries.value.length} galleries in Pinia!`);
+            }
+            loading.value = false;
+         }
+        );
+        listenerCallbackId = callbackId;
+      } catch (err) {
+        console.error("Failed to attach native listener:", err);
+        error.value = err.message;
+        loading.value = false;
+      }
+    }
+
+
+    const unsubscribeGalleries = async () => {
+      if (listenerCallbackId) {
+        await FirebaseFirestore.removeSnapshotListener({
+          callbackId: listenerCallbackId
+        });
+        listenerCallbackId = null;
+        console.log("galleries listener removed")
+      }
+    }
 
 
 
 
    function galleryDoc(galleryId) { return doc(db, TABLE, galleryId) }
 
-   const galleries = useFirestore(galleryCollection)      
+   // const galleries = useFirestore(galleryCollection)      
    const galleryIdToGallery  = computed(() => { return galleries.value ? new Map(galleries.value.map((obj) => [obj.id, obj])) : new Map() })
    const galleryTagToGallery = computed(() => { 
       return galleries.value ? new Map(galleries.value.filter(obj => obj.tag).map(obj => [obj.tag, obj])) : new Map() 
@@ -89,8 +123,7 @@ onMounted(async () => {
    //
    // publicGalleries
    //
-   const publicGalleriesQuery = computed(() => query(galleryCollection, where('state', '==', State.PUBLIC)) )
-   const publicGalleries = useFirestore(publicGalleriesQuery, [])
+   const publicGalleries = computed(() => { return galleries.value.filter(gallery => isPublic(gallery)) })
    const userIdToPublicGalleries = computed(() => {
       const galleryMap = new Map()
       for (const gallery of publicGalleries.value) {
@@ -126,8 +159,7 @@ onMounted(async () => {
    })
 
    // myGalleries
-   const myGalleriesQuery = computed(() => userStore.userId && query(galleryCollection, where('userId', '==', userStore.userId)) )
-   const myRawGalleries = useFirestore(myGalleriesQuery, [])
+   const myRawGalleries = computed(() => { return galleries.value.filter(gallery => gallery.userId == userStore.userId) })
    const myGalleriesExist = computed(() => myRawGalleries.value.length > 0 )
    const myGalleries = computed(() => {
       const sortedGalleries = [ ...myRawGalleries.value ]
@@ -136,9 +168,8 @@ onMounted(async () => {
    })
 
    // myContributingGalleries
-   const myContributingGalleriesQuery = computed(() => userStore.userId && 
-      query(galleryCollection, where('contributorIds','array-contains', userStore.userId)) )   
-   const myRawContributingGalleries = useFirestore(myContributingGalleriesQuery, [])
+   const myRawContributingGalleries = computed(() => { 
+      return galleries.value.filter(gallery => gallery.contributorIds?.includes == userStore.userId) })
    const myContributingGalleriesExist = computed(() => myRawContributingGalleries.value.length > 0 )
    const myContributingGalleries = computed(() => {
       const sortedGalleries = [ ...myRawContributingGalleries.value ]
@@ -256,6 +287,7 @@ onMounted(async () => {
    }
 
    return { 
+      subscribeToGalleries, unsubscribeGalleries,
       galleries, myGalleries, myGalleriesExist, myContributingGalleriesExist, myContributingGalleries, myGalleryIdToGalleryMap,
       getGallery, getGalleryByTag, getMyGallery, getUserGalleries,
       publicGalleries, getPublicGalleries, publicGalleryIdToChildGalleries, userIdToGalleries, 

@@ -197,7 +197,6 @@ export const Route = {
    GROUP_CHAT:{ name: 'groupchat', url: '/group/'     },
    GROUPS:    { name: 'groups',    url: '/groups',    display: 'Groups' },
    FAVORITES: { name: 'favorites', url: '/favorites', display: 'My Favorites' },
-   FEED:      { name: 'feed',      url: '/feed'       },
    FORGOT:    { name: 'forgot',    url: '/forgot',    display: 'Forgot Password' },
    INVISIBLE: { name: 'invisible', url: '/invisible/',display: 'Invisible Items' },
    ITEM:      { name: 'item',      url: '/item/'      },
