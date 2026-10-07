@@ -2,8 +2,8 @@ import { computed, ref, onMounted } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/firebase'
 import { collection, doc, setDoc, updateDoc, deleteDoc, arrayUnion, arrayRemove, serverTimestamp } from "firebase/firestore"
-import { FirebaseFirestore } from '@capacitor-firebase/firestore'
-import { useUserStore } from './userStore'
+import { useUserStore }     from './userStore'
+import { useGalleryAccess } from './access/galleryAccess'
 import { dateUuid, getMapObjsById, isPublic } from '@/utils/utils'
 import { ImageType, State } from '@/utils/constants'   
    
@@ -42,72 +42,13 @@ import { ImageType, State } from '@/utils/constants'
 const TABLE = 'galleries'
 
 export const useGalleryStore = defineStore('gallery', () => {
- 
-   const galleries = ref([]) 
-   const loading   = ref(false)
-   const error     = ref(null)
-   let listenerCallbackId = null 
-   
-
-
-   const userStore = useUserStore()
+   const userStore     = useUserStore()
+   const galleryAccess = useGalleryAccess()
    const galleryCollection = collection(db, TABLE)
 
-
-
-   const subscribeToGalleries = async () => {
-      console.log("subscribeToGalleries");
-
-      if (listenerCallbackId) return;
-
-
-      loading.value = true;
-      console.log("Attaching Native iOS Firestore Listener...");
-
-      try {
-        // addCollectionSnapshotListener returns { callbackId }
-        const { callbackId } = await FirebaseFirestore.addCollectionSnapshotListener(
-          {
-            reference: 'galleries',
-            compositeFilter: null,
-            queryConstraints: []
-          },
-          (event, err) => {
-            if (err) {
-              console.error("Native Firestore Error:", err);
-              error.value = err.message;
-              loading.value = false;
-              return;
-            }
-
-            if (event?.snapshots) {
-               galleries.value = event.snapshots.map(snapshot => snapshot.data);
-               console.log(`[Native Sync] Updated ${galleries.value.length} galleries in Pinia!`);
-            }
-            loading.value = false;
-         }
-        );
-        listenerCallbackId = callbackId;
-      } catch (err) {
-        console.error("Failed to attach native listener:", err);
-        error.value = err.message;
-        loading.value = false;
-      }
-    }
-
-
-    const unsubscribeGalleries = async () => {
-      if (listenerCallbackId) {
-        await FirebaseFirestore.removeSnapshotListener({
-          callbackId: listenerCallbackId
-        });
-        listenerCallbackId = null;
-        console.log("galleries listener removed")
-      }
-    }
-
-
-
+   const subscribeToGalleries = async () => { await galleryAccess.addListener() } 
+   const unsubscribeGalleries = async () => { galleryAccess.removeListener() }
+   const galleries = computed(() => galleryAccess.galleries)
 
    function galleryDoc(galleryId) { return doc(db, TABLE, galleryId) }
 
