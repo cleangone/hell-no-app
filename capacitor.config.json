@@ -7,8 +7,8 @@
     "hostname": "localhost"
   },
   "plugins": {
-    "CapacitorHttp": {
-      "enabled": false
+    "StatusBar": {
+      "overlaysWebView": true
     }
   }
 }

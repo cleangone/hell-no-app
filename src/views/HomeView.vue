@@ -1,4 +1,5 @@
 <template>
+   <ion-page>
    <!-- title if not mobile - mobile title in app -->
    <v-container v-if="!viewMgr.isMobile" class="pa-0 mt-2 mb-1 width-100">
       <v-row no-gutters class="d-flex align-center flex-nowrap">
@@ -51,12 +52,15 @@
             :linkTo="Route.VIEWED.url + Defaults.SITE_ID" showDateViewed class="bg-shade border-md fill-height"/>
       </v-col>
    </v-row> -->
+   </ion-page>
 </template>
 
 <script setup>
    import { computed, onMounted, ref } from 'vue'
    // import { useElementSize } from '@vueuse/core'
    import { useSeoMeta } from '@unhead/vue'
+   import { IonPage } from '@ionic/vue'
+
    import { useUserStore }    from '@/stores/userStore'
    import { useGalleryStore } from '@/stores/galleryStore'
    // import { useInviteStore }  from '@/stores/inviteStore'
