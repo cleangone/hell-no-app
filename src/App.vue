@@ -194,6 +194,7 @@
    import { useUserStore }    from '@/stores/userStore'
    import { useItemStore }    from '@/stores/itemStore'
    import { useGalleryStore } from '@/stores/galleryStore'
+   import { useGroupStore }   from '@/stores/groupStore'
    // import { useGroupMgr }     from '@/stores/groupMgr'
    // import { useNotificationStore } from '@/stores/notificationStore'
    import { useViewStore }    from '@/stores/viewStore'
@@ -218,8 +219,8 @@
    const userStore    = useUserStore()
    const itemStore    = useItemStore()
    const galleryStore = useGalleryStore()
-
-   // const groupMgr   = useGroupMgr()
+   const groupStore   = useGroupStore()
+   // const groupMgr  = useGroupMgr()
    // const notificationStore = useNotificationStore()
    const viewStore  = useViewStore()
    const viewMgr    = useViewMgr()
@@ -250,10 +251,11 @@
 
       console.log("window.location.hostname", window.location.hostname)
 
-      try { await itemStore.addListener() } 
-         catch (err) { console.error("itemStore init error:", err) }
-      try { await galleryStore.addListener() } 
-         catch (err) { console.error("galleryStore init error:", err) }
+      await Promise.allSettled([
+         itemStore.addListener().catch(err    => console.error("itemStore init error:",    err)),
+         galleryStore.addListener().catch(err => console.error("galleryStore init error:", err)),
+         groupStore.addListener().catch(err   => console.error("groupStore init error:",   err))
+      ])
 
       setWindowSize()
       window.addEventListener('resize', setWindowSize)

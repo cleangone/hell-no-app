@@ -1,4 +1,6 @@
 <template>
+<ion-page>
+<ion-content> 
    <DefineTemplate> <!-- item info beside or below image -->
       <div v-if="alternateName" class="mt-n2">
          also <span class="text-h5">{{ alternateName }}</span>
@@ -154,6 +156,8 @@
    <v-dialog v-model="showEditDialog" width="auto" height="auto">
       <EditItemDialog :item="selectedItem" @done="showEditDialog=false"/>
    </v-dialog>
+</ion-content>
+</ion-page>
 </template>
 
 <script setup>

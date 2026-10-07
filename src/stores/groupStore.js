@@ -1,9 +1,9 @@
 import { computed } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/firebase'
-import { collection, doc, query, where, setDoc, updateDoc, deleteDoc, arrayRemove, arrayUnion, serverTimestamp } from "firebase/firestore"
-import { useFirestore } from '@vueuse/firebase/useFirestore'
+import { collection, doc, setDoc, updateDoc, deleteDoc, arrayRemove, arrayUnion, serverTimestamp } from "firebase/firestore"
 import { useUserStore } from './userStore'
+import { useGroupAccess } from './access/groupAccess'
 import { dateUuid, isPublic, toSortedNameAsc } from '@/utils/utils'
 import { State } from '@/utils/constants'
    
@@ -34,23 +34,32 @@ import { State } from '@/utils/constants'
 const TABLE = 'groups'
 
 export const useGroupStore = defineStore('group', () => {
-   const userStore = useUserStore()
+   const userStore   = useUserStore()
+   const groupAccess = useGroupAccess()
    const groupCollection = collection(db, TABLE)
    function groupDoc(id) { return doc(db, TABLE, id) }
    
-   const groups = useFirestore(groupCollection)   
+   const addListener    = async () => { await groupAccess.addListener() } 
+   const removeListener = async () => { groupAccess.removeListener() }
+   const groups = computed(() => groupAccess.groups)
+
+   // const groups = useFirestore(groupCollection)   
    const groupIdToGroup = computed(() => { return groups.value ? new Map(groups.value.map((obj) => [obj.id, obj])) : new Map() })
    function getGroup(id) { return groupIdToGroup.value.get(id) }
 
-   const myGroupsQuery    = computed(() => userStore.userId && query(groupCollection, where('userIds', "array-contains", userStore.userId)))
-   const myRawGroups      = useFirestore(myGroupsQuery, [])
+   // const myGroupsQuery = computed(() => userStore.userId && query(groupCollection, where('userIds', "array-contains", userStore.userId)))
+   const myRawGroups = computed(() => { 
+      return userStore.userId ? groups.value.filter(group => group.userIds.includes(userStore.userId)) : [] })
+
    const myGroups         = computed(() => toSortedNameAsc(myRawGroups.value))
    const myGroupIds       = computed(() => { return myGroups.value.map((obj) => obj.id) })
    const myGroupIdToGroup = computed(() => { return new Map(myGroups.value.map((obj) => [obj.id, obj])) })
    function getMyGroup(id) { return myGroupIdToGroup.value.get(id) }
 
-   const myInvitedGroupsQuery = computed(() => userStore.userId && query(groupCollection, where('invitedIds', "array-contains", userStore.userId)))
-   const myInvitedGroups = useFirestore(myInvitedGroupsQuery, [])
+   // const myInvitedGroupsQuery = computed(() => userStore.userId && query(groupCollection, where('invitedIds', "array-contains", userStore.userId)))
+   // const myInvitedGroups = useFirestore(myInvitedGroupsQuery, [])
+   const myInvitedGroups = computed(() => { 
+      return userStore.userId ? groups.value.filter(group => group.invitedIds.includes(userStore.userId)) : [] })
 
    function getUserGroups(userId) {
       // todo: replace with query
@@ -141,7 +150,8 @@ export const useGroupStore = defineStore('group', () => {
    }
 
    return { 
-      groups, groupIdToGroup, myGroups, myGroupIds, myGroupIdToGroup, myInvitedGroups,
+      groups, addListener, removeListener,
+      groupIdToGroup, myGroups, myGroupIds, myGroupIdToGroup, myInvitedGroups,
       getGroup, getMyGroup, getUserGroups, getUserGroupsMap, getGroup, getUserIds, 
       addGroup, updateGroup, deleteGroup,
       addUserId, addUserIds, addModeratorId, removeModeratorId, inviteUserIds, removeUserId, acceptInvite, declineInvite, removeInvitedId,
