@@ -46,8 +46,8 @@ export const useGalleryStore = defineStore('gallery', () => {
    const galleryAccess = useGalleryAccess()
    const galleryCollection = collection(db, TABLE)
 
-   const subscribeToGalleries = async () => { await galleryAccess.addListener() } 
-   const unsubscribeGalleries = async () => { galleryAccess.removeListener() }
+   const addListener    = async () => { await galleryAccess.addListener() } 
+   const removeListener = async () => { galleryAccess.removeListener() }
    const galleries = computed(() => galleryAccess.galleries)
 
    function galleryDoc(galleryId) { return doc(db, TABLE, galleryId) }
@@ -65,6 +65,10 @@ export const useGalleryStore = defineStore('gallery', () => {
    // publicGalleries
    //
    const publicGalleries = computed(() => { return galleries.value.filter(gallery => isPublic(gallery)) })
+      // const pub = galleries.value.filter(gallery => isPublic(gallery))
+      // console.log("publicGalleries: " + pub.length)
+      // return pub })
+   
    const userIdToPublicGalleries = computed(() => {
       const galleryMap = new Map()
       for (const gallery of publicGalleries.value) {
@@ -228,12 +232,11 @@ export const useGalleryStore = defineStore('gallery', () => {
    }
 
    return { 
-      subscribeToGalleries, unsubscribeGalleries,
-      galleries, myGalleries, myGalleriesExist, myContributingGalleriesExist, myContributingGalleries, myGalleryIdToGalleryMap,
+      galleries, addListener, removeListener,
+      myGalleries, myGalleriesExist, myContributingGalleriesExist, myContributingGalleries, myGalleryIdToGalleryMap,
       getGallery, getGalleryByTag, getMyGallery, getUserGalleries,
       publicGalleries, getPublicGalleries, publicGalleryIdToChildGalleries, userIdToGalleries, 
       addGallery, updateGallery, deleteGallery,
       addItem, removeItemId, addChildGalleryId, removeChildGalleryId, 
-      addImage, updateImage, removeImageId
-   }
+      addImage, updateImage, removeImageId }
 })

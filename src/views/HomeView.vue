@@ -1,5 +1,6 @@
 <template>
-   <ion-page>
+<ion-page>
+<ion-content>  
    <!-- title if not mobile - mobile title in app -->
    <v-container v-if="!viewMgr.isMobile" class="pa-0 mt-2 mb-1 width-100">
       <v-row no-gutters class="d-flex align-center flex-nowrap">
@@ -32,7 +33,7 @@
    <!-- <MyGroupThumbs v-if="!viewMgr.solo"/> -->
 
    <!-- recent updated, viewed -->
-   <!-- <div v-if="viewMgr.isXs">
+   <div v-if="viewMgr.isXs">
       <div class="mx-2 mb-10 bg-shade">
          <ItemThumbsPanel title="Recent Updates" :items="recentUpdatedItems" 
             :linkTo="Route.RECENT.url + Defaults.SITE_ID"/>
@@ -51,16 +52,15 @@
          <ItemThumbsPanel title="Recent Viewed" :items="recentViewedItems" 
             :linkTo="Route.VIEWED.url + Defaults.SITE_ID" showDateViewed class="bg-shade border-md fill-height"/>
       </v-col>
-   </v-row> -->
-   </ion-page>
+   </v-row>
+</ion-content>  
+</ion-page>
 </template>
 
 <script setup>
    import { computed, onMounted, ref } from 'vue'
    // import { useElementSize } from '@vueuse/core'
    import { useSeoMeta } from '@unhead/vue'
-   import { IonPage } from '@ionic/vue'
-
    import { useUserStore }    from '@/stores/userStore'
    import { useGalleryStore } from '@/stores/galleryStore'
    // import { useInviteStore }  from '@/stores/inviteStore'
@@ -113,18 +113,6 @@
    //    // not working
    //    // isBrowserDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches
    // })
-
-onMounted(async () => {
-  try {
-    await galleryStore.subscribeToGalleries()
-  } catch (err) {
-    console.error("Initialization error:", err)
-  }
-})
-
-
-
-
 
    useSeoMeta({
       title: "Hell-No Gallery" // displayed in browser tabs
@@ -219,20 +207,20 @@ onMounted(async () => {
       return true // gallery is a parent with dateContentModified different than all children
    }
    
-   // const recentUpdatedItems = computed(() => {
-   //    let items = viewMgr.solo ? [ ...itemMgr.myRecentItems ] : [ ...cacheStore.recentPublicItems ]
-   //    items = items.filter(item => !itemMgr.isInvisible(item))
+   const recentUpdatedItems = computed(() => {
+      let items = viewMgr.solo ? [ ...itemMgr.myRecentItems ] : [ ...cacheStore.recentPublicItems ]
+      items = items.filter(item => !itemMgr.isInvisible(item))
 
-   //    if (items.length) { 
-   //       items.sort(function(a, b){return b.dateContentModified - a.dateContentModified}) 
-   //       // localStore.setRecentItems(items) 
-   //    }
-   //    const ungroupedItems = viewMgr.isMobile ? itemMgr.ungroupAndExtractItems(items) : [...items]
-   //    viewStore.setVisibleItems(ItemOrigin.RECENT, "Recent Updates", Route.RECENT.url + Defaults.SITE_ID, ungroupedItems)
+      if (items.length) { 
+         items.sort(function(a, b){return b.dateContentModified - a.dateContentModified}) 
+         // localStore.setRecentItems(items) 
+      }
+      const ungroupedItems = viewMgr.isMobile ? itemMgr.ungroupAndExtractItems(items) : [...items]
+      viewStore.setVisibleItems(ItemOrigin.RECENT, "Recent Updates", Route.RECENT.url + Defaults.SITE_ID, ungroupedItems)
       
-   //    if (items.length > 10) { items.length = 10 }
-   //    return items
-   // })
+      if (items.length > 10) { items.length = 10 }
+      return items
+   })
 
    // const allFavoriteItems = computed(() => {
    //    const visibleItems = []
@@ -247,16 +235,16 @@ onMounted(async () => {
    //    return viewStore.setVisibleItems(ItemOrigin.FAVORITES, "My Favorites", Route.FAVORITES.url, visibleItems)
    // })
 
-   // const recentViewedItems = computed(() => {
-   //    let items = [ ...cacheStore.recentViewedPublicItems ]   
-   //    if (viewMgr.solo) { items = items.filter(item => isOwned(item, userStore.userId)) }
+   const recentViewedItems = computed(() => {
+      let items = [ ...cacheStore.recentViewedPublicItems ]   
+      if (viewMgr.solo) { items = items.filter(item => isOwned(item, userStore.userId)) }
             
-   //    const ungroupedItems = viewMgr.isMobile ? itemMgr.ungroupAndExtractItems(items) : [...items]
-   //    viewStore.setVisibleItems(ItemOrigin.VIEWED, "Recent Viewed", Route.VIEWED.url + Defaults.SITE_ID, ungroupedItems)
+      const ungroupedItems = viewMgr.isMobile ? itemMgr.ungroupAndExtractItems(items) : [...items]
+      viewStore.setVisibleItems(ItemOrigin.VIEWED, "Recent Viewed", Route.VIEWED.url + Defaults.SITE_ID, ungroupedItems)
       
-   //    if (items.length > 10) { items.length = 10 }
-   //    return items
-   // })
+      if (items.length > 10) { items.length = 10 }
+      return items
+   })
 
    const recentRows = computed(() => viewMgr.isXs ? 1 : 2)
    

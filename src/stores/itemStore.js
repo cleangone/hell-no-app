@@ -1,11 +1,11 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/firebase'
-import { collection, doc, query, where, setDoc, updateDoc, deleteDoc, arrayRemove, arrayUnion, serverTimestamp } from "firebase/firestore"
-import { useFirestore }  from '@vueuse/firebase/useFirestore'   
+import { collection, doc, setDoc, updateDoc, deleteDoc, arrayRemove, arrayUnion, serverTimestamp } from "firebase/firestore" 
 import { useUserStore }  from './userStore'
 import { useGroupStore } from '@/stores/groupStore'
-import { getMapObjsById, randomPlate } from '@/utils/utils'
+import { useItemAccess } from './access/itemAccess'
+import { getMapObjsById, isGroup, isPublic, randomPlate } from '@/utils/utils'
 import { ItemType, State } from '@/utils/constants'
     
 /*
@@ -63,12 +63,18 @@ const TABLE = 'items'
 export const useItemStore = defineStore('item', () => {
    const userStore  = useUserStore()
    const groupStore = useGroupStore()      
+   const itemAccess = useItemAccess()      
    
    const itemCollection = collection(db, TABLE)
    function itemDoc(id) { return doc(db, TABLE, id) }
 
-   const rawItems = useFirestore(itemCollection)   
-   const items = computed(() => { return rawItems.value ? rawItems.value : [] })
+   const addListener    = async () => { await itemAccess.addListener() } 
+   const removeListener = async () => { itemAccess.removeListener() }
+   const items = computed(() => itemAccess.items)
+
+   // const rawItems = useFirestore(itemCollection)   
+   // const items = computed(() => { return rawItems.value ? rawItems.value : [] })
+   
    const itemIdToItem = computed(() => { return new Map(items.value.map((obj) => [obj.id, obj])) })
    const childItemIds = computed(() => { 
       const ids = new Set()
@@ -80,15 +86,18 @@ export const useItemStore = defineStore('item', () => {
       return ids
    })
 
-   const groupItemsQuery = computed(() => query(itemCollection, where('state', '==', State.GROUP)))
-   const groupItems = useFirestore(groupItemsQuery, [])
-   
-   const myItemsQuery   = computed(() => userStore.userId && query(itemCollection, where('userId', '==', userStore.userId)))
-   const myItems        = useFirestore(myItemsQuery, null)
+   // const groupItemsQuery = computed(() => query(itemCollection, where('state', '==', State.GROUP)))
+   // const groupItems = useFirestore(groupItemsQuery, [])
+   const groupItems = computed(() => { return items.value.filter(item => isGroup(item)) })
+
+   // const myItemsQuery   = computed(() => userStore.userId && query(itemCollection, where('userId', '==', userStore.userId)))
+   // const myItems        = useFirestore(myItemsQuery, null)
+   const myItems = computed(() => { return items.value.filter(item => item.userId == userStore.userId) })
    const myItemIdToItem = computed(() => { return myItems && myItems.value ? new Map(myItems.value.map((obj) => [obj.id, obj])) : new Map() })
    
-   const publicItemsQuery = computed(() => query(itemCollection, where('state', '==', State.PUBLIC)))
-   const publicItems      = useFirestore(publicItemsQuery, [])
+   // const publicItemsQuery = computed(() => query(itemCollection, where('state', '==', State.PUBLIC)))
+   // const publicItems      = useFirestore(publicItemsQuery, [])
+   const publicItems = computed(() => { return items.value.filter(item => isPublic(item)) })
 
    const myChildItemIds = computed(() => { 
       const childItemIds = new Set()
@@ -225,10 +234,12 @@ export const useItemStore = defineStore('item', () => {
       return itemToUpdate
    }
 
-   return { items, publicItems, childItemIds, itemIdToItem, groupItems, groupIdToItems,
-            myItems, myItemIdToItem, myChildItemIds,
-            getGalleryItems, getGroupItems, getArtistItems, getArtistPublicItems, getItem, getUserItems, getUserPubicItems,
-            setItem, updateItem, 
-            addOtherImage, updatePrimaryImage, updateOtherImage, removeOtherImage, 
-            removeGalleryId, deleteItem }
+   return { 
+      items, addListener, removeListener,
+      publicItems, childItemIds, itemIdToItem, groupItems, groupIdToItems,
+      myItems, myItemIdToItem, myChildItemIds,
+      getGalleryItems, getGroupItems, getArtistItems, getArtistPublicItems, getItem, getUserItems, getUserPubicItems,
+      setItem, updateItem, 
+      addOtherImage, updatePrimaryImage, updateOtherImage, removeOtherImage, 
+      removeGalleryId, deleteItem }
 })

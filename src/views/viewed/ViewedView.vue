@@ -1,4 +1,6 @@
 <template>
+<ion-page>
+<ion-content>  
    <v-container class="mt-4 pa-0 pb-3 width-100">
       <v-row no-gutters class="d-flex align-center flex-nowrap">
          <v-col v-if="viewMgr.isDeskTop" cols="2" class="flex-grow-0 flex-shrink-0"></v-col>
@@ -19,6 +21,8 @@
             showDateViewed :tight="viewMgr.isMobile"/>
       </v-row>
    </div>
+</ion-content>
+</ion-page>
 </template>
 
 <script setup>

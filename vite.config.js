@@ -2,11 +2,21 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
+import Components from 'unplugin-vue-components/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
    plugins: [
       vue(),
+      Components({
+         resolvers: [
+         // <ion-*> components
+         (componentName) => {
+            if (componentName.startsWith('Ion')) {
+               return { name: componentName, from: '@ionic/vue' }
+            }
+         }]
+      }),
       VitePWA({
          injectRegister: null, // Prevents generating registerSW.js
          selfDestroying: true,  // Automatically unregisters any legacy SW cached in WebView
@@ -44,6 +54,6 @@ export default defineConfig({
       }
    },
    build: {
-   //  sourcemap: true // Can also be set to 'inline' or 'hidden'
+    sourcemap: true // Can also be set to 'inline' or 'hidden'
   }
 })

@@ -1,4 +1,6 @@
 <template>
+<ion-page>
+<ion-content>      
    <div v-if="viewMgr.isMobile && username" class="mt-n2">
       <RouterLink :to="Route.USER.url + route.params.id">{{ username }}</RouterLink>
    </div>
@@ -32,19 +34,22 @@
       </v-row>
    </v-container>
    <div style="clear:both"></div>
-   <v-container>
+   <v-container style="margin-bottom: auto;">
       <!-- users -->
-      <div v-if="showAvatars" class="bg-shade border-md fill-height pa-3">
+      <!-- <div v-if="showAvatars" class="bg-shade border-md fill-height pa-3">
          <UserThumbSwiper :users="avatarUsers" @userId="selectUser"/>
-      </div>
+      </div> -->
       <!-- galleries -->
-      <v-row justify="space-around"  density="compact" class="mt-5 mb-md-4" >
+      <!-- <v-row justify="space-around"  density="compact" class="mt-5 mb-md-4" > -->
+      <v-row align="start" align-content="start" justify="space-around" density="compact" class="mt-5 mb-md-4">
          <GalleryThumb v-for="gallery in selectedGalleries" :key="gallery.id" :gallery="gallery" 
             :bypassShowUser="bypassShowUser" :showChildImages="!showChildGalleries" 
             :parentIcon="getElderIcon(gallery)" @toggle="toggleExpandedId(gallery.id)"
             :childIcon="getChildIcon(gallery)"  @close="closeChild(gallery)"/>
       </v-row>
    </v-container>
+</ion-content>
+</ion-page>
 </template>
 
 <script setup>

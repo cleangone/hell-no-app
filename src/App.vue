@@ -192,6 +192,8 @@
    import { useDark, useToggle } from '@vueuse/core'
    import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"
    import { useUserStore }    from '@/stores/userStore'
+   import { useItemStore }    from '@/stores/itemStore'
+   import { useGalleryStore } from '@/stores/galleryStore'
    // import { useGroupMgr }     from '@/stores/groupMgr'
    // import { useNotificationStore } from '@/stores/notificationStore'
    import { useViewStore }    from '@/stores/viewStore'
@@ -213,7 +215,9 @@
 
    const route  = useRoute()
    const router = useRouter()
-   const userStore  = useUserStore()
+   const userStore    = useUserStore()
+   const itemStore    = useItemStore()
+   const galleryStore = useGalleryStore()
 
    // const groupMgr   = useGroupMgr()
    // const notificationStore = useNotificationStore()
@@ -245,6 +249,11 @@
       })
 
       console.log("window.location.hostname", window.location.hostname)
+
+      try { await itemStore.addListener() } 
+         catch (err) { console.error("itemStore init error:", err) }
+      try { await galleryStore.addListener() } 
+         catch (err) { console.error("galleryStore init error:", err) }
 
       setWindowSize()
       window.addEventListener('resize', setWindowSize)
