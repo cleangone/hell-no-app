@@ -36,9 +36,9 @@
    <div style="clear:both"></div>
    <v-container style="margin-bottom: auto;">
       <!-- users -->
-      <!-- <div v-if="showAvatars" class="bg-shade border-md fill-height pa-3">
+      <div v-if="showAvatars" class="bg-shade border-md fill-height pa-3">
          <UserThumbSwiper :users="avatarUsers" @userId="selectUser"/>
-      </div> -->
+      </div>
       <!-- galleries -->
       <!-- <v-row justify="space-around"  density="compact" class="mt-5 mb-md-4" > -->
       <v-row align="start" align-content="start" justify="space-around" density="compact" class="mt-5 mb-md-4">

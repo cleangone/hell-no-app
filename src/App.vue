@@ -250,10 +250,11 @@
       console.log("window.location.hostname", window.location.hostname)
 
       await Promise.allSettled([
-         itemStore.addListener().catch(err    => console.error("itemStore init error:",    err)),
-         galleryStore.addListener().catch(err => console.error("galleryStore init error:", err)),
-         groupStore.addListener().catch(err   => console.error("groupStore init error:",   err)),
-         hitStore.addListener().catch(err     => console.error("hitStore init error:",     err))
+         userStore.addListener().catch(err    => console.error("userStore init error",    err)),
+         itemStore.addListener().catch(err    => console.error("itemStore init error",    err)),
+         galleryStore.addListener().catch(err => console.error("galleryStore init error", err)),
+         groupStore.addListener().catch(err   => console.error("groupStore init error",   err)),
+         hitStore.addListener().catch(err     => console.error("hitStore init error",     err))
       ])
 
       setWindowSize()

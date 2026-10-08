@@ -2,6 +2,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/firebase'
 import { arrayRemove, arrayUnion, collection, deleteDoc, doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore"
+import { useUserAccess } from './access/userAccess'
 import { useFirestore } from '@vueuse/firebase/useFirestore'
 
 /*
@@ -32,16 +33,22 @@ import { useFirestore } from '@vueuse/firebase/useFirestore'
 const USER_TABLE = 'users'
 
 export const useUserStore = defineStore('user', () => {
+   const userAccess = useUserAccess()
    const userCollection = collection(db, USER_TABLE)
    function userDoc(id)  { return doc(db, USER_TABLE, id) }
    
-   const users = useFirestore(userCollection)   
+   const addListener    = async () => { userAccess.addListener() } 
+   const removeListener = async () => { userAccess.removeListener() }
+   
+   // const users = useFirestore(userCollection)   
+   const users = computed(() => userAccess.users)
    const userIdToUser = computed(() => { return users.value ? new Map(users.value.map((obj) => [obj.id, obj])) : new Map() })
    const usernames    = computed(() => new Set(users.value.map(obj => obj.username)) )
    
    const userId = ref('')
-   const userQuery = computed(() => userId.value && userDoc(userId.value))
-   const user = useFirestore(userQuery, null)
+   // const userQuery = computed(() => userId.value && userDoc(userId.value))
+   // const user = useFirestore(userQuery, null)
+   const user       = computed(() => userId.value && getUser(userId.value))
    const userExists = computed(() => user.value ? true : false)
    
    function getUser(id) { return userIdToUser.value.get(id) }
@@ -116,7 +123,8 @@ export const useUserStore = defineStore('user', () => {
    }
 
    return { 
-      userId, user, users, userIdToUser, usernames, userExists, getUser, getUsername, 
+      users, addListener, removeListener,
+      userId, user, userIdToUser, usernames, userExists, getUser, getUsername, 
       setUser, addProfileUser, updateDateVisited, updateUser, deleteUser,
       myFullName, mySettings, soloMode, updateSettings, addImage, removeImage, updateImage, updateImages
    }

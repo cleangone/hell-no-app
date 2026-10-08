@@ -1,7 +1,6 @@
 import { computed } from 'vue'
 import { defineStore } from 'pinia'
-import { db } from '@/firebase'
-import { doc, setDoc, updateDoc, increment, serverTimestamp } from "firebase/firestore"
+import { FieldValue } from '@capacitor-firebase/firestore'
 import { useHitAccess } from './access/hitAccess'
 import { toSortedDateModifiedDesc } from '@/utils/utils'
 
@@ -13,35 +12,32 @@ import { toSortedDateModifiedDesc } from '@/utils/utils'
       dateModified
 */
 
-const TABLE = 'hits'
-
 export const useHitStore = defineStore('hit', () => {
    const hitAccess = useHitAccess()
-   function hitDoc(id) { return doc(db, TABLE, id) }
    
    const addListener    = async () => { hitAccess.addListener() } 
    const removeListener = async () => { hitAccess.removeListener() }
-   const rawHits = computed(() => hitAccess.hits)
-
-   // const rawHits = useFirestore(hitCollection)   
+   
+   const rawHits = computed(() => hitAccess.hits)  
    const hits = computed(() => rawHits.value ? toSortedDateModifiedDesc(rawHits.value) : [])
    const idToHit = computed(() => { return rawHits.value ? new Map(rawHits.value.map((obj) => [obj.id, obj])) : new Map() })
    function getHit(id) { return idToHit.value ? idToHit.value.get(id) : null } 
 
-   // assume update, add if error
-   function addHit(id) { 
-      updateDoc(hitDoc(id), { id:id, views: increment(1), dateModified:serverTimestamp() })
-         .catch((error) => {
-            setDoc(hitDoc(id), {
-               id: id,
-               views: 1,
-               dateCreated:  serverTimestamp(),
-               dateModified: serverTimestamp()
-            })
+   async function addHit(id) {
+      console.log("addHit", id)
+
+      hitAccess.update(id, { views: FieldValue.increment(1) })
+         .catch(err => {
+            console.log(`Update failed, attempting create`, err)
+            hitAccess.create(id, { id: id, views: 1 })
+               .catch(createError => {
+                  console.error(`Create failed`, createError)
+               })
          })
+      console.log("addHit sync done")
    }
 
    return { 
-      hits, addListener, removeListener, getHit, addHit
-   }
+      hits, addListener, removeListener, 
+      getHit, addHit }
 })
