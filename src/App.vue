@@ -87,7 +87,7 @@
       </ion-toolbar>
    </ion-header>
 
-   <ion-content>
+   <ion-content class="app">
       <!-- <RouterView/> -->
       <ion-router-outlet />
  
@@ -183,10 +183,6 @@
 
 <script setup>
    import { computed, ref, onMounted } from 'vue'
-   import { IonApp, IonPage, IonHeader, IonToolbar, IonButtons, IonButton, 
-         IonTitle, IonContent, IonFooter, IonTabBar, IonTabButton, IonRouterOutlet } from '@ionic/vue'
-
-   
    import { useRoute, useRouter } from 'vue-router'
    import { Head } from '@unhead/vue/components'
    import { useDark, useToggle } from '@vueuse/core'
@@ -197,6 +193,7 @@
    import { useGroupStore }   from '@/stores/groupStore'
    // import { useGroupMgr }     from '@/stores/groupMgr'
    // import { useNotificationStore } from '@/stores/notificationStore'
+   import { useHitStore }     from '@/stores/hitStore'
    import { useViewStore }    from '@/stores/viewStore'
    import { useViewMgr }      from '@/stores/viewMgr'
    import { useLocalStore }   from '@/stores/localStore'
@@ -222,6 +219,7 @@
    const groupStore   = useGroupStore()
    // const groupMgr  = useGroupMgr()
    // const notificationStore = useNotificationStore()
+   const hitStore     = useHitStore()
    const viewStore  = useViewStore()
    const viewMgr    = useViewMgr()
    const localStore = useLocalStore()
@@ -254,7 +252,8 @@
       await Promise.allSettled([
          itemStore.addListener().catch(err    => console.error("itemStore init error:",    err)),
          galleryStore.addListener().catch(err => console.error("galleryStore init error:", err)),
-         groupStore.addListener().catch(err   => console.error("groupStore init error:",   err))
+         groupStore.addListener().catch(err   => console.error("groupStore init error:",   err)),
+         hitStore.addListener().catch(err     => console.error("hitStore init error:",     err))
       ])
 
       setWindowSize()
@@ -378,7 +377,7 @@ ion-tab-button > * {
 .app { 
    /* height: inherit; */
    width: 100%;
-   /* text-align: center;  */
+   text-align: center; 
 }
 .title { 
    font-size: 35px;

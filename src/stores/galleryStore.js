@@ -46,7 +46,7 @@ export const useGalleryStore = defineStore('gallery', () => {
    const galleryAccess = useGalleryAccess()
    const galleryCollection = collection(db, TABLE)
 
-   const addListener    = async () => { await galleryAccess.addListener() } 
+   const addListener    = async () => { galleryAccess.addListener() } 
    const removeListener = async () => { galleryAccess.removeListener() }
    const galleries = computed(() => galleryAccess.galleries)
 

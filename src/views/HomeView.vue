@@ -63,32 +63,32 @@
    import { useSeoMeta } from '@unhead/vue'
    import { useUserStore }    from '@/stores/userStore'
    import { useGalleryStore } from '@/stores/galleryStore'
-   // import { useInviteStore }  from '@/stores/inviteStore'
-   // import { useItemMgr }      from '@/stores/itemMgr'
-   // import { useWallMgr }      from '@/stores/wallMgr'
-   // import { useViewStore }    from '@/stores/viewStore'
+   import { useInviteStore }  from '@/stores/inviteStore'
+   import { useItemMgr }      from '@/stores/itemMgr'
+   import { useWallMgr }      from '@/stores/wallMgr'
+   import { useViewStore }    from '@/stores/viewStore'
    import { useViewMgr }      from '@/stores/viewMgr'
-   // import { useCacheStore }   from '@/stores/cacheStore'
-   // import { useLocalStore }   from '@/stores/localStore'
-   // import ItemThumbsPanel     from '@/components/item/thumb/ItemThumbsPanel.vue'
+   import { useCacheStore }   from '@/stores/cacheStore'
+   import { useLocalStore }   from '@/stores/localStore'
+   import ItemThumbsPanel     from '@/components/item/thumb/ItemThumbsPanel.vue'
    import RecentGalleryThumbs from '@/components/gallery/thumb/RecentGalleryThumbs.vue'
-   // import MyGroupThumbs       from '@/components/group/thumb/MyGroupThumbs.vue'
-   // import SplitWall           from '@/components/wall/SplitWall.vue'
+   import MyGroupThumbs       from '@/components/group/thumb/MyGroupThumbs.vue'
+   import SplitWall           from '@/components/wall/SplitWall.vue'
    import DarkButton          from '@/components/util/DarkButton.vue'
-   // import ShowNotifications   from '@/components/notification/ShowNotifications.vue'
+   import ShowNotifications   from '@/components/notification/ShowNotifications.vue'
    import { timestampsEqual } from '@/utils/dateUtils'
    import { isOwned, randomizeArray, toSortedDateContentModifiedDesc } from '@/utils/utils'
    import { Defaults, ItemOrigin, Route, TodoType, WallRowHeight } from '@/utils/constants'
    
    const userStore    = useUserStore()
    const galleryStore = useGalleryStore()
-   // const inviteStore  = useInviteStore()
-   // const itemMgr      = useItemMgr()
-   // const wallMgr      = useWallMgr()
-   // const viewStore    = useViewStore()
+   const inviteStore  = useInviteStore()
+   const itemMgr      = useItemMgr()
+   const wallMgr      = useWallMgr()
+   const viewStore    = useViewStore()
    const viewMgr      = useViewMgr()
-   // const cacheStore   = useCacheStore()
-   // const localStore   = useLocalStore()
+   const cacheStore   = useCacheStore()
+   const localStore   = useLocalStore()
    // const favoritesRef = ref(null)
    // const { width: favoritesWidth } = useElementSize(favoritesRef)
    // const currSiteWall = ref(null)

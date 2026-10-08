@@ -14,7 +14,7 @@
          </v-col>
       </v-row>
    </v-container>
-   <div  class="mt-3 w-100">
+   <div class="mt-3 mx-3 w-100">
       <v-row justify="space-around">
          <ItemThumb v-for="item in recentItems" :key="item.id" :item="item" :origin="ItemOrigin.RECENT" 
             :bypassShowUser="bypassShowUser" :tight="viewMgr.isMobile"/>
@@ -34,6 +34,7 @@
    import ItemThumb        from '@/components/item/thumb/ItemThumb.vue'
    import ItemThumbConfig  from '@/components/item/thumb/ItemThumbConfig.vue'
    import ThumbSizeButton  from '@/components/util/ThumbSizeButton.vue'
+   import { toSortedDateContentModifiedDesc } from '@/utils/utils'
    import { Defaults, ItemOrigin, Route } from '@/utils/constants'
    
    const route = useRoute()
@@ -56,7 +57,8 @@
       else { items.push(...itemMgr.recentPublicItems) }
 
       items = items.filter(item => !itemMgr.isInvisible(item))
-      items.sort(function(a, b){return b.dateContentModified - a.dateContentModified})    
+      items = toSortedDateContentModifiedDesc(items)
+
       // const displayItems = viewMgr.isMobile ? itemMgr.ungroupAndExtractItems(items) : items
       const visibleItems = []
       for (const item of items) {

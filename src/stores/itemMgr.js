@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { useWindowSize } from '@vueuse/core'
 import { useItemStore }  from '@/stores/itemStore'
 import { useHitStore }   from '@/stores/hitStore'
-import { objAspectRatio, randomizeArray, toSortedDateViewedDesc } from '@/utils/utils'
+import { objAspectRatio, randomizeArray, toSortedDateContentModifiedDesc, toSortedDateViewedDesc } from '@/utils/utils'
 import { Defaults, ImageType, ItemNavAction, ItemType, Route } from '@/utils/constants'
    
 export const useItemMgr = defineStore('itemMgr', () => {   
@@ -40,11 +40,11 @@ export const useItemMgr = defineStore('itemMgr', () => {
    
    function extractRecentItems(items) { 
       if (!items) { return [] }
-      const sortedItems = []
+      let sortedItems = []
       for (const item of items) { 
          if (item.dateContentModified) { sortedItems.push(item) } // work around for old items w/o dateContentModified
       }
-      sortedItems.sort(function(a, b){return b.dateContentModified - a.dateContentModified}) 
+      sortedItems = toSortedDateContentModifiedDesc(sortedItems)
       
       // return items less than 2 months old or at least 20 items
       const cutoffDate = new Date()

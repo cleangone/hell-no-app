@@ -89,16 +89,35 @@ export function populated(str) { return str && str.length }
 export function possessive(str) { return populated(str) ? str + (str.endsWith("s") ? "'" : "'s") : ""}
 
 // toSorted breaks old safari - use [...objs].sort
-export function toSortedNameAsc(objs)         { return objs?.length ? [...objs].sort((a, b) => a.name.localeCompare(b.name))    : objs }
-export function toSortedDateCreatedAsc(objs)  { return objs?.length ? [...objs].sort((a, b) => a.dateCreated - b.dateCreated)   : objs }
-export function toSortedDateCreatedDesc(objs) { return objs?.length ? [...objs].sort((a, b) => b.dateCreated - a.dateCreated)   : objs }
-export function toSortedDateModifiedDesc(objs)        { return objs?.length ? [...objs].sort((a, b) => b.dateModified - a.dateModified) : objs }
-export function toSortedDateContentModifiedDesc(objs) { return objs?.length ? [...objs].sort((a, b) => b.dateContentModified - a.dateContentModified) : objs }
-export function toSortedDateViewedAsc(objs)   { return objs?.length ? [...objs].sort((a, b) => a.dateViewed - b.dateViewed)     : objs }
-export function toSortedDateViewedDesc(objs)  { return objs?.length ? [...objs].sort((a, b) => b.dateViewed - a.dateViewed)     : objs }
-export function toSortedSortDesc(objs)        { return objs?.length ? [...objs].sort((a, b) => b.sort - a.sort)                 : objs }
+export function toSortedNameAsc(objs)         { return objs?.length ? [...objs].sort((a, b) => a.name.localeCompare(b.name)): objs }
 export function toSortedUsernameAsc(objs)     { return objs?.length ? [...objs].sort((a, b) => a.username.localeCompare(b.username)) : objs }
+export function toSortedSortDesc(objs)        { return objs?.length ? [...objs].sort((a, b) => b.sort - a.sort) : objs }
 
+// inefficient - should add millis to obj - then just one milli call per object
+// will begin to matter with items, hits
+export function toSortedDateCreatedAsc(objs)  { return objs?.length ? [...objs].sort((a, b) => millis(a.dateCreated) - millis(b.dateCreated)) : objs }
+export function toSortedDateCreatedDesc(objs) { return objs?.length ? [...objs].sort((a, b) => millis(b.dateCreated) - millis(a.dateCreated)) : objs }
+export function toSortedDateViewedAsc(objs)   { return objs?.length ? [...objs].sort((a, b) => millis(a.dateViewed)  - millis(b.dateViewed))  : objs }
+export function toSortedDateViewedDesc(objs)  { return objs?.length ? [...objs].sort((a, b) => millis(b.dateViewed)  - millis(a.dateViewed))  : objs }
+export function toSortedDateModifiedDesc(objs)        { return objs?.length ? [...objs].sort((a, b) => millis(b.dateModified) - millis(a.dateModified)) : objs }
+export function toSortedDateContentModifiedDesc(objs) { return objs?.length ? [...objs].sort((a, b) => millis(b.dateContentModified) - millis(a.dateContentModified)) : objs }
+
+// universal conversion of firestre date to millis - needed for ion ios
+function millis(timestamp) {
+  if (!timestamp) { return 0 }
+  
+  // 1. Native iOS / Capacitor serialized timestamp
+  if (typeof timestamp === 'object' && ('seconds' in timestamp || '_seconds' in timestamp)) {
+    const sec  = timestamp.seconds     ?? timestamp._seconds     ?? 0
+    const nano = timestamp.nanoseconds ?? timestamp._nanoseconds ?? 0
+    return sec * 1000 + Math.floor(nano / 1e6);
+  }
+  
+  // 2. JS SDK Firestore Timestamp instance
+  if (typeof timestamp.toMillis === 'function') { return timestamp.toMillis() }
+
+  return 0
+}
 
 const KNOWN_ERRORS = [ " is null", ".value is undefined" ]
 export function handleError(err, component) { 

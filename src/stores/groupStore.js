@@ -39,7 +39,7 @@ export const useGroupStore = defineStore('group', () => {
    const groupCollection = collection(db, TABLE)
    function groupDoc(id) { return doc(db, TABLE, id) }
    
-   const addListener    = async () => { await groupAccess.addListener() } 
+   const addListener    = async () => { groupAccess.addListener() } 
    const removeListener = async () => { groupAccess.removeListener() }
    const groups = computed(() => groupAccess.groups)
 

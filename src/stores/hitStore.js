@@ -1,8 +1,8 @@
 import { computed } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/firebase'
-import { collection, doc, setDoc, updateDoc, increment, serverTimestamp } from "firebase/firestore"
-import { useFirestore } from '@vueuse/firebase/useFirestore'
+import { doc, setDoc, updateDoc, increment, serverTimestamp } from "firebase/firestore"
+import { useHitAccess } from './access/hitAccess'
 import { toSortedDateModifiedDesc } from '@/utils/utils'
 
 /*
@@ -16,10 +16,14 @@ import { toSortedDateModifiedDesc } from '@/utils/utils'
 const TABLE = 'hits'
 
 export const useHitStore = defineStore('hit', () => {
-   const hitCollection = collection(db, TABLE)
+   const hitAccess = useHitAccess()
    function hitDoc(id) { return doc(db, TABLE, id) }
    
-   const rawHits = useFirestore(hitCollection)   
+   const addListener    = async () => { hitAccess.addListener() } 
+   const removeListener = async () => { hitAccess.removeListener() }
+   const rawHits = computed(() => hitAccess.hits)
+
+   // const rawHits = useFirestore(hitCollection)   
    const hits = computed(() => rawHits.value ? toSortedDateModifiedDesc(rawHits.value) : [])
    const idToHit = computed(() => { return rawHits.value ? new Map(rawHits.value.map((obj) => [obj.id, obj])) : new Map() })
    function getHit(id) { return idToHit.value ? idToHit.value.get(id) : null } 
@@ -38,6 +42,6 @@ export const useHitStore = defineStore('hit', () => {
    }
 
    return { 
-      hits, getHit, addHit
+      hits, addListener, removeListener, getHit, addHit
    }
 })

@@ -68,7 +68,7 @@ export const useItemStore = defineStore('item', () => {
    const itemCollection = collection(db, TABLE)
    function itemDoc(id) { return doc(db, TABLE, id) }
 
-   const addListener    = async () => { await itemAccess.addListener() } 
+   const addListener    = async () => { itemAccess.addListener() } 
    const removeListener = async () => { itemAccess.removeListener() }
    const items = computed(() => itemAccess.items)
 
