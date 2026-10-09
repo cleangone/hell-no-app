@@ -1,26 +1,38 @@
 <template>
 <ion-page>
-<ion-content>  
-   <v-container class="mt-4 pa-0 pb-3 width-100">
-      <v-row no-gutters class="d-flex align-center flex-nowrap">
-         <v-col v-if="viewMgr.isDeskTop" cols="2" class="flex-grow-0 flex-shrink-0"></v-col>
-         <v-col cols="1" class="flex-grow-1 flex-shrink-0" style="min-width: 100px; max-width: 100%;">
-            <div v-if="viewMgr.isDeskTop" class="title">{{ title }}</div>
-            <RouterLink v-if="username" :to="Route.USER.url + route.params.id">{{ username }}</RouterLink>
-         </v-col>
-         <v-col v-if="viewMgr.isDeskTop" cols="2" class="d-flex flex-grow-0 flex-shrink-0 justify-end">
-            <ViewedSortButton class="mr-2"/>
-            <ThumbSizeButton class="mr-2"/>
-            <ItemThumbConfig/>
-         </v-col>
-      </v-row>
-   </v-container>
-   <div class="mt-3 w-100">
-      <v-row justify="space-around">
-         <ItemThumb v-for="item in displayItems" :key="item.id" :item="item" :origin="ItemOrigin.VIEWED" 
-            showDateViewed :tight="viewMgr.isMobile"/>
-      </v-row>
-   </div>
+   <ion-content>  
+      <!-- header -->
+      <div class="scrolling-header-container">
+         <ion-toolbar class="custom-scrolling-toolbar">
+            <ion-buttons slot="start"><BackButton/></ion-buttons>
+            <ion-title class="text-center text-h6">{{ title }}</ion-title>
+            <ion-buttons slot="end">
+               <ViewedSortButton class="mr-2"/>
+               <ThumbSizeButton class="mr-2"/>
+            </ion-buttons>
+         </ion-toolbar>
+      </div>
+
+      <v-container class="mt-4 pa-0 pb-3 width-100">
+         <v-row no-gutters class="d-flex align-center flex-nowrap">
+            <v-col v-if="viewMgr.isDeskTop" cols="2" class="flex-grow-0 flex-shrink-0"></v-col>
+            <v-col cols="1" class="flex-grow-1 flex-shrink-0" style="min-width: 100px; max-width: 100%;">
+               <div v-if="viewMgr.isDeskTop" class="title">{{ title }}</div>
+               <RouterLink v-if="username" :to="Route.USER.url + route.params.id">{{ username }}</RouterLink>
+            </v-col>
+            <v-col v-if="viewMgr.isDeskTop" cols="2" class="d-flex flex-grow-0 flex-shrink-0 justify-end">
+               <ViewedSortButton class="mr-2"/>
+               <ThumbSizeButton class="mr-2"/>
+               <ItemThumbConfig/>
+            </v-col>
+         </v-row>
+      </v-container>
+      <div class="mt-3 w-100">
+         <v-row justify="space-around">
+            <ItemThumb v-for="item in displayItems" :key="item.id" :item="item" :origin="ItemOrigin.VIEWED" 
+               showDateViewed :tight="viewMgr.isMobile"/>
+         </v-row>
+      </div>
 </ion-content>
 </ion-page>
 </template>
@@ -34,6 +46,7 @@
    import { useViewMgr }   from '@/stores/viewMgr'
    import ItemThumb        from '@/components/item/thumb/ItemThumb.vue'
    import ItemThumbConfig  from '@/components/item/thumb/ItemThumbConfig.vue'
+   import BackButton       from '@/components/util/BackButton.vue'  
    import ThumbSizeButton  from '@/components/util/ThumbSizeButton.vue'  
    import ViewedSortButton from './ViewedSortButton.vue'  
    import { isOwned, toSortedDateViewedAsc } from '@/utils/utils'  

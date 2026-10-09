@@ -1,29 +1,34 @@
 <template>
-   <v-container v-if="viewMgr.isDeskTop" class="mt-4 pa-0 pb-3 width-100">
-      <v-row no-gutters class="d-flex align-center flex-nowrap">
-         <v-col cols="2" class="flex-grow-0 flex-shrink-0"/>
-         <v-col cols="1" class="flex-grow-1 flex-shrink-0" style="min-width: 100px; max-width: 100%;">
-            <div class="title">Search</div>
-         </v-col>
-         <v-col cols="2" class="d-flex flex-grow-0 flex-shrink-0 justify-end">
-            <SortButton :sortByDate="sortByDate" @click="sortByDate=!sortByDate" class="mr-2"/>
-            <ItemThumbConfig/>
-         </v-col>
+<ion-page>
+   <ion-content> 
+      <!-- header -->
+      <div class="scrolling-header-container">
+         <ion-toolbar class="custom-scrolling-toolbar">
+            <ion-buttons slot="start"><BackButton/></ion-buttons>
+            <ion-title class="text-center text-h6">{{ Route.SEARCH.display }}</ion-title>
+            <ion-buttons slot="end">
+               <SortButton :sortByDate="sortByDate" @click="sortByDate=!sortByDate" class="mr-1"/>
+               <ThumbSizeButton class="mr-1"/>
+               <ItemThumbConfig class="mr-2"/>
+            </ion-buttons>
+         </ion-toolbar>
+      </div>
+
+      <v-row class="d-flex justify-start align-center mt-2 mx-1">
+         <v-text-field v-model="searchQuery" prepend-inner-icon="mdi-magnify" placeholder="Search" density="compact" @keyup.enter="search()" class="search"/>
+         <BlueBtn text="Search" @click="search()" :disabled="!validQuery" class="ml-2 mb-4"/>
       </v-row>
-   </v-container>
-   <v-row class="d-flex justify-start align-center mx-1">
-      <v-text-field v-model="searchQuery" prepend-inner-icon="mdi-magnify" placeholder="Search" density="compact" @keyup.enter="search()" class="search"/>
-      <BlueBtn text="Search" @click="search()" :disabled="!validQuery" class="ml-2 mb-4"/>
-   </v-row>
-   <v-container class="mt-4">
-      <v-row justify="space-around">
-         <GalleryThumb v-for="gallery in resultGalleries" :key="gallery.id" :gallery="gallery"/>
-      </v-row>
-      <v-row justify="space-around">
-         <ItemThumb v-for="item in resultItems" :key="item.id" :item="item" :origin="ItemOrigin.SEARCH"/>
-      </v-row>
-   </v-container>
- </template>
+      <v-container class="mt-4">
+         <v-row justify="space-around">
+            <GalleryThumb v-for="gallery in resultGalleries" :key="gallery.id" :gallery="gallery"/>
+         </v-row>
+         <v-row justify="space-around">
+            <ItemThumb v-for="item in resultItems" :key="item.id" :item="item" :origin="ItemOrigin.SEARCH"/>
+         </v-row>
+      </v-container>
+   </ion-content>
+</ion-page>
+</template>
  
 <script setup>
    import { computed, ref } from 'vue'
@@ -34,11 +39,12 @@
    import { useViewStore }    from '@/stores/viewStore'
    import { useViewMgr }      from '@/stores/viewMgr'
    import GalleryThumb        from '@/components/gallery/thumb/GalleryThumb.vue'
-   
    import ItemThumb        from '@/components/item/thumb/ItemThumb.vue'
    import ItemThumbConfig  from '@/components/item/thumb/ItemThumbConfig.vue'
+   import BackButton       from '@/components/util/BackButton.vue'  
    import BlueBtn          from '@/components/util/BlueBtn.vue'
    import SortButton       from '@/components/util/SortButton.vue'
+   import ThumbSizeButton  from '@/components/util/ThumbSizeButton.vue'  
    import { isOwned, toSortedNameAsc } from '@/utils/utils'  
    import { ItemOrigin, Route } from '@/utils/constants'
    

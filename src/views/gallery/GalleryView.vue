@@ -1,28 +1,39 @@
 <template>
 <ion-page>
-<ion-content>  
-   <DefineTemplate>
-      <v-container style="width: 100%" class="mt-3">
-          <v-row v-if="descExists && !descInHeader" cols="6" class="d-flex flex-grow-1 flex-shrink-1">
-            <div v-html="gallery.desc" class="mb-1 text-left desc-div bg-white"></div>   
-         </v-row>
-         <v-row v-if="hasChildGalleries" justify="space-around" class="mt-1"> 
-            <GalleryThumb v-for="gallery in childThumbGalleries" :key="gallery.id" :gallery="gallery"/>
-         </v-row>
-         <v-row justify="space-around" class="pt-4">
-            <ItemThumb v-for="item in galleryItems" :key="item.id" :item="item" :origin="ItemOrigin.GALLERY"
-               :useAltName="gallery.useAltItemName" :useLocalName="gallery.useLocalItemName" :tight="viewMgr.isMobile"/>
-         </v-row>
-      </v-container>
-   </DefineTemplate>
+   <ion-content>  
+      <DefineTemplate>
+         <v-container style="width: 100%" class="mt-3">
+            <v-row v-if="descExists && !descInHeader" cols="6" class="d-flex flex-grow-1 flex-shrink-1">
+               <div v-html="gallery.desc" class="mb-1 text-left desc-div bg-white"></div>   
+            </v-row>
+            <v-row v-if="hasChildGalleries" justify="space-around" class="mt-1"> 
+               <GalleryThumb v-for="gallery in childThumbGalleries" :key="gallery.id" :gallery="gallery"/>
+            </v-row>
+            <v-row justify="space-around" class="pt-4">
+               <ItemThumb v-for="item in galleryItems" :key="item.id" :item="item" :origin="ItemOrigin.GALLERY"
+                  :useAltName="gallery.useAltItemName" :useLocalName="gallery.useLocalItemName" :tight="viewMgr.isMobile"/>
+            </v-row>
+         </v-container>
+      </DefineTemplate>
 
+      <!-- header -->
+      <div class="scrolling-header-container">
+         <ion-toolbar class="custom-scrolling-toolbar">
+            <ion-buttons slot="start"><BackButton/></ion-buttons>
+            <ion-title class="text-center text-h6">{{ galleryName }} Gallery</ion-title>
+            <ion-buttons slot="end">
+               <ThumbSizeButton/>
+               <ItemThumbConfig/>
+            </ion-buttons>
+         </ion-toolbar>
+      </div>
       <div v-if="viewMgr.isMobile">
          <div class="content-wrapper mt-1" :style="contentStyle">
             <img v-if="backgroundImage" :src="backgroundImage.url" class="background" :style="backgroundStyle"/>
             <div class="content">
                <div style="clear:both"></div>
                <PlayItems v-if="!viewMgr.isXs" :items="galleryItems"/>
-               <GalleryParentLink :gallery="gallery" style="text-align:center"/>
+               <GalleryParentLink :gallery="gallery" style="text-align: center; display: block; width: 100%;"/>
                <ReuseTemplate/>
             </div>
          </div>
@@ -152,8 +163,6 @@
       if (!gallery) { return null }  // galleryStore has not intiailized yet
 
       if (!viewMgr.galleryIsVisibleToUser(gallery)) { router.push(Route.HOME.url) }
-
-      viewStore.setPageName(gallery.name + " Gallery")
       return gallery 
    })
       

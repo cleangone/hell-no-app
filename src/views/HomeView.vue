@@ -1,62 +1,81 @@
 <template>
 <ion-page>
-<ion-content :fullscreen="true"> 
-<!-- <v-container class="mb-auto pt-4"> -->
-   <!-- title if not mobile - mobile title in app -->
-   <v-container v-if="!viewMgr.isMobile" class="pa-0 mt-2 mb-1 width-100">
-      <v-row no-gutters class="d-flex align-center flex-nowrap">
-         <v-col cols="1" class="flex-grow-0 flex-shrink-0"></v-col>
-         <v-col cols="1" class="flex-grow-1 flex-shrink-0" style="min-width: 100px; max-width: 100%;">
-            <span class="title">{{ title }}</span>
-         </v-col>
-         <v-col cols="1" class="flex-grow-0 flex-shrink-0 d-flex justify-end">
-            <DarkButton class="mr-n2"/>
-         </v-col>
-      </v-row>
-   </v-container>
-   <!-- greeting, notifications, wall -->
-   <!-- <v-container class="pa-0 mb-2 width-100"> -->
-      <!-- <div v-if="viewMgr.solo" class="text-subtitle-1 mt-n2 mb-2">Solo Mode</div> -->
-      <!-- <ShowNotifications v-if="invites.length" :notifications="invites" class="mb-3"/> -->
-      <!-- <div class="walldiv" :style="wallDivStyle">
-         <v-img :src="wallImage" cover :style="wallBackgroundStyle" class="wall-background"></v-img>
-         <div class="wall-content">
-            <SplitWall v-if="showWall" :wall="displayWall" :rowHeight="slideRowHeight"/>
-         </div> 
-      </div> -->
-   <!-- </v-container> -->
-   
-   <!-- galleries -->
-   <RecentGalleryThumbs v-if="recentGalleries.length" :galleries="recentGalleries" 
-      :maxRows="recentRows" bypassShowUser class="mt-10 mb-5"/>
-
-   <!-- groups if user logged in and not solo -->
-   <!-- <MyGroupThumbs v-if="!viewMgr.solo"/> -->
-
-   <!-- recent updated, viewed -->
-   <div v-if="viewMgr.isXs">
-      <div class="mx-2 mb-10 bg-shade">
-         <ItemThumbsPanel title="Recent Updates" :items="recentUpdatedItems" 
-            :linkTo="Route.RECENT.url + Defaults.SITE_ID"/>
+   <ion-content :fullscreen="true">
+      <!-- header -->
+      <div class="scrolling-header-container">
+         <ion-toolbar class="custom-scrolling-toolbar">
+            <ion-buttons slot="start">
+               <nav>
+                  <v-menu>
+                     <template v-slot:activator="{ props }">
+                        <v-btn v-bind="props" icon="mdi-menu" class="icon-btn" size="medium" variant="text"></v-btn>
+                     </template>
+                     <v-list>
+                        <!-- <v-list-item @click="toggleSoloMode()">
+                           <template v-slot:prepend>
+                              <v-icon :icon="viewMgr.solo?'mdi-account-multiple': 'mdi-account'" class="menu-icon"></v-icon>
+                           </template>
+                           <v-list-item-title>{{ viewMgr.solo ? "Exit " : "" }}Solo Mode</v-list-item-title>
+                        </v-list-item>
+                        <v-list-item v-if="user" @click="toRoute(Route.ADD_ITEM)">
+                           <template v-slot:prepend>
+                              <v-icon icon="mdi-plus" class="menu-icon"></v-icon>
+                           </template>
+                           <v-list-item-title>Add Item</v-list-item-title>
+                        </v-list-item> -->
+                        <v-list-item v-if="user" @click="toRoute(Route.MESSAGE)">
+                           <template v-slot:prepend>
+                              <v-icon icon="mdi-message" class="menu-icon"></v-icon>
+                           </template>
+                           <v-list-item-title>Messages</v-list-item-title>
+                        </v-list-item>
+                     </v-list>
+                  </v-menu>
+               </nav>
+            </ion-buttons>
+            <ion-title class="text-center text-h6">{{ title }}</ion-title>
+            <ion-buttons slot="end">
+               <nav>
+                  <!-- <Icon icon="mdi-dice-multiple" @click="toRoute(Route.RANDOM)"/> -->
+                  <!-- <ShakeIcon v-if="activeNotificationsExist" icon="mdi-bell-ring" size="small" @click="toRoute(Route.MESSAGE)" class="mr-n1"/> -->
+                  <DarkButton class="mr-n2"/>
+               </nav>
+            </ion-buttons>
+         </ion-toolbar>
       </div>
-      <div class="mx-2 bg-shade">
-         <ItemThumbsPanel title="Recent Viewed" :items="recentViewedItems" 
-            :linkTo="Route.VIEWED.url + Defaults.SITE_ID" showDateViewed/>
+      <!-- content -->
+      <div class="center">
+         <!-- galleries -->
+         <RecentGalleryThumbs v-if="recentGalleries.length" :galleries="recentGalleries" 
+            :maxRows="recentRows" bypassShowUser class="mb-5"/>
+
+         <!-- groups if user logged in and not solo -->
+         <!-- <MyGroupThumbs v-if="!viewMgr.solo"/> -->
+
+         <!-- recent updated, viewed -->
+         <div v-if="viewMgr.isXs">
+            <div class="mx-2 mb-10 bg-shade">
+               <ItemThumbsPanel title="Recent Updates" :items="recentUpdatedItems" 
+                  :linkTo="Route.RECENT.url + Defaults.SITE_ID"/>
+            </div>
+            <div class="mx-2 bg-shade">
+               <ItemThumbsPanel title="Recent Viewed" :items="recentViewedItems" 
+                  :linkTo="Route.VIEWED.url + Defaults.SITE_ID" showDateViewed/>
+            </div>
+         </div>
+         <v-row v-else class="mr-5">
+            <v-col cols="6">
+               <ItemThumbsPanel title="Recent Updates" :items="recentUpdatedItems" 
+                  :linkTo="Route.RECENT.url + Defaults.SITE_ID" class="bg-shade border-md "/>
+                  <!-- fill-height -->
+            </v-col>
+            <v-col cols="6" class="">
+               <ItemThumbsPanel title="Recent Viewed" :items="recentViewedItems" 
+                  :linkTo="Route.VIEWED.url + Defaults.SITE_ID" showDateViewed class="bg-shade border-md"/>
+            </v-col>
+         </v-row>
       </div>
-   </div>
-   <v-row v-else class="mr-5">
-      <v-col cols="6">
-         <ItemThumbsPanel title="Recent Updates" :items="recentUpdatedItems" 
-            :linkTo="Route.RECENT.url + Defaults.SITE_ID" class="bg-shade border-md "/>
-            <!-- fill-height -->
-      </v-col>
-      <v-col cols="6" class="">
-         <ItemThumbsPanel title="Recent Viewed" :items="recentViewedItems" 
-            :linkTo="Route.VIEWED.url + Defaults.SITE_ID" showDateViewed class="bg-shade border-md"/>
-      </v-col>
-   </v-row>
-<!-- </v-container> -->
-</ion-content>  
+   </ion-content>  
 </ion-page>
 </template>
 
@@ -258,10 +277,33 @@
    //    }
    //    return users
    // })
-
 </script>
 
 <style>
+
+ion-content {
+  --padding-top: 0px !important;
+  --padding-bottom: 0px !important;
+  --padding-start: 0px !important;
+  --padding-end: 0px !important;
+}
+
+.scrolling-header-container {
+  display: block;
+  width: 100%;
+  position: relative;
+  z-index: 10;
+  background-color: var(--v-theme-surface, #ffffff);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.custom-scrolling-toolbar {
+  --background: transparent;
+  position: relative !important;
+}
+
+.center { 
+   text-align: center; 
+}
 .box-border {
    border: 5px solid; 
 }

@@ -1,17 +1,17 @@
-<template>
-   <ion-app>
+<!-- <template>
+   <ion-app> -->
    <!-- <div class="app">   -->
-   <ion-header class="ion-no-border" :translucent="false">
+   <!-- <ion-header  class="ion-no-border" :translucent="false">
       <ion-toolbar>
-         <ion-buttons slot="start">
+         <ion-buttons slot="start"> -->
             <!-- top left icon for mobile -->
-            <nav>
+            <!-- <nav>
                <v-menu v-if="isRoute(Route.HOME)">
                   <template v-slot:activator="{ props }">
                      <v-btn v-bind="props" icon="mdi-menu" class="icon-btn" size="medium" variant="text"></v-btn>
                   </template>
-                  <v-list>
-                     <v-list-item @click="toggleSoloMode()">
+                  <v-list> -->
+                     <!-- <v-list-item @click="toggleSoloMode()">
                         <template v-slot:prepend>
                            <v-icon :icon="viewMgr.solo?'mdi-account-multiple': 'mdi-account'" class="menu-icon"></v-icon>
                         </template>
@@ -28,23 +28,18 @@
                            <v-icon icon="mdi-message" class="menu-icon"></v-icon>
                         </template>
                         <v-list-item-title>Messages</v-list-item-title>
-                     </v-list-item>
-                  </v-list>
+                     </v-list-item> -->
+                  <!-- </v-list>
                </v-menu>
-               <Icon v-if="currentRouteName!=Route.HOME.name" icon="mdi-chevron-left" @click="router.back()"/>
             </nav>
-         </ion-buttons>
+         </ion-buttons> -->
          <!-- top center title for mobile -->
-         <ion-title class="text-center">
+         <!-- <ion-title class="text-center">
             <div class="text-h6"> 
-               <span v-if="isRoute(Route.HOME)">{{ homeTitle }}</span>
-               <span v-else-if="isRoute(Route.GALLERIES)">{{ Route.GALLERIES.display }}</span>
-               <span v-else-if="inRoutes(Route.GALLERY, Route.GROUP, Route.ITEM, Route.ITEM_CHILD, Route.RANDOM, Route.ARTIST)">{{ pageName }}</span>
+               <span v-else-if="inRoutes(Route.GROUP, Route.ITEM, Route.ITEM_CHILD, Route.RANDOM, Route.ARTIST)">{{ pageName }}</span>
                <span v-else-if="isRoute(Route.GROUPS)">{{ Route.GROUPS.display }}</span>
                <span v-else-if="isRoute(Route.SEARCH)">{{ Route.SEARCH.display }}</span>
                <span v-else-if="isRoute(Route.FAVORITES)">{{ Route.FAVORITES.display }}</span>
-               <span v-else-if="isRoute(Route.RECENT)">{{ Route.RECENT.display }}</span>
-               <span v-else-if="isRoute(Route.VIEWED)">{{ (viewStore.sortRecentViewed ? "" : "Least ") + "Recent Viewed" }}</span>
                <span v-else-if="isRoute(Route.ABOUT)">{{ Route.ABOUT.display }}</span>
                <span v-else-if="isRoute(Route.USER)">{{ username }}</span>
                <span v-else-if="isRoute(Route.MESSAGE)">{{ Route.MESSAGE.display }}</span>
@@ -53,28 +48,22 @@
                <span v-else-if="isRoute(Route.ADD_ITEM)">Add Item</span>
                <span v-else-if="isRoute(Route.EDIT_ITEM)">Edit Item</span>
             </div>
-         </ion-title>
+         </ion-title> -->
          <!-- top right icons -->
-         <ion-buttons slot="end">
+         <!-- <ion-buttons slot="end"> -->
             <!-- top right icon for mobile -->
-            <div>
-               <span v-if="inRoutes(Route.HOME, Route.USER)" style="white-space: nowrap">
+            <!-- <div>
+               <span v-if="inRoutes(Route.HOME, Route.USER)" style="white-space: nowrap"> -->
                   <!-- <Icon icon="mdi-dice-multiple" @click="toRoute(Route.RANDOM)"/> -->
                   <!-- <ShakeIcon v-if="activeNotificationsExist" icon="mdi-bell-ring" size="small" @click="toRoute(Route.MESSAGE)" class="mr-n1"/> -->
-                  <DarkButton class="mr-n2"/>
+                  <!-- <DarkButton class="mr-n2"/>
                </span>
-               <span v-else-if="isRoute(Route.GALLERIES)" class="text-no-wrap">
-                  <ThumbSizeButton :thumbType="ThumbType.GALLERY"/>
-                  <GalleryThumbConfig/>
-               </span>
-               <span v-else-if="inRoutes(Route.GALLERY, Route.GROUP, Route.RECENT, Route.SEARCH, Route.FAVORITES)" class="text-no-wrap"> 
+               
+               <span v-else-if="inRoutes(Route.GROUP, Route.SEARCH, Route.FAVORITES)" class="text-no-wrap"> 
                   <ThumbSizeButton/>
                   <ItemThumbConfig/>
                </span>
-               <span v-else-if="inRoutes(Route.VIEWED)" class="text-no-wrap"> 
-                  <ViewedSortButton class="mr-2"/>
-                  <ThumbSizeButton/>
-               </span>
+               
                <span v-else-if="inRoutes(Route.ITEM, Route.ITEM_CHILD)">
                   <ToggleIcon icon="mdi-gesture-swipe" :state="viewStore.isMobileSwipe" @click="viewStore.toggleMobileSwipe()"/>
                </span>
@@ -84,12 +73,12 @@
             </div>
          </ion-buttons>
       </ion-toolbar>
-   </ion-header>
+   </ion-header> -->
 
    
 
    <!-- <ion-content class="app">  -->
-      <ion-router-outlet />
+      <!-- <ion-router-outlet /> -->
       <!-- <div v-if="isRoute(Route.HOME)" class="small">
          {{ version }}<span v-if="appEnv.length"> - {{ appEnv }}</span>
       </div>
@@ -101,7 +90,11 @@
       </div> -->
    <!-- </ion-content> -->
 
-   <ion-footer class="ion-no-border">
+<template>
+<ion-app class="app-root-container">
+   <ion-router-outlet class="router-outlet-container" />
+
+   <ion-footer class="ion-no-border persistent-footer">
       <ion-tab-bar>
          <ion-tab-button @click="toRoute(Route.HOME)" :class="{ 'tab-selected': navIndex === 0 }">
             <Icon icon="mdi-home" />
@@ -123,8 +116,7 @@
          </ion-tab-button>
       </ion-tab-bar>
    </ion-footer>
-
-   </ion-app>
+</ion-app>
 </template>
 
  <!-- <v-bottom-navigation v-model="navIndex" color="primary" grow> -->
@@ -312,28 +304,46 @@
 </script>
 
 <style>
-ion-header {
-  --background: #ffffff;
-  background-color: #ffffff;
+/* 1. Force ion-app to lock to the full viewport height as a flex column */
+ion-app.app-root-container {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
 }
 
-ion-toolbar {
-  --background: #ffffff;
-  --min-height: 44px;
+/* 2. Force the router outlet to take up all remaining middle space */
+.router-outlet-container {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  overflow-y: auto !important;
+  position: relative !important;
 }
-
-ion-footer {
-  --background: #ffffff; /* 👈 Fixes transparent background */
-  background-color: #ffffff;
+/* 3. Force the footer to lock to the absolute bottom and never stretch */
+.persistent-footer {
+  display: block !important;
+  flex: 0 0 auto !important;
+  width: 100% !important;
+  /* background-color: #ffffff !important; */
+  background-color: white !important;
   box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.1);
+  /* padding-bottom: env(safe-area-inset-bottom, 0px) !important; */
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) * 0.25) !important;
+  z-index: 99999 !important;
 }
 
-/* Tab bar configuration inside footer */
-ion-footer ion-tab-bar {
+/* Tab bar sizing */
+.persistent-footer ion-tab-bar {
   --background: #ffffff;
   --border: none;
-  height: 50px;
+  height: 40px !important;
 }
+
 
 /* Force custom Icon wrapper components inside tab buttons to match header scale */
 ion-tab-button > * {
@@ -344,7 +354,6 @@ ion-tab-button > * {
   align-items: center;
   justify-content: center;
 }
-
 
 .app { 
    /* height: inherit; */

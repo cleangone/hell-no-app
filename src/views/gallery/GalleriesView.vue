@@ -1,7 +1,22 @@
 <template>
 <ion-page>
-<ion-content :fullscreen="true">   
-   <div v-if="viewMgr.isMobile && username" class="mt-n2">
+<ion-content :fullscreen="true">
+   <!-- header -->
+   <div class="scrolling-header-container">
+      <ion-toolbar class="custom-scrolling-toolbar">
+         <ion-buttons slot="start"><BackButton/></ion-buttons>
+         <ion-title class="text-center text-h6">{{ Route.GALLERIES.display }}</ion-title>
+         <ion-buttons slot="end">
+            <nav>
+               <ThumbSizeButton :thumbType="ThumbType.GALLERY"/>
+               <GalleryThumbConfig/>
+            </nav>
+         </ion-buttons>
+      </ion-toolbar>
+   </div>
+   
+   <div v-if="viewMgr.isMobile && username" class="mt-n2"
+      style="text-align: center; display: block; width: 100%;">
       <RouterLink :to="Route.USER.url + route.params.id">{{ username }}</RouterLink>
    </div>
    <v-container v-if="!viewMgr.isMobile" class="pa-0 mt-1 pb-3 mb-2 width-100">
@@ -67,6 +82,7 @@
    import ChildGalleriesButton from '@/components/gallery/thumb/ChildGalleriesButton.vue'
    import UserThumbSwiper     from '@/components/user/thumb/UserThumbSwiper.vue'
    import UserLinkAvatar      from '@/components/user/avatar/UserLinkAvatar.vue'
+   import BackButton          from '@/components/util/BackButton.vue'  
    import SortButton          from '@/components/util/SortButton.vue'
    import ThumbSizeButton     from '@/components/util/ThumbSizeButton.vue'
    import ToolTip             from '@/components/util/ToolTip.vue'
