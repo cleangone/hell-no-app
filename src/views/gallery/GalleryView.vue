@@ -144,14 +144,11 @@
    })
 
    onIonViewWillEnter(() => {
-      console.log("onIonViewWillEnter")
+      console.log("galleryView onIonViewWillEnter")
       isPageActive.value = true
-      // Enable Firestore listeners / fetch data ONLY for this active gallery ID
-      // galleryStore.setActiveGallery(props.id)
    })
-
    onIonViewWillLeave(() => {
-      console.log("onIonViewWillLeave")
+      console.log("galleryView onIonViewWillLeave")
       isPageActive.value = false
    })
 

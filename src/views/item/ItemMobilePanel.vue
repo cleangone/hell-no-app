@@ -28,7 +28,7 @@
          </v-col>
       </v-row>
    </div>
-   <div style="position:relative" class="w-100" ref="imageDivRef">  
+   <div style="position:relative" class="w-100 ml-1 mr-4" ref="imageDivRef">  
       <div v-if="viewStore.isMobileSwipe"> <!-- swipe -->
          <div ref="swipeElement" class="center d-flex justify-center">  
             <ItemSwipe v-for="item in swipeItems" :key="item.id" :item="item" v-on:done="onSwipeDone"
@@ -37,25 +37,6 @@
                class="itemSwipe" :style="itemSwipeWidthStyle"/>
          </div>
       </div>
-         <!-- <v-infinite-scroll :items="scrollItems" :onLoad="loadItems">
-            <template v-for="item in scrollItems" :key="item.id">
-               <div v-if="item.id != route.params.id" class="mt-5">
-                  <div class="text-h6">{{ item.name }}</div>
-                  <div v-if="itemOtherGalleries(item).length"> 
-                     <span v-for="gallery,index in itemOtherGalleries(item)" :key="gallery.id">
-                        <span v-if="index"> | </span>
-                        <RouterLink :to="galleryUrl(gallery.id)">{{ gallery.name }} Gallery</RouterLink>
-                     </span>
-                  </div>
-               </div>
-               <v-img :src="imageUrl(item.primaryImage)" contain class="no-pointer-events"/>
-               <div class="text-left mt-2">
-                  <ItemArtistYear :item="item"/>
-               </div>
-            </template>
-            <template v-slot:empty></template>
-         </v-infinite-scroll> -->
-
       <div v-else> <!-- infinite scroll -->
          <v-img :src="imageUrl(props.item.primaryImage)" contain class="no-pointer-events" />
          <div class="text-left mt-2">
@@ -63,11 +44,11 @@
          </div>
          <template v-for="item in scrollItems" :key="item.id">
             <div v-if="item.id != route.params.id" class="mt-5">
-               <div class="text-h6">{{ item.name }}</div>
-               <div v-if="itemOtherGalleries(item).length"> 
+               <div class="text-center text-h6">{{ item.name }}</div>
+               <div v-if="itemOtherGalleries(item).length" class="text-center"> 
                   <span v-for="(gallery, index) in itemOtherGalleries(item)" :key="gallery.id">
-                  <span v-if="index"> | </span>
-                  <RouterLink :to="galleryUrl(gallery.id)">{{ gallery.name }} Gallery</RouterLink>
+                     <span v-if="index"> | </span>
+                     <RouterLink :to="galleryUrl(gallery.id)">{{ gallery.name }} Gallery</RouterLink>
                   </span>
                </div>
             </div>

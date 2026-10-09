@@ -36,12 +36,11 @@
          <!-- top center title for mobile -->
          <!-- <ion-title class="text-center">
             <div class="text-h6"> 
-               <span v-else-if="inRoutes(Route.GROUP, Route.ITEM, Route.ITEM_CHILD, Route.RANDOM, Route.ARTIST)">{{ pageName }}</span>
+               <span v-else-if="inRoutes(Route.GROUP, Route.ITEM_CHILD, Route.RANDOM, Route.ARTIST)">{{ pageName }}</span>
                <span v-else-if="isRoute(Route.GROUPS)">{{ Route.GROUPS.display }}</span>
                <span v-else-if="isRoute(Route.SEARCH)">{{ Route.SEARCH.display }}</span>
                <span v-else-if="isRoute(Route.FAVORITES)">{{ Route.FAVORITES.display }}</span>
                <span v-else-if="isRoute(Route.ABOUT)">{{ Route.ABOUT.display }}</span>
-               <span v-else-if="isRoute(Route.USER)">{{ username }}</span>
                <span v-else-if="isRoute(Route.MESSAGE)">{{ Route.MESSAGE.display }}</span>
                <span v-else-if="isRoute(Route.LOGIN)">{{ Route.LOGIN.display }}</span>
                <span v-else-if="isRoute(Route.ACCOUNT)" class="text-subtitle-1">{{ pageName }}</span>
@@ -160,6 +159,7 @@
    // import { useGroupMgr }     from '@/stores/groupMgr'
    // import { useNotificationStore } from '@/stores/notificationStore'
    import { useHitStore }     from '@/stores/hitStore'
+   import { useWallStore }    from '@/stores/wallStore'
    import { useViewStore }    from '@/stores/viewStore'
    import { useViewMgr }      from '@/stores/viewMgr'
    import { useLocalStore }   from '@/stores/localStore'
@@ -186,9 +186,10 @@
    // const groupMgr  = useGroupMgr()
    // const notificationStore = useNotificationStore()
    const hitStore     = useHitStore()
-   const viewStore  = useViewStore()
-   const viewMgr    = useViewMgr()
-   const localStore = useLocalStore()
+   const wallStore    = useWallStore()
+   const viewStore    = useViewStore()
+   const viewMgr      = useViewMgr()
+   const localStore   = useLocalStore()
    const windowSize = ref({})
    // useNotificationStore() // instantiated ahead of time for messages/onMounted
    
@@ -220,7 +221,8 @@
          itemStore.addListener().catch(err    => console.error("itemStore init error",    err)),
          galleryStore.addListener().catch(err => console.error("galleryStore init error", err)),
          groupStore.addListener().catch(err   => console.error("groupStore init error",   err)),
-         hitStore.addListener().catch(err     => console.error("hitStore init error",     err))
+         hitStore.addListener().catch(err     => console.error("hitStore init error",     err)),
+         wallStore.addListener().catch(err    => console.error("wallStore init error",    err))
       ])
 
       setWindowSize()

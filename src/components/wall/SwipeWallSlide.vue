@@ -4,7 +4,7 @@
          <v-card class="mt-7 bg-black">
             <div class="ma-1">
                <RouterLink :to="itemURL">
-                  <v-img :src="wallItem.wallImageUrl" @mouseover="mouseover()" @mouseleave="mouseleave()"/>
+                  <v-img :src="wallItem.wallImageUrl"/>
                </RouterLink>
                <div class="text-white">{{ wallItem.title }}</div>  
             </div> 
@@ -14,7 +14,7 @@
       <div v-else class="bg-black">
          <div class="ma-1">
             <RouterLink :to="itemURL">
-               <v-img :src="wallItem.wallImageUrl" @mouseover="mouseover()" @mouseleave="mouseleave()"/>
+               <v-img :src="wallItem.wallImageUrl"/>
             </RouterLink>
          </div> 
       </div>
@@ -32,51 +32,19 @@
    import { Emit } from '@/utils/constants'
    
    const props = defineProps({ wallItem:Object, origin:String, row:Number, showAvatar:Boolean })
-   const emit  = defineEmits([ Emit.POPUP ])
+   // const emit  = defineEmits([ Emit.POPUP ])
 
    const userStore  = useUserStore()
    const itemMgr    = useItemMgr()
-   const swipeStore = useSwipeStore()
-   const viewMgr    = useViewMgr()
-   const cardRef = ref(null)
-   const mouseleaveTime = ref(Date.now())   
+   // const swipeStore = useSwipeStore()
+   // const viewMgr    = useViewMgr()
+   // const cardRef = ref(null)
+   // const mouseleaveTime = ref(Date.now())   
 
    const topRow  = computed(() => props.wallItem.wallRow == 1)
    const itemURL = computed(() => itemMgr.itemURL(props.wallItem.itemId, props.origin, props.wallItem.childNum))
    const userId  = computed(() => props.wallItem.userId ?? null)
    const user    = computed(() => userId.value ? userStore.getUser(userId.value) : null)
-   
-   const getPopupImage = () => { 
-      if (!cardRef.value) { return null }
-      
-      const thumbBoundingRect = cardRef.value.$el.getBoundingClientRect()
-      if (thumbBoundingRect.y < 0) { return null } // thumbnail not visible to user 
-      
-      const popupAspectRatio = objAspectRatio(props.wallItem.popupDimensions)
-      return itemMgr.getPopupImage(
-         props.wallItem.name, 
-         props.wallItem.artist ? props.wallItem.artist.fullName : null, 
-         props.wallItem.popupUrl,
-         thumbBoundingRect,  
-         popupAspectRatio)
-   }
-
-   const mouseover = () => {
-      if (viewMgr.isXs) { return }
-      const mouseoverTime = Date.now()
-      setTimeout(() => { 
-         if (mouseoverTime > mouseleaveTime.value) { 
-            swipeStore.setThumbMouseoverActive(true)
-            emit(Emit.POPUP, getPopupImage())
-         }
-      }, 250)  
-   }
-
-   const mouseleave = () => {
-      mouseleaveTime.value = Date.now()
-      swipeStore.setThumbMouseoverActive(false)
-      emit(Emit.POPUP, null)
-   }
 </script>
 
 <style>

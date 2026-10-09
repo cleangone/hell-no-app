@@ -44,6 +44,17 @@
          </ion-toolbar>
       </div>
       <!-- content -->
+       <v-container class="pa-0 mb-2 width-100">
+         <!-- <div v-if="viewMgr.solo" class="text-subtitle-1 mt-n2 mb-2">Solo Mode</div> -->
+         <!-- <ShowNotifications v-if="invites.length" :notifications="invites" class="mb-3"/> -->
+         <div class="walldiv" :style="wallDivStyle">
+            <v-img :src="wallImage" cover :style="wallBackgroundStyle" class="wall-background"></v-img>
+            <div class="wall-content">
+               <SplitWall v-if="showWall" :wall="displayWall" :rowHeight="slideRowHeight"/>
+            </div> 
+         </div>
+      </v-container>
+
       <div class="center">
          <!-- galleries -->
          <RecentGalleryThumbs v-if="recentGalleries.length" :galleries="recentGalleries" 
@@ -82,7 +93,6 @@
 <script setup>
    import { computed, onMounted, ref } from 'vue'
    // import { useElementSize } from '@vueuse/core'
-   import { useSeoMeta } from '@unhead/vue'
    import { useUserStore }    from '@/stores/userStore'
    import { useGalleryStore } from '@/stores/galleryStore'
    import { useInviteStore }  from '@/stores/inviteStore'
@@ -113,31 +123,20 @@
    const localStore   = useLocalStore()
    // const favoritesRef = ref(null)
    // const { width: favoritesWidth } = useElementSize(favoritesRef)
-   // const currSiteWall = ref(null)
-   // const currMyWall   = ref(null)
-   // const wallBackgroundOpacity = ref(.1) 
-   // const isBrowserDarkMode = ref(false)
+   const currSiteWall = ref(null)
+   const currMyWall   = ref(null)
+   const wallBackgroundOpacity = ref(.1) 
    
-   // onMounted(() => {
-   //    // console.log("Home")
-   //    viewMgr.init()
-   //    // if (!viewStore.showSiteWall) {
-   //    //    wallBackgroundOpacity.value = 1.0
-   //    //    setTimeout(() => { 
-   //    //       viewStore.setShowSiteWall(true) 
-   //    //       fadeWallBackground()
-   //    //    }, 1000)  
-   //    // }
-
-   //    console.log("calling subscribeToGalleries")
-   //    galleryStore.subscribeToGalleries()
-
-   //    // not working
-   //    // isBrowserDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches
-   // })
-
-   useSeoMeta({
-      title: "Hell-No Gallery" // displayed in browser tabs
+   onMounted(() => {
+      // console.log("Home")
+      viewMgr.init()
+      if (!viewStore.showSiteWall) {
+         wallBackgroundOpacity.value = 1.0
+         setTimeout(() => { 
+            viewStore.setShowSiteWall(true) 
+            fadeWallBackground()
+         }, 1000)  
+      }
    })
    
    const user  = computed(() => userStore.user ?? null)
@@ -145,13 +144,13 @@
                                  (user.value.displayName ?? user.value.username) : "Hell-No Gallery")
 
    // const seconds = () => { return " (" + viewStore.getSeconds() + " seconds)" }
-   // const showWall = computed(() => viewStore.showSiteWall) // allows for image fade out
-   // const fadeWallBackground = () => {
-   //    if (wallBackgroundOpacity.value > .10) { 
-   //       wallBackgroundOpacity.value -= .04
-   //       setTimeout(() => { fadeWallBackground() }, 50)  
-   //    }
-   // }
+   const showWall = computed(() => viewStore.showSiteWall) // allows for image fade out
+   const fadeWallBackground = () => {
+      if (wallBackgroundOpacity.value > .10) { 
+         wallBackgroundOpacity.value -= .04
+         setTimeout(() => { fadeWallBackground() }, 50)  
+      }
+   }
 
    // const invites = computed(() => {
    //    // console.log("notifications", inviteStore.myActiveInvites)
@@ -163,52 +162,52 @@
    //    return todos
    // })
 
-   // const wallImage = computed(() => {
-   //    if (viewMgr.solo && userStore.userId) {
-   //       const urls = itemMgr.getPublicGalleryThumbUrls(userStore.userId)
-   //       if (urls.length) { return randomizeArray(urls)[0] }
-   //    }
-   //    return  wallMgr.randomWallImage
-   // })
+   const wallImage = computed(() => {
+      if (viewMgr.solo && userStore.userId) {
+         const urls = itemMgr.getPublicGalleryThumbUrls(userStore.userId)
+         if (urls.length) { return randomizeArray(urls)[0] }
+      }
+      return  wallMgr.randomWallImage
+   })
 
-   // const displayWall = computed(() => {
-   //    const wall = viewMgr.solo ? myDisplayWall.value : siteDisplayWall.value
+   const displayWall = computed(() => {
+      const wall = viewMgr.solo ? myDisplayWall.value : siteDisplayWall.value
 
-   //    // todo - move this to mgr - logic duplicated in UserView
-   //    // handle corner case of moving to/from mobile view
-   //    // check xs instead of mobile - tablets not limited to 1 row
-   //    if (viewMgr.isXs && wall.wallRows) { wall.wallRows = 1 }
-   //    else if (!viewMgr.isXs) { wall.wallRows = wall.origWallRows}
+      // todo - move this to mgr - logic duplicated in UserView
+      // handle corner case of moving to/from mobile view
+      // check xs instead of mobile - tablets not limited to 1 row
+      if (viewMgr.isXs && wall.wallRows) { wall.wallRows = 1 }
+      else if (!viewMgr.isXs) { wall.wallRows = wall.origWallRows}
 
-   //    return wall
-   // })
+      return wall
+   })
 
-   // const siteDisplayWall = computed(() => {
-   //    let wall = wallMgr.filledSiteWall
-   //    if (wall.wallRows) { localStore.setSiteWall(wall) }
-   //    else if (localStore.siteWall.wallRows) { wall = { ...localStore.siteWall } }
+   const siteDisplayWall = computed(() => {
+      let wall = wallMgr.filledSiteWall
+      if (wall.wallRows) { localStore.setSiteWall(wall) }
+      else if (localStore.siteWall.wallRows) { wall = { ...localStore.siteWall } }
 
-   //    // use currWall if it exists - prevent flashing of retrieved after display of one from local store
-   //    if (currSiteWall.value) { return currSiteWall.value }
-   //    if (wall.wallRows) { currSiteWall.value = wall }
-   //    return wall
-   // })
+      // use currWall if it exists - prevent flashing of retrieved after display of one from local store
+      if (currSiteWall.value) { return currSiteWall.value }
+      if (wall.wallRows) { currSiteWall.value = wall }
+      return wall
+   })
 
    // handle corner case of solo mode and switching to a user that doesn't have any wall items yet
-   // const myDisplayWall = computed(() => {
-   //    let wall = wallMgr.filledMyWall
-   //    if (wall.wallRows) { localStore.setMyWall(wall) }
-   //    else if (localStore.myWall.wallRows && localStore.myWall.id == wall.id) { wall = { ...localStore.myWall } }
+   const myDisplayWall = computed(() => {
+      let wall = wallMgr.filledMyWall
+      if (wall.wallRows) { localStore.setMyWall(wall) }
+      else if (localStore.myWall.wallRows && localStore.myWall.id == wall.id) { wall = { ...localStore.myWall } }
 
-   //    if (currMyWall.value && currMyWall.value.id == wall.id) { return currMyWall.value }
-   //    if (wall.wallRows) { currMyWall.value = wall }
-   //    return wall
-   // })
+      if (currMyWall.value && currMyWall.value.id == wall.id) { return currMyWall.value }
+      if (wall.wallRows) { currMyWall.value = wall }
+      return wall
+   })
    
-   // const slideRowHeight = computed(() => viewMgr.isMobile ? WallRowHeight.XS : WallRowHeight.DEFAULT)
-   // const wallRows       = computed(() => displayWall.value ? displayWall.value.wallRows : 2 )
-   // const wallDivStyle   = computed(() => "height:" + (((slideRowHeight.value + 10) * wallRows.value)) + "px;")
-   // const wallBackgroundStyle = computed(() => wallDivStyle.value + " opacity:" + wallBackgroundOpacity.value + ";")
+   const slideRowHeight = computed(() => viewMgr.isMobile ? WallRowHeight.XS : WallRowHeight.DEFAULT)
+   const wallRows       = computed(() => displayWall.value ? displayWall.value.wallRows : 2 )
+   const wallDivStyle   = computed(() => "height:" + (((slideRowHeight.value + 10) * wallRows.value)) + "px;")
+   const wallBackgroundStyle = computed(() => wallDivStyle.value + " opacity:" + wallBackgroundOpacity.value + ";")
    
    const recentGalleries = computed(() => { 
       const galleries = []     
@@ -244,19 +243,6 @@
       return items
    })
 
-   // const allFavoriteItems = computed(() => {
-   //    const visibleItems = []
-   //    if (userStore.userExists && userStore.user.favoriteItems) {
-   //       const favoriteItemIds = userStore.user.favoriteItems
-   //       const items = itemMgr.getItems(favoriteItemIds)
-   //       const ungroupedItems = viewMgr.isMobile ? itemMgr.ungroupAndExtractItems(items) : items
-   //       for (const item of ungroupedItems) { 
-   //          if (viewMgr.itemIsVisibleToUser(item)) { visibleItems.push(item) }
-   //       }
-   //    }
-   //    return viewStore.setVisibleItems(ItemOrigin.FAVORITES, "My Favorites", Route.FAVORITES.url, visibleItems)
-   // })
-
    const recentViewedItems = computed(() => {
       let items = [ ...cacheStore.recentViewedPublicItems ]   
       if (viewMgr.solo) { items = items.filter(item => isOwned(item, userStore.userId)) }
@@ -269,14 +255,6 @@
    })
 
    const recentRows = computed(() => viewMgr.isXs ? 1 : 2)
-   
-   // const displayUsers = computed(() => {
-   //    const users = []
-   //    for (const user of userStore.users) {
-   //       if (user.images?.length) { users.push(user) }
-   //    }
-   //    return users
-   // })
 </script>
 
 <style>

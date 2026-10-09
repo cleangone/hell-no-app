@@ -1,5 +1,23 @@
 <template>
-   <v-container v-if="viewMgr.isDeskTop" class="pa-0 width-100">
+<ion-page>
+   <ion-content> 
+      <!-- header -->
+      <div class="scrolling-header-container">
+         <ion-toolbar class="custom-scrolling-toolbar">
+            <ion-buttons slot="start"><BackButton/></ion-buttons>
+            <ion-title class="text-center text-h6">{{ displayName }}</ion-title>
+            <ion-buttons slot="end">
+               <div v-if="isLoggedInUser">  
+                  <!-- todo - use ion router logic in GalleryThumb -->
+                  <RouterLink v-if="invisibleItemsExist" :to="Route.INVISIBLE.url">
+                     <v-icon icon="mdi-incognito" class="mr-2"/>
+                  </RouterLink>
+               </div>
+               <EmailButton v-else-if="userExists" :user="user"/>
+            </ion-buttons>
+         </ion-toolbar>
+      </div>
+   <!-- <v-container v-if="viewMgr.isDeskTop" class="pa-0 width-100">
       <v-row no-gutters class="d-flex align-center flex-nowrap">
          <v-col cols="2" class="flex-grow-0 flex-shrink-0"/>
          <v-col cols="1" class="flex-grow-1 flex-shrink-0" style="min-width: 100px; max-width: 100%;">
@@ -14,46 +32,50 @@
             <EmailButton v-else-if="userExists" :user="user"/>
          </v-col>
       </v-row>
-   </v-container>
-   <div v-if="!contentExists">
-      <div class="pt-10 pb=5 text-h5">No Content</div>
-      <div>Add Items and Galleries in <RouterLink :to="Route.ACCOUNT.url">My Account</RouterLink></div>
-   </div>
-   <!-- wall -->
-   <div v-if="wallItemsExist" class="walldiv" :style="wallDivStyle">
-      <v-img :src="wallImage" cover :style="wallBackgroundStyle" class="wall-background"></v-img>
-      <div class="wall-content">
-         <SplitWall :wall="displayWall" :rowHeight="slideRowHeight" :linkUrl="userLinkUrl"/>
-      </div> 
-      <Avatar v-if="viewMgr.isDeskTop" :user="user" :size="75" class="wall-content ml-2 mt-n7 pa-1 bg-black"/>
-   </div>
-   <!-- galleries -->
-   <RecentGalleryThumbs v-if="visibleGalleries.length" :galleries="visibleGalleries" 
-      :maxRows="galleryRows" :toRouteId="route.params.id"  bypassShowUser class="mt-10 mb-5"/>
-
-   <MyGroupThumbs v-if="route.params.id == userStore.userId"/>
-
-   <!-- recent updated, viewed -->
-   <div v-if="viewMgr.isXs">
-      <div class="mx-2 mb-10 bg-shade">
-         <ItemThumbsPanel title="Recent Updates" :items="recentUpdatedItems" 
-            :linkTo="Route.RECENT.url + route.params.id"/>
+   </v-container> -->
+      <div v-if="!contentExists">
+         <div class="pt-10 pb=5 text-h5">No Content</div>
+         <div>Add Items and Galleries in <RouterLink :to="Route.ACCOUNT.url">My Account</RouterLink></div>
       </div>
-      <div class="mx-2 bg-shade">
-         <ItemThumbsPanel title="Recent Viewed" :items="recentViewedItems" 
-            :linkTo="Route.VIEWED.url + route.params.id" showDateViewed/>
+      <!-- wall -->
+      <div v-if="wallItemsExist" class="walldiv" :style="wallDivStyle">
+         <v-img :src="wallImage" cover :style="wallBackgroundStyle" class="wall-background"></v-img>
+         <div class="wall-content">
+            <SplitWall :wall="displayWall" :rowHeight="slideRowHeight" :linkUrl="userLinkUrl"/>
+         </div> 
+         <Avatar v-if="viewMgr.isDeskTop" :user="user" :size="75" class="wall-content ml-2 mt-n7 pa-1 bg-black"/>
       </div>
-   </div>
-   <v-row v-else class="mr-5">
-      <v-col cols="6">
-         <ItemThumbsPanel title="Recent Updates" :items="recentUpdatedItems" 
-            :linkTo="Route.RECENT.url + route.params.id" class="bg-shade border-md fill-height"/>
-      </v-col>
-      <v-col cols="6" class="">
-         <ItemThumbsPanel title="Recent Viewed" :items="recentViewedItems" 
-            :linkTo="Route.VIEWED.url + route.params.id" showDateViewed class="bg-shade border-md fill-height"/>
-      </v-col>
-   </v-row>
+      <div class="center">
+         <!-- galleries -->
+         <RecentGalleryThumbs v-if="visibleGalleries.length" :galleries="visibleGalleries" 
+            :maxRows="galleryRows" :toRouteId="route.params.id"  bypassShowUser class="mt-10 mb-5"/>
+
+         <MyGroupThumbs v-if="route.params.id == userStore.userId"/>
+
+         <!-- recent updated, viewed -->
+         <div v-if="viewMgr.isXs">
+            <div class="mx-2 mb-10 bg-shade">
+               <ItemThumbsPanel title="Recent Updates" :items="recentUpdatedItems" 
+                  :linkTo="Route.RECENT.url + route.params.id"/>
+            </div>
+            <div class="mx-2 bg-shade">
+               <ItemThumbsPanel title="Recent Viewed" :items="recentViewedItems" 
+                  :linkTo="Route.VIEWED.url + route.params.id" showDateViewed/>
+            </div>
+         </div>
+         <v-row v-else class="mr-5">
+            <v-col cols="6">
+               <ItemThumbsPanel title="Recent Updates" :items="recentUpdatedItems" 
+                  :linkTo="Route.RECENT.url + route.params.id" class="bg-shade border-md fill-height"/>
+            </v-col>
+            <v-col cols="6" class="">
+               <ItemThumbsPanel title="Recent Viewed" :items="recentViewedItems" 
+                  :linkTo="Route.VIEWED.url + route.params.id" showDateViewed class="bg-shade border-md fill-height"/>
+            </v-col>
+         </v-row>
+      </div>
+   </ion-content>
+</ion-page>
 </template>
 
 <script setup>

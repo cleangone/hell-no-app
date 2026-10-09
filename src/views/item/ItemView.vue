@@ -1,6 +1,17 @@
 <template>
 <ion-page>
 <ion-content> 
+   <!-- header -->
+   <div class="scrolling-header-container">
+      <ion-toolbar class="custom-scrolling-toolbar">
+         <ion-buttons slot="start"><BackButton/></ion-buttons>
+         <ion-title class="text-center text-h6">{{ paramItem.name }}</ion-title>
+         <ion-buttons slot="end">
+            <ToggleIcon icon="mdi-gesture-swipe" :state="viewStore.isMobileSwipe" @click="viewStore.toggleMobileSwipe()"/>
+         </ion-buttons>
+      </ion-toolbar>
+   </div>
+
    <DefineTemplate> <!-- item info beside or below image -->
       <div v-if="alternateName" class="mt-n2">
          also <span class="text-h5">{{ alternateName }}</span>
@@ -163,6 +174,7 @@
 <script setup>
    import { computed, onMounted, ref } from 'vue'
    import { useRoute, useRouter } from 'vue-router'
+   import { onIonViewWillEnter, onIonViewWillLeave } from '@ionic/vue'
    import { createReusableTemplate, onKeyStroke, useWindowSize } from '@vueuse/core'
    import { useSeoMeta }      from '@unhead/vue'
    import { useUserStore }    from '@/stores/userStore'
@@ -184,9 +196,11 @@
    import EmailButton         from '@/components/email/EmailButton.vue'
    import GroupNameLinks      from '@/components/group/GroupNameLinks.vue'
    import UserLinkAvatar      from '@/components/user/avatar/UserLinkAvatar.vue'
+   import BackButton          from '@/components/util/BackButton.vue'  
+   import CopyLink            from '@/components/util/CopyLink.vue'
    import EditButton          from '@/components/util/EditButton.vue'
    import IconButton          from '@/components/util/IconButton.vue'
-   import CopyLink            from '@/components/util/CopyLink.vue'
+   import ToggleIcon          from '@/components/util/icon/ToggleIcon.vue'
    import { isOwned, isGroup, isPublic, populated, toSortedNameAsc } from '@/utils/utils'
    import { ImageType, ItemNavAction, ItemOrigin, Route } from '@/utils/constants'
 
@@ -209,6 +223,7 @@
    const showItemImagesDialog      = ref(false)
    const showItemGroupImagesDialog = ref(false)
    const showEditDialog            = ref(false)
+   const isPageActive  = ref(false)
    const selectedItem  = ref(null)
    const selectedImage = ref(null)
    const meta = ref({})
@@ -223,11 +238,27 @@
       }
    })
 
+   onIonViewWillEnter(() => {
+      console.log("galleryView onIonViewWillEnter")
+      isPageActive.value = true
+   })
+   onIonViewWillLeave(() => {
+      console.log("galleryView onIonViewWillLeave")
+      isPageActive.value = false
+   })
+
+   const props = defineProps({ origin: String, nav: String, id: String })
+
    const paramItem = computed(() => { 
-      let item = itemStore.getItem(route.params.id)
+      // console.log("itemView id",     props.id)
+      // console.log("itemView origin", props.origin)
+      // console.log("itemView nav",    props.nav)
+      
+      // let item = itemStore.getItem(route.params.id)
+      let item = itemStore.getItem(props.id)
       if (!item) { return null }  // itemStore has not intiailized yet
 
-      viewMgr.addHit(route.params.id)
+      viewMgr.addHit(props.id)
       
       if (viewMgr.isMobile && isItemGroup(item)) { 
          item = { ...item, childNum: route.params.child ? route.params.child : "1" }
