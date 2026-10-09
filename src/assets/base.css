@@ -100,13 +100,22 @@
 }
 
 html {
-  height: 100vh;
-  width: 100vw;
+  width: 100%;
+  height: 100%;
+  /* height: 100vh;
+  width: 100vw; */
   margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevents outer body bounce-scrolling on iOS */
 }
 
 body {
-  min-height: 100vh;
+  /* min-height: 100vh; */
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
   color: var(--color-text);
   background: var(--color-background);
   transition:

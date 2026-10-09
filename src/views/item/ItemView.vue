@@ -37,7 +37,7 @@
    </DefineTemplate>
 
    <div v-if="viewMgr.isMobile">
-      <ItemMobileView :item="paramItem" :origin="route.params.origin" :nav="route.params.nav"/>
+      <ItemMobilePanel :item="paramItem" :origin="route.params.origin" :nav="route.params.nav"/>
    </div>
    <div v-else-if="paramItem">
       <div class="content-wrapper mt-1">
@@ -174,7 +174,7 @@
    import { useWallStore }    from '@/stores/wallStore'
    import { useViewStore }    from '@/stores/viewStore'
    import { useViewMgr }      from '@/stores/viewMgr'
-   import ItemMobileView      from './ItemMobileView.vue'
+   import ItemMobilePanel     from './ItemMobilePanel.vue'
    import ItemGroupSmThumb    from '@/components/item/ItemGroupSmThumb.vue'
    import ExpandItems         from '@/components/item/ExpandItems.vue'
    import PlayItems           from '@/components/item/PlayItems.vue'
@@ -294,10 +294,8 @@
    const originGalleryId = computed(() => originGallery.value ? originGallery.value.id : null)
    const originGallery = computed(() => {  
       let linkId = route.params.origin == ItemOrigin.GALLERY ? viewStoreVisibleItems.value?.linkId : null
-      if (!linkId) { return null }
       
-      // id may be a tag
-      return linkId.length > 15 ? galleryStore.getGallery(linkId) : galleryStore.getGalleryByTag(linkId) 
+      return linkId ? galleryStore.getGallery(linkId) : null
    })
 
    const singleOtherGallery     = computed(() => otherGalleries.value.length == 1)

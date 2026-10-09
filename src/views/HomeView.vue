@@ -1,6 +1,7 @@
 <template>
 <ion-page>
-<ion-content>  
+<ion-content :fullscreen="true"> 
+<!-- <v-container class="mb-auto pt-4"> -->
    <!-- title if not mobile - mobile title in app -->
    <v-container v-if="!viewMgr.isMobile" class="pa-0 mt-2 mb-1 width-100">
       <v-row no-gutters class="d-flex align-center flex-nowrap">
@@ -46,13 +47,15 @@
    <v-row v-else class="mr-5">
       <v-col cols="6">
          <ItemThumbsPanel title="Recent Updates" :items="recentUpdatedItems" 
-            :linkTo="Route.RECENT.url + Defaults.SITE_ID" class="bg-shade border-md fill-height"/>
+            :linkTo="Route.RECENT.url + Defaults.SITE_ID" class="bg-shade border-md "/>
+            <!-- fill-height -->
       </v-col>
       <v-col cols="6" class="">
          <ItemThumbsPanel title="Recent Viewed" :items="recentViewedItems" 
-            :linkTo="Route.VIEWED.url + Defaults.SITE_ID" showDateViewed class="bg-shade border-md fill-height"/>
+            :linkTo="Route.VIEWED.url + Defaults.SITE_ID" showDateViewed class="bg-shade border-md"/>
       </v-col>
    </v-row>
+<!-- </v-container> -->
 </ion-content>  
 </ion-page>
 </template>

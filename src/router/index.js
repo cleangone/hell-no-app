@@ -56,7 +56,7 @@ const router = createRouter({
 })
 
 function createRoute(route, component, urlParams = "") { 
-   return { name: route.name, component: component, path: route.url + urlParams } 
+   return { name: route.name, component: component, path: route.url + urlParams, props: true } 
 }
 
 export default router

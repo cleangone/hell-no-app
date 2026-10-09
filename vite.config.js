@@ -3,6 +3,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 import Components from 'unplugin-vue-components/vite'
+import { IonicResolver } from 'unplugin-vue-components/resolvers' 
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -10,12 +11,8 @@ export default defineConfig({
       vue(),
       Components({
          resolvers: [
-         // <ion-*> components
-         (componentName) => {
-            if (componentName.startsWith('Ion')) {
-               return { name: componentName, from: '@ionic/vue' }
-            }
-         }]
+             IonicResolver()
+         ]
       }),
       VitePWA({
          injectRegister: null, // Prevents generating registerSW.js

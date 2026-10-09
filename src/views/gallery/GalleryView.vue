@@ -1,4 +1,6 @@
 <template>
+<ion-page>
+<ion-content>  
    <DefineTemplate>
       <v-container style="width: 100%" class="mt-3">
           <v-row v-if="descExists && !descInHeader" cols="6" class="d-flex flex-grow-1 flex-shrink-1">
@@ -14,65 +16,64 @@
       </v-container>
    </DefineTemplate>
 
-   <div v-if="viewMgr.isMobile">
-      <div class="content-wrapper mt-1" :style="contentStyle">
-         <img v-if="backgroundImage" :src="backgroundImage.url" class="background" :style="backgroundStyle"/>
-         <div class="content">
-            <div style="clear:both"></div>
-            <PlayItems v-if="!viewMgr.isXs" :items="galleryItems"/>
-            <GalleryParentLink :gallery="gallery" style="text-align:center"/>
-            <ReuseTemplate/>
-         </div>
-      </div>
-   </div>
-   <div v-else> 
-      <div class="content-wrapper mt-1" :style="contentStyle">
-         <img v-if="backgroundImage" :src="backgroundImage.url" class="background" :style="backgroundStyle"/>
-         <div class="content">
-            <div style="clear:both"></div>
-            <!-- title -->
-            <v-container class="pa-0 width-100">
-               <v-row no-gutters class="d-flex align-center flex-nowrap">
-                  <v-col cols="2" class="d-flex justify-start flex-grow-0 flex-shrink-0">
-                     <UserLinkAvatar v-if="!isSolo" :user="user"/>
-                  </v-col>
-                  <v-col cols="1" class="flex-grow-1 flex-shrink-0" style="min-width: 100px; max-width: 100%;">
-                     <div class="title">{{ galleryName }} Gallery</div>
-                     <GalleryParentLink :gallery="gallery" style="text-align:center"/>
-                  </v-col>
-                  <v-col cols="2" class="d-flex justify-end align-center flex-grow-0 flex-shrink-0 ">
-                     <PlayItems :items="galleryItems" :backgroundImage="backgroundImage" buttonClass="mr-2"/>
-                     <ThumbSizeButton class="mx-n1"/>
-                     <CopyLink :route="Route.GALLERY.name" :id="galleryId"/>
-                     <ItemThumbConfig/>
-                     <EditButton v-if="canEdit" @click="showEditGalleryDialog=true" class="mx-n2"/>
-                  </v-col>
-               </v-row>
-            </v-container>
-            <!-- header and content below or beside -->
-            <div v-if="headerImage" :class="verticalHeader?'horizontal-container':''">
-               <div class="bg-white mb-20">
-                  <RouterLink :to="itemMgr.itemURL(headerImage.itemId, ItemOrigin.GALLERY)">
-                     <!-- no description in vertical headers  -->
-                     <v-img v-if="verticalHeader" :src="headerImage.url" @mouseover="headerMouseover()" @mouseleave="headerMouseleave()" width="400"/>
-                     <v-img v-else :src="headerImage.url" @mouseover="headerMouseover()" @mouseleave="headerMouseleave()" cover max-height="300" class="mb-5">
-                        <div v-if="descExists && descInHeader" class="pa-1 d-flex fill-height align-end justify-end">
-                           <div v-html="gallery.desc" class="text-left desc-header-div" :style="headerDescStyle"></div>   
-                        </div>
-                     </v-img>
-                  </RouterLink>
-               </div> 
-               <div><ReuseTemplate/></div>
-            </div>
-            <!-- content w/o header -->
-            <div v-else>
+      <div v-if="viewMgr.isMobile">
+         <div class="content-wrapper mt-1" :style="contentStyle">
+            <img v-if="backgroundImage" :src="backgroundImage.url" class="background" :style="backgroundStyle"/>
+            <div class="content">
+               <div style="clear:both"></div>
+               <PlayItems v-if="!viewMgr.isXs" :items="galleryItems"/>
+               <GalleryParentLink :gallery="gallery" style="text-align:center"/>
                <ReuseTemplate/>
             </div>
          </div>
       </div>
-   </div>
-
-   <ItemPopup v-if="headerPopup" :popupImage="headerPopup"/>
+      <div v-else> 
+         <div class="content-wrapper mt-1" :style="contentStyle">
+            <img v-if="backgroundImage" :src="backgroundImage.url" class="background" :style="backgroundStyle"/>
+            <div class="content">
+               <div style="clear:both"></div>
+               <!-- title -->
+               <v-container class="pa-0 width-100">
+                  <v-row no-gutters class="d-flex align-center flex-nowrap">
+                     <v-col cols="2" class="d-flex justify-start flex-grow-0 flex-shrink-0">
+                        <UserLinkAvatar v-if="!isSolo" :user="user"/>
+                     </v-col>
+                     <v-col cols="1" class="flex-grow-1 flex-shrink-0" style="min-width: 100px; max-width: 100%;">
+                        <div class="title">{{ galleryName }} Gallery</div>
+                        <GalleryParentLink :gallery="gallery" style="text-align:center"/>
+                     </v-col>
+                     <v-col cols="2" class="d-flex justify-end align-center flex-grow-0 flex-shrink-0 ">
+                        <PlayItems :items="galleryItems" :backgroundImage="backgroundImage" buttonClass="mr-2"/>
+                        <ThumbSizeButton class="mx-n1"/>
+                        <CopyLink :route="Route.GALLERY.name" :id="galleryId"/>
+                        <ItemThumbConfig/>
+                        <EditButton v-if="canEdit" @click="showEditGalleryDialog=true" class="mx-n2"/>
+                     </v-col>
+                  </v-row>
+               </v-container>
+               <!-- header and content below or beside -->
+               <div v-if="headerImage" :class="verticalHeader?'horizontal-container':''">
+                  <div class="bg-white mb-20">
+                     <RouterLink :to="itemMgr.itemURL(headerImage.itemId, ItemOrigin.GALLERY)">
+                        <!-- no description in vertical headers  -->
+                        <v-img v-if="verticalHeader" :src="headerImage.url" width="400"/>
+                        <v-img v-else :src="headerImage.url" cover max-height="300" class="mb-5">
+                           <div v-if="descExists && descInHeader" class="pa-1 d-flex fill-height align-end justify-end">
+                              <div v-html="gallery.desc" class="text-left desc-header-div" :style="headerDescStyle"></div>   
+                           </div>
+                        </v-img>
+                     </RouterLink>
+                  </div> 
+                  <div><ReuseTemplate/></div>
+               </div>
+               <!-- content w/o header -->
+               <div v-else>
+                  <ReuseTemplate/>
+               </div>
+            </div>
+         </div>
+      </div>
+   
 
    <v-dialog v-model="showEditGalleryDialog" width="75%" height="90%">
       <EditGalleryCard :gallery="gallery" @done="showEditGalleryDialog=false"/>
@@ -80,13 +81,15 @@
    <v-dialog v-model="showAddItemDialog" width="auto">
       <AddItemDialog :gallery="gallery" @done="showAddItemDialog=false"/>
    </v-dialog>
+</ion-content>
+</ion-page>
 </template>
 
 <script setup>
    import { computed, onMounted, ref } from 'vue'
    import { useRoute, useRouter } from 'vue-router'
-   import { createReusableTemplate, useMouse, useWindowSize } from '@vueuse/core'   
-   import { useSeoMeta } from '@unhead/vue'
+   import { onIonViewWillEnter, onIonViewWillLeave } from '@ionic/vue'
+   import { createReusableTemplate, useWindowSize } from '@vueuse/core'   
    import { useUserStore }    from '@/stores/userStore'
    import { useGalleryStore } from '@/stores/galleryStore'
    import { useItemStore }    from '@/stores/itemStore'
@@ -96,7 +99,6 @@
    import GalleryParentLink   from './GalleryParentLink.vue'
    import GalleryThumb        from '@/components/gallery/thumb/GalleryThumb.vue'
    import EditGalleryCard     from '@/components/gallery/EditGalleryCard.vue'
-   import ItemPopup           from '@/components/item/ItemPopup.vue'
    import PlayItems           from '@/components/item/PlayItems.vue'
    import AddItemDialog       from '@/components/item/crud/AddItemDialog.vue'
    import ItemThumb           from '@/components/item/thumb/ItemThumb.vue'
@@ -111,7 +113,6 @@
    const route = useRoute()
    const router = useRouter()
    const { height: windowHeight } = useWindowSize()
-   const { x: mouseX, y: mouseY } = useMouse({ touch: false })
    const [DefineTemplate, ReuseTemplate] = createReusableTemplate()
    const userStore    = useUserStore()
    const galleryStore = useGalleryStore()
@@ -119,8 +120,7 @@
    const itemMgr      = useItemMgr()
    const viewStore    = useViewStore()
    const viewMgr      = useViewMgr()
-   const headerMouseleaveTime = ref(Date.now())
-   const headerPopup = ref(null)
+   const isPageActive          = ref(false)
    const showEditGalleryDialog = ref(false)
    const showAddItemDialog     = ref(false)
 
@@ -132,8 +132,22 @@
       }
    })
 
+   onIonViewWillEnter(() => {
+      console.log("onIonViewWillEnter")
+      isPageActive.value = true
+      // Enable Firestore listeners / fetch data ONLY for this active gallery ID
+      // galleryStore.setActiveGallery(props.id)
+   })
+
+   onIonViewWillLeave(() => {
+      console.log("onIonViewWillLeave")
+      isPageActive.value = false
+   })
+
+   const props = defineProps({ id: String })
+   
    const gallery = computed(() => { 
-      const gallery = route.params.id.length  > 15 ? galleryStore.getGallery(route.params.id) : galleryStore.getGalleryByTag(route.params.id) 
+      const gallery = galleryStore.getGallery(props.id) 
       // console.log("GalleryView - gallery", gallery)
       if (!gallery) { return null }  // galleryStore has not intiailized yet
 
@@ -143,8 +157,6 @@
       return gallery 
    })
       
-   useSeoMeta({ title: "Hell-No " + (gallery.value ? gallery.value.name + " " : "")  + "Gallery" })
-
    const contentStyle      = computed(() => "min-height:" + windowHeight.value + "px;")
    const galleryId         = computed(() => gallery.value ? gallery.value.id : "")
    const galleryName       = computed(() => gallery.value ? gallery.value.name : "")
@@ -180,6 +192,14 @@
    }
    
    const galleryItems = computed(() => { 
+      console.log("galleryItems")
+      if (!isPageActive.value) {
+         console.log("page inactive", props.id)
+         return []
+      }
+
+
+
       const displayItems = []
       const galleryItemIds = gallery.value?.itemIds ?? []
       for (const item of itemStore.getGalleryItems(galleryId.value)) {
@@ -191,8 +211,23 @@
       }
    
       displayItems.sort(function(a, b) {return a.position - b.position}) 
+      console.log("displayItems", displayItems)
+      
       const ungroupedItems = viewMgr.isMobile ? itemMgr.ungroupAndExtractItems(displayItems) : displayItems
-      viewStore.setVisibleItems(ItemOrigin.GALLERY, galleryName.value + " Gallery", Route.GALLERY.url + route.params.id, ungroupedItems, route.params.id)
+      console.log("ungroupedItems", ungroupedItems)
+      
+
+      // somehow getting the AH Catwoman here 
+      viewStore.setVisibleItems(ItemOrigin.GALLERY, galleryName.value + " Gallery", Route.GALLERY.url + props.id, ungroupedItems, props.id)
+      
+      
+      console.log("getVisibleItems", viewStore.getVisibleItems(ItemOrigin.GALLERY) )
+      
+      
+      
+      
+      
+      
       return displayItems
    })
 
@@ -209,23 +244,6 @@
             }
          }
       }     
-   }
-   
-   const headerMouseover = () => {
-      const mouseoverTime = Date.now()  
-      setTimeout(() => { 
-         if (mouseoverTime > headerMouseleaveTime.value ) { 
-            const boundingRect = { left: mouseX.value, right: mouseX.value, top: mouseY.value, bottom: mouseY.value }
-            const aspectRatio = objAspectRatio(headerImage.value.originalDimensions)
-            headerPopup.value = itemMgr.getPopupImage(
-               headerImage.value.name, null, headerImage.value.originalLargeThumbUrl, boundingRect, aspectRatio)
-            }
-      }, 250)  
-   }
-
-   const headerMouseleave = () => {
-      headerMouseleaveTime.value = Date.now()
-      headerPopup.value = null 
    }
 </script>
 

@@ -65,10 +65,6 @@ export const useGalleryStore = defineStore('gallery', () => {
    // publicGalleries
    //
    const publicGalleries = computed(() => { return galleries.value.filter(gallery => isPublic(gallery)) })
-      // const pub = galleries.value.filter(gallery => isPublic(gallery))
-      // console.log("publicGalleries: " + pub.length)
-      // return pub })
-   
    const userIdToPublicGalleries = computed(() => {
       const galleryMap = new Map()
       for (const gallery of publicGalleries.value) {

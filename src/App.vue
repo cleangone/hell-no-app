@@ -1,6 +1,5 @@
 <template>
    <ion-app>
-   <ion-page> 
    <!-- <div class="app">   -->
    <ion-header class="ion-no-border" :translucent="false">
       <ion-toolbar>
@@ -87,11 +86,11 @@
       </ion-toolbar>
    </ion-header>
 
-   <ion-content class="app">
-      <!-- <RouterView/> -->
+   
+
+   <!-- <ion-content class="app">  -->
       <ion-router-outlet />
- 
-      <div v-if="isRoute(Route.HOME)" class="small">
+      <!-- <div v-if="isRoute(Route.HOME)" class="small">
          {{ version }}<span v-if="appEnv.length"> - {{ appEnv }}</span>
       </div>
       <div v-else-if="isRoute(Route.ABOUT)" class="small">
@@ -99,10 +98,36 @@
          <div>User Agent: {{ userAgent }}</div>
          <div>Max Touch Points: {{ maxTouchPoints }}</div>
          <div v-if="isStandalone">Standalone</div>
-      </div>
-   </ion-content>
+      </div> -->
+   <!-- </ion-content> -->
 
-   <!-- <v-bottom-navigation v-model="navIndex" color="primary" grow> -->
+   <ion-footer class="ion-no-border">
+      <ion-tab-bar>
+         <ion-tab-button @click="toRoute(Route.HOME)" :class="{ 'tab-selected': navIndex === 0 }">
+            <Icon icon="mdi-home" />
+         </ion-tab-button>
+         <ion-tab-button @click="toSiteRoute(Route.GALLERIES)" :class="{ 'tab-selected': navIndex === 1 }">
+            <Icon icon="mdi-image-multiple" />
+         </ion-tab-button>
+         <ion-tab-button @click="toRoute(Route.SEARCH)" :class="{ 'tab-selected': navIndex === 2 }">
+            <Icon icon="mdi-magnify" />
+         </ion-tab-button>
+         <ion-tab-button @click="toSiteRoute(Route.RECENT)" :class="{ 'tab-selected': navIndex === 3 }">
+            <Icon icon="mdi-history" />
+         </ion-tab-button>
+         <ion-tab-button v-if="userExists" @click="router.push(isRoute(Route.USER) ? Route.ACCOUNT.url : Route.USER.url + userId)" :class="{ 'tab-selected': navIndex === 4 }">
+            <Icon :icon="isRoute(Route.USER) ? 'mdi-cog' : 'mdi-account'" />
+         </ion-tab-button>
+         <ion-tab-button v-else @click="toRoute(Route.LOGIN)" :class="{ 'tab-selected': navIndex === 4 }">
+            <Icon icon="mdi-account" />
+         </ion-tab-button>
+      </ion-tab-bar>
+   </ion-footer>
+
+   </ion-app>
+</template>
+
+ <!-- <v-bottom-navigation v-model="navIndex" color="primary" grow> -->
          <!-- <v-bottom-navigation v-model="navIndex" color="primary" style="min-height:60px" grow> -->
             <!-- <v-btn @click="toRoute(Route.HOME)">
                <Icon icon="mdi-home"/>
@@ -129,57 +154,6 @@
                <span class="nav-text">Login</span>
             </v-btn>
          </v-bottom-navigation> -->
-   <!-- <ion-footer class="ion-no-border">
-      <ion-toolbar color="surface">
-         <div class="footer-nav">
-            <ion-button fill="clear" @click="toRoute(Route.HOME)" :class="{ active: navIndex === 0 }">
-               <Icon icon="mdi-home"/>
-            </ion-button>
-            <ion-button fill="clear" @click="toSiteRoute(Route.GALLERIES)" :class="{ active: navIndex === 1 }">
-               <Icon icon="mdi-image-multiple"/>
-            </ion-button>
-            <ion-button fill="clear" @click="toRoute(Route.SEARCH)" :class="{ active: navIndex === 2 }">
-               <Icon icon="mdi-magnify"/>
-            </ion-button>
-            <ion-button fill="clear" @click="toSiteRoute(Route.RECENT)" :class="{ active: navIndex === 3 }">
-               <Icon icon="mdi-history"/>
-            </ion-button>
-            <ion-button v-if="userExists" fill="clear" @click="router.push(isRoute(Route.USER) ? Route.ACCOUNT.url : Route.USER.url + userId)" :class="{ active: navIndex === 4 }">
-               <Icon :icon="isRoute(Route.USER) ? 'mdi-cog' : 'mdi-account'"/>
-            </ion-button>
-            <ion-button v-else fill="clear" @click="toRoute(Route.LOGIN)">
-               <Icon icon="mdi-account"/>
-            </ion-button>
-         </div>
-      </ion-toolbar>
-   </ion-footer> -->
-
-   <ion-footer class="ion-no-border">
-      <ion-tab-bar>
-         <ion-tab-button @click="toRoute(Route.HOME)" :class="{ 'tab-selected': navIndex === 0 }">
-            <Icon icon="mdi-home" />
-         </ion-tab-button>
-         <ion-tab-button @click="toSiteRoute(Route.GALLERIES)" :class="{ 'tab-selected': navIndex === 1 }">
-            <Icon icon="mdi-image-multiple" />
-         </ion-tab-button>
-         <ion-tab-button @click="toRoute(Route.SEARCH)" :class="{ 'tab-selected': navIndex === 2 }">
-            <Icon icon="mdi-magnify" />
-         </ion-tab-button>
-         <ion-tab-button @click="toSiteRoute(Route.RECENT)" :class="{ 'tab-selected': navIndex === 3 }">
-            <Icon icon="mdi-history" />
-         </ion-tab-button>
-         <ion-tab-button v-if="userExists" @click="router.push(isRoute(Route.USER) ? Route.ACCOUNT.url : Route.USER.url + userId)" :class="{ 'tab-selected': navIndex === 4 }">
-            <Icon :icon="isRoute(Route.USER) ? 'mdi-cog' : 'mdi-account'" />
-         </ion-tab-button>
-         <ion-tab-button v-else @click="toRoute(Route.LOGIN)" :class="{ 'tab-selected': navIndex === 4 }">
-            <Icon icon="mdi-account" />
-         </ion-tab-button>
-      </ion-tab-bar>
-   </ion-footer>
-
-   </ion-page>
-   </ion-app>
-</template>
 
 <script setup>
    import { computed, ref, onMounted } from 'vue'
@@ -339,29 +313,26 @@
 
 <style>
 ion-header {
-  background-color: var(--v-theme-surface, #ffffff);
+  --background: #ffffff;
+  background-color: #ffffff;
 }
+
 ion-toolbar {
+  --background: #ffffff;
   --min-height: 44px;
 }
 
-
-
 ion-footer {
+  --background: #ffffff; /* 👈 Fixes transparent background */
+  background-color: #ffffff;
   box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.1);
-  background-color: var(--v-theme-surface, #ffffff);
 }
 
 /* Tab bar configuration inside footer */
 ion-footer ion-tab-bar {
-  --background: var(--v-theme-surface, #ffffff);
+  --background: #ffffff;
   --border: none;
   height: 50px;
-}
-
-ion-tab-button {
-  --color: #757575;
-  --color-selected: var(--ion-color-primary, #1976d2);
 }
 
 /* Force custom Icon wrapper components inside tab buttons to match header scale */

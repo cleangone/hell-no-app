@@ -37,12 +37,7 @@
                class="itemSwipe" :style="itemSwipeWidthStyle"/>
          </div>
       </div>
-      <div v-else> <!-- infinite scroll -->
-         <v-img :src="imageUrl(props.item.primaryImage)" contain class="no-pointer-events" />
-         <div class="text-left mt-2">
-            <ItemArtistYear :item="props.item" />
-         </div>
-         <v-infinite-scroll :items="scrollItems" :onLoad="loadItems">
+         <!-- <v-infinite-scroll :items="scrollItems" :onLoad="loadItems">
             <template v-for="item in scrollItems" :key="item.id">
                <div v-if="item.id != route.params.id" class="mt-5">
                   <div class="text-h6">{{ item.name }}</div>
@@ -59,7 +54,32 @@
                </div>
             </template>
             <template v-slot:empty></template>
-         </v-infinite-scroll>
+         </v-infinite-scroll> -->
+
+      <div v-else> <!-- infinite scroll -->
+         <v-img :src="imageUrl(props.item.primaryImage)" contain class="no-pointer-events" />
+         <div class="text-left mt-2">
+            <ItemArtistYear :item="props.item" />
+         </div>
+         <template v-for="item in scrollItems" :key="item.id">
+            <div v-if="item.id != route.params.id" class="mt-5">
+               <div class="text-h6">{{ item.name }}</div>
+               <div v-if="itemOtherGalleries(item).length"> 
+                  <span v-for="(gallery, index) in itemOtherGalleries(item)" :key="gallery.id">
+                  <span v-if="index"> | </span>
+                  <RouterLink :to="galleryUrl(gallery.id)">{{ gallery.name }} Gallery</RouterLink>
+                  </span>
+               </div>
+            </div>
+            <v-img :src="imageUrl(item.primaryImage)" contain class="no-pointer-events"/>
+            <div class="text-left mt-2">
+               <ItemArtistYear :item="item"/>
+            </div>
+         </template>
+         <ion-infinite-scroll @ionInfinite="loadItems">
+            <ion-infinite-scroll-content loading-spinner="bubbles" loading-text="Loading...">
+            </ion-infinite-scroll-content>
+         </ion-infinite-scroll>
       </div>
    </div>
 </template>
@@ -91,26 +111,24 @@
    const { width: windowWidth } = useWindowSize()
    
    onMounted(async() => {
+      console.log("onMounted - origin", props.origin)
       if (viewStore.isInitialized && props.origin != ItemOrigin.EXTERNAL) { showNav.value = true }
       initializeScrollItems()
    })
 
    const originGalleryId = computed(() => {  
-      let originGalleryId = props.origin == ItemOrigin.GALLERY ? viewStoreVisibleItems.value?.linkId : null
-      if (!originGalleryId || originGalleryId.length > 15) { return originGalleryId }
-        
-      // id is actually a tag
-      const gallery = galleryStore.getGalleryByTag(originGalleryId) 
-      return gallery ? gallery.id : null
+      return props.origin == ItemOrigin.GALLERY ? viewStoreVisibleItems.value?.linkId : null      
    })
 
    const singleOtherGallery     = computed(() => otherGalleries.value.length == 1)
    const multipleOtherGalleries = computed(() => otherGalleries.value.length > 1)
    const otherGalleries = computed(() => {  
       const galleries = []
-      for (const galleryId of props.item.galleryIds) {
-         const gallery = galleryStore.getGallery(galleryId)
-         if (gallery.id != originGalleryId.value && viewMgr.galleryThumbVisibleToUser(gallery)) { galleries.push(gallery) }
+      if (props.item?.galleryIds) { 
+         for (const galleryId of props.item.galleryIds) {
+            const gallery = galleryStore.getGallery(galleryId)
+            if (gallery.id != originGalleryId.value && viewMgr.galleryThumbVisibleToUser(gallery)) { galleries.push(gallery) }
+         }
       }
       galleries.sort(function(a, b){return a.name.localeCompare(b.name)}) 
       return galleries
@@ -143,7 +161,12 @@
    const showPrevNext = computed(() => viewStore.isMobileSwipe ? showNav.value : false)
    
    const viewStoreVisibleItems = computed(() => showNav.value ? viewStore.getVisibleItems(props.origin) : null)
-   const viewStoreItems = computed(() => viewStoreVisibleItems.value ? viewStoreVisibleItems.value.items : [])
+   // const viewStoreItems = computed(() => viewStoreVisibleItems.value ? viewStoreVisibleItems.value.items : [])
+   
+   const viewStoreItems = computed(() => {
+      console.log("viewStoreItems - viewStoreVisibleItems", viewStoreVisibleItems.value)
+      return viewStoreVisibleItems.value ? viewStoreVisibleItems.value.items : []
+   })
    
    const prevItemUrl = computed(() => itemMgr.itemNavURL(linkId(navItems.value.prev), props.origin, ItemNavAction.PREV, navItems.value.prev.childNum))
    const nextItemUrl = computed(() => itemMgr.itemNavURL(linkId(navItems.value.next), props.origin, ItemNavAction.NEXT, navItems.value.next.childNum))
@@ -184,9 +207,11 @@
    // --- Infinite Scroll ------------------------------------------------------------------ 
    const scrollItems = ref([])
    const scrollEndIndex = ref(0)
-   const setScrollEndIndex = (startIndex) => { scrollEndIndex.value = viewStoreItems.value.length > startIndex + 2 ? startIndex + 2 : viewStoreItems.value.length } 
    
-   const initializeScrollItems = () => { scrollItems.value.push(...getNewScrollItems(getScrollStartIndex())) }
+   const setScrollEndIndex = (startIndex) => { scrollEndIndex.value = viewStoreItems.value.length > startIndex + 2 ? startIndex + 2 : viewStoreItems.value.length } 
+   const initializeScrollItems = () => { 
+      console.log("initializeScrollItems")
+      scrollItems.value.push(...getNewScrollItems(getScrollStartIndex())) }
    const getScrollStartIndex = () => { 
       if (viewStoreItems.value) { 
          for (var i=0; i<viewStoreItems.value.length; i++) { 
@@ -196,30 +221,38 @@
       }
       return 0
    }
-   
    const getNewScrollItems = (startIndex) => { 
+      console.log("getNewScrollItems", startIndex)
       const newScrollItems = []
-      if (startIndex) {
+      // if (startIndex) {
+      console.log("viewStoreItems length", viewStoreItems.value?.length ?? "null")
+      
+      if (startIndex >= 0 && viewStoreItems.value) {
          setScrollEndIndex(startIndex)
          for (var i=startIndex; i<scrollEndIndex.value; i++) { 
             const newScrollItem = viewStoreItems.value[i]
-            newScrollItems.push(newScrollItem)
-            viewStore.loadImage(newScrollItem.primaryImage.url) 
+            if (newScrollItem) {
+               newScrollItems.push(newScrollItem)
+               viewStore.loadImage(newScrollItem.primaryImage.url) 
+            }
          }
       }
       return newScrollItems
    }
-
    async function getNextScrollItems() {
       return new Promise(resolve => {
          setTimeout(() => { resolve(getNewScrollItems(scrollEndIndex.value)) }, 1000)
       })
    }
-
-   async function loadItems ({ done }) {
+   async function loadItems(event) {
+      console.log("loadItems")
       const nextScrollItems = await getNextScrollItems()
-      scrollItems.value.push(...nextScrollItems)
-      done(nextScrollItems.length ? 'ok' : 'empty')
+      if (nextScrollItems.length) {
+         scrollItems.value.push(...nextScrollItems)
+      }
+   
+      event.target.complete() // signal to ionic
+      if (scrollEndIndex.value >= viewStoreItems.value.length) { event.target.disabled = true }
    }
 
    // --- Swipe ----------------------------------------------------------------- 
@@ -229,7 +262,7 @@
       return swipeBot ? [ swipeBot, swipeTop ] : [ swipeTop ]
    })
 
-   const imageWidth = computed(() => { return props.item.primaryImage?.dimensions ? props.item.primaryImage.dimensions.width : 500 })
+   const imageWidth = computed(() => { return props.item.primaryImage?.dimensions?.width ?? 500 })
    const itemSwipeWidth = computed(() => Math.min(windowWidth.value, imageWidth.value))
    const itemSwipeWidthStyle = computed(() => "width:" + itemSwipeWidth.value +  "px")
    const onSwipeLeftStarted  = (itemName) => { swipeBotItem.value = navItems.value.next }

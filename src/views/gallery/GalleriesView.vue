@@ -1,6 +1,6 @@
 <template>
 <ion-page>
-<ion-content>      
+<ion-content :fullscreen="true">   
    <div v-if="viewMgr.isMobile && username" class="mt-n2">
       <RouterLink :to="Route.USER.url + route.params.id">{{ username }}</RouterLink>
    </div>
