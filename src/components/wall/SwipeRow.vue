@@ -11,16 +11,15 @@
 </template>
 
 <script setup>
-   import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+   import { computed, onMounted, ref } from 'vue'
    import { Autoplay, Navigation, Pagination } from 'swiper/modules'
    import { useSwipeStore } from './SwipeStore'
    import { useViewMgr }    from '@/stores/viewMgr'
    import SwipeWallSlide    from './SwipeWallSlide.vue'
-   import { Emit, ItemOrigin } from '@/utils/constants'
+   import { ItemOrigin } from '@/utils/constants'
    import 'swiper/css' // needed for slides-per-view
 
    const props = defineProps({ wallRow:Object, rowHeight:Number, showAvatars:Boolean, linkUrl:String })
-   // const emit  = defineEmits([ Emit.POPUP ])
 
    const swipeStore = useSwipeStore()
    const viewMgr    = useViewMgr()
@@ -28,18 +27,13 @@
    
    onMounted(() => {
       swipeStore.reset()
-      // window.addEventListener('scroll', handleScroll)
    })
-   // onUnmounted(() => window.removeEventListener('scroll', handleScroll))
-   // const handleScroll = () => { onPopup(null) }
 
    const spaceBetweenSlides = computed(() => viewMgr.isXs ? 10 : (props.wallRow.row ? 20 : 40) ) 
    const rowMargin          = computed(() => viewMgr.isXs ? 5 : 0) 
    const slideMargin        = computed(() => viewMgr.isXs ? 25 : 5) 
    const rowStyle   = computed(() => "min-height:" + (props.rowHeight + rowMargin.value)   + "px") 
    const slideStyle = computed(() => "height:"     + (props.rowHeight + slideMargin.value) + "px") 
-   // const onPopup = (popup)  => { emit(Emit.POPUP, popup) }
-   // const onSliderMove = ()  => { emit(Emit.POPUP, null) }
 </script>
 
 <style>

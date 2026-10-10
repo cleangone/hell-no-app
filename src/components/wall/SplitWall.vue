@@ -1,18 +1,16 @@
 <template>
    <div class="wall-container px-3">
-      <SwipeRow :wallRow="topRow" :rowHeight="topHeight" :showAvatars="showUserAvatars" @popup="onPopup"/>
-      <SwipeRow v-if="botRow" :wallRow="botRow" :rowHeight="botHeight" @popup="onPopup"/>
+      <SwipeRow :wallRow="topRow" :rowHeight="topHeight" :showAvatars="showUserAvatars"/>
+      <SwipeRow v-if="botRow" :wallRow="botRow" :rowHeight="botHeight"/>
    </div>
-   <ItemPopup v-if="popupImage" :popupImage="popupImage"/>
 </template>
 
 <script setup>
-   import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+   import { computed, onMounted } from 'vue'
    import { useSwipeStore } from './SwipeStore'
    import { useViewStore }  from '@/stores/viewStore'
    import { useViewMgr }    from '@/stores/viewMgr'
    import SwipeRow          from './SwipeRow.vue'
-   import ItemPopup         from '@/components/item/ItemPopup.vue'
    import { objAspectRatio, randomizeArray } from '@/utils/utils'
    import { Defaults, ItemOrigin, Route } from '@/utils/constants'
 
@@ -21,14 +19,10 @@
    const swipeStore = useSwipeStore()
    const viewStore  = useViewStore()
    const viewMgr    = useViewMgr()
-   const popupImage = ref(null)
    
    onMounted(() => {
       swipeStore.reset()
-      window.addEventListener('scroll', handleScroll)
    })
-   onUnmounted(() => window.removeEventListener('scroll', handleScroll))
-   const handleScroll = () => { if (popupImage.value) { popupImage.value = null } }
    
    const wallItems = computed(() => {
       // console.log("wall", props.wall)
@@ -154,8 +148,6 @@
    const botHeight   = computed(() => props.wall.wallRows > 1 ? totalHeight.value * .2 : 0)
    
    const showUserAvatars = computed(() => props.wall.id == Defaults.SITE_ID)
-   
-   const onPopup = (popup)  => { popupImage.value = popup }
 </script>
 
 <style>

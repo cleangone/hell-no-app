@@ -97,7 +97,9 @@ export const useItemStore = defineStore('item', () => {
    
    // const publicItemsQuery = computed(() => query(itemCollection, where('state', '==', State.PUBLIC)))
    // const publicItems      = useFirestore(publicItemsQuery, [])
-   const publicItems = computed(() => { return items.value.filter(item => isPublic(item)) })
+   const publicItems = computed(() => { 
+      console.log("itemStore.publicItems")
+      return items.value.filter(item => isPublic(item)) })
 
    const myChildItemIds = computed(() => { 
       const childItemIds = new Set()

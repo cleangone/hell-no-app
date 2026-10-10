@@ -69,6 +69,7 @@ export const useItemMgr = defineStore('itemMgr', () => {
    }
 
    const recentViewedPublicItems = computed(() => { 
+      console.log("itemMgr.recentViewedPublicItems")
       const itemIdToDateViewed = new Map(hitStore.hits.map(hit => [ hit.id, hit.dateModified ]))
 
       let items = itemStore.publicItems.map(item => ({

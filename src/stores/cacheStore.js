@@ -19,6 +19,7 @@ export const useCacheStore = defineStore('cache', () => {
 
    const recentViewedPublicItemsLocal = useLocalStorage('recent-viewed-public-items', [])
    const recentViewedPublicItems = computed(() => {
+      console.log("cacheStore.recentViewedPublicItems")
       const items = itemMgr.recentViewedPublicItems 
       return items.length ? setLocal(recentViewedPublicItemsLocal, items) : fixObjs(recentViewedPublicItemsLocal.value)
    })

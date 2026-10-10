@@ -93,6 +93,7 @@
 <script setup>
    import { computed, onMounted, ref } from 'vue'
    // import { useElementSize } from '@vueuse/core'
+   import { useRoute } from 'vue-router'
    import { useUserStore }    from '@/stores/userStore'
    import { useGalleryStore } from '@/stores/galleryStore'
    import { useInviteStore }  from '@/stores/inviteStore'
@@ -112,6 +113,7 @@
    import { isOwned, randomizeArray, toSortedDateContentModifiedDesc } from '@/utils/utils'
    import { Defaults, ItemOrigin, Route, TodoType, WallRowHeight } from '@/utils/constants'
    
+   const route        = useRoute()
    const userStore    = useUserStore()
    const galleryStore = useGalleryStore()
    const inviteStore  = useInviteStore()
@@ -138,7 +140,8 @@
          }, 1000)  
       }
    })
-   
+
+   const isPageActive = computed(() => route.name == Route.HOME.name)
    const user  = computed(() => userStore.user ?? null)
    const title = computed(() => viewMgr.solo && user.value ? 
                                  (user.value.displayName ?? user.value.username) : "Hell-No Gallery")
@@ -229,6 +232,12 @@
    }
    
    const recentUpdatedItems = computed(() => {
+      console.log("home recentUpdatedItems")
+      if (!isPageActive.value) {
+         console.log("home inactive")
+         return []
+      }
+
       let items = viewMgr.solo ? [ ...itemMgr.myRecentItems ] : [ ...cacheStore.recentPublicItems ]
       items = items.filter(item => !itemMgr.isInvisible(item))
 
@@ -244,6 +253,12 @@
    })
 
    const recentViewedItems = computed(() => {
+      console.log("home recentViewedItems")
+      if (!isPageActive.value) {
+         console.log("home inactive")
+         return []
+      }
+
       let items = [ ...cacheStore.recentViewedPublicItems ]   
       if (viewMgr.solo) { items = items.filter(item => isOwned(item, userStore.userId)) }
             

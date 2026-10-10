@@ -19,7 +19,10 @@ export const useHitStore = defineStore('hit', () => {
    const removeListener = async () => { hitAccess.removeListener() }
    
    const rawHits = computed(() => hitAccess.hits)  
-   const hits = computed(() => rawHits.value ? toSortedDateModifiedDesc(rawHits.value) : [])
+   const hits = computed(() => {
+      console.log("hitStore.hits")
+      return rawHits.value ? toSortedDateModifiedDesc(rawHits.value) : []
+   })
    const idToHit = computed(() => { return rawHits.value ? new Map(rawHits.value.map((obj) => [obj.id, obj])) : new Map() })
    function getHit(id) { return idToHit.value ? idToHit.value.get(id) : null } 
 

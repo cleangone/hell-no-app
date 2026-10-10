@@ -198,13 +198,11 @@
    }
    
    const galleryItems = computed(() => { 
-      console.log("galleryItems")
+      console.log("galleryItems", props.id)
       if (!isPageActive.value) {
          console.log("page inactive", props.id)
          return []
       }
-
-
 
       const displayItems = []
       const galleryItemIds = gallery.value?.itemIds ?? []
@@ -217,22 +215,8 @@
       }
    
       displayItems.sort(function(a, b) {return a.position - b.position}) 
-      console.log("displayItems", displayItems)
-      
       const ungroupedItems = viewMgr.isMobile ? itemMgr.ungroupAndExtractItems(displayItems) : displayItems
-      console.log("ungroupedItems", ungroupedItems)
-      
-
-      // somehow getting the AH Catwoman here 
       viewStore.setVisibleItems(ItemOrigin.GALLERY, galleryName.value + " Gallery", Route.GALLERY.url + props.id, ungroupedItems, props.id)
-      
-      
-      console.log("getVisibleItems", viewStore.getVisibleItems(ItemOrigin.GALLERY) )
-      
-      
-      
-      
-      
       
       return displayItems
    })

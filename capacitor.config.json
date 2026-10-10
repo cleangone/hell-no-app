@@ -10,5 +10,8 @@
     "StatusBar": {
       "overlaysWebView": true
     }
+  },
+  "ios": {
+    "webContentsDebuggingEnabled": true
   }
 }

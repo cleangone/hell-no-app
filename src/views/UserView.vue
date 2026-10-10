@@ -17,26 +17,11 @@
             </ion-buttons>
          </ion-toolbar>
       </div>
-   <!-- <v-container v-if="viewMgr.isDeskTop" class="pa-0 width-100">
-      <v-row no-gutters class="d-flex align-center flex-nowrap">
-         <v-col cols="2" class="flex-grow-0 flex-shrink-0"/>
-         <v-col cols="1" class="flex-grow-1 flex-shrink-0" style="min-width: 100px; max-width: 100%;">
-            <div class="title">{{ displayName }} </div>
-         </v-col>
-         <v-col cols="2" class="mr-n2 d-flex flex-grow-0 flex-shrink-0 justify-end">
-            <div v-if="isLoggedInUser">  
-               <RouterLink v-if="invisibleItemsExist" :to="Route.INVISIBLE.url">
-                  <v-icon icon="mdi-incognito" class="mr-2"/>
-               </RouterLink>
-            </div>
-            <EmailButton v-else-if="userExists" :user="user"/>
-         </v-col>
-      </v-row>
-   </v-container> -->
-      <div v-if="!contentExists">
+      <!-- <div v-if="!contentExists">
          <div class="pt-10 pb=5 text-h5">No Content</div>
          <div>Add Items and Galleries in <RouterLink :to="Route.ACCOUNT.url">My Account</RouterLink></div>
-      </div>
+      </div> -->
+
       <!-- wall -->
       <div v-if="wallItemsExist" class="walldiv" :style="wallDivStyle">
          <v-img :src="wallImage" cover :style="wallBackgroundStyle" class="wall-background"></v-img>
@@ -48,29 +33,29 @@
       <div class="center">
          <!-- galleries -->
          <RecentGalleryThumbs v-if="visibleGalleries.length" :galleries="visibleGalleries" 
-            :maxRows="galleryRows" :toRouteId="route.params.id"  bypassShowUser class="mt-10 mb-5"/>
+            :maxRows="galleryRows" :toRouteId="props.id"  bypassShowUser class="mt-10 mb-5"/>
 
-         <MyGroupThumbs v-if="route.params.id == userStore.userId"/>
+         <!-- <MyGroupThumbs v-if="props.id == userStore.userId"/> -->
 
          <!-- recent updated, viewed -->
          <div v-if="viewMgr.isXs">
             <div class="mx-2 mb-10 bg-shade">
                <ItemThumbsPanel title="Recent Updates" :items="recentUpdatedItems" 
-                  :linkTo="Route.RECENT.url + route.params.id"/>
+                  :linkTo="Route.RECENT.url + props.id"/>
             </div>
             <div class="mx-2 bg-shade">
                <ItemThumbsPanel title="Recent Viewed" :items="recentViewedItems" 
-                  :linkTo="Route.VIEWED.url + route.params.id" showDateViewed/>
+                  :linkTo="Route.VIEWED.url + props.id" showDateViewed/>
             </div>
          </div>
          <v-row v-else class="mr-5">
             <v-col cols="6">
                <ItemThumbsPanel title="Recent Updates" :items="recentUpdatedItems" 
-                  :linkTo="Route.RECENT.url + route.params.id" class="bg-shade border-md fill-height"/>
+                  :linkTo="Route.RECENT.url + props.id" class="bg-shade border-md fill-height"/>
             </v-col>
             <v-col cols="6" class="">
                <ItemThumbsPanel title="Recent Viewed" :items="recentViewedItems" 
-                  :linkTo="Route.VIEWED.url + route.params.id" showDateViewed class="bg-shade border-md fill-height"/>
+                  :linkTo="Route.VIEWED.url + props.id" showDateViewed class="bg-shade border-md fill-height"/>
             </v-col>
          </v-row>
       </div>
@@ -79,9 +64,8 @@
 </template>
 
 <script setup>
-   import { computed, ref } from 'vue'
-   import { useSeoMeta } from '@unhead/vue'
-   import { useRoute }   from 'vue-router'
+   import { computed, ref, watch } from 'vue'
+   import { onIonViewWillEnter, onIonViewWillLeave } from '@ionic/vue'
    import { useUserStore }    from '@/stores/userStore'
    import { useGalleryStore } from '@/stores/galleryStore'
    import { useItemMgr }      from '@/stores/itemMgr'
@@ -101,7 +85,6 @@
    
    const WALL_BCKGND_OPACITY = .15
    
-   const route        = useRoute()
    const userStore    = useUserStore()
    const galleryStore = useGalleryStore()
    const itemMgr      = useItemMgr()
@@ -110,12 +93,26 @@
    const viewStore    = useViewStore()
    const viewMgr      = useViewMgr()
    const cacheStore   = useCacheStore()
-   
-   useSeoMeta({
-      title: "Hell-No User"
-   })
+   const isPageActive = ref(false)
 
-   const user           = computed(() => userStore.getUser(route.params.id))
+   onIonViewWillEnter(() => {
+      console.log("userView onIonViewWillEnter")
+      isPageActive.value = true
+   })
+   onIonViewWillLeave(() => {
+      console.log("userView onIonViewWillLeave")
+      isPageActive.value = false
+   })
+   
+   const props = defineProps({ id: String })
+   watch(() => props.id, (newId, oldId) => {
+      if (newId && newId !== oldId) {
+         console.log("User ID changed on active view:", newId)
+         isPageActive.value = true
+      }
+   }, { immediate: true })
+
+   const user           = computed(() => userStore.getUser(props.id))
    const userExists     = computed(() => user.value ? true : false )
    const userId         = computed(() => user.value ? user.value.id : null )
    const isLoggedInUser = computed(() => userId.value && userId.value == userStore.userId)
@@ -129,18 +126,33 @@
       for (const gallery of galleryStore.getPublicGalleries(userId.value) ) {
          if (gallery.images.length && !gallery.parentGalleryId && viewMgr.galleryIsVisibleToUser(gallery)) { galleries.push(gallery) }
       }    
+      console.log("sorting visibleGalleries")
       return toSortedDateContentModifiedDesc(galleries)
    })
 
-   const recentItems = computed(() => itemMgr.getRecentPublicItems(userId.value).filter(item => !itemMgr.isInvisible(item)))
+   const recentItems = computed(() => {
+      console.log("user recentItems")
+      return itemMgr.getRecentPublicItems(userId.value).filter(item => !itemMgr.isInvisible(item))
+   })
+
+   const userWall = computed(() => {
+      console.log("user userWall")
+      return wallStore.getUserWall(userId.value)
+   })
+   
    const displayWall = computed(() => {
-      const wall = { ...wallStore.getUserWall(userId.value) }
+      console.log("user displayWall")
+      const tempWall = userWall.value // No spread operator
+      if (!tempWall) { return DefaultWall }
+      
+      const wall = { ...tempWall }
       wall.origWallRows = wall.wallRows // hack 
       if (viewMgr.isXs && wall.wallRows) { wall.wallRows = 1 }
-      else if (!viewMgr.isXs) { wall.wallRows = wall.origWallRows }
+      else if (!viewMgr.isXs) { wall.wallRows = wall.origWallRows } // handles switch back 
 
-      const ungroupedItems = viewMgr.isXs ? itemMgr.ungroupItems(recentItems.value) : recentItems.value
-      return wallMgr.fillWall(wall, ungroupedItems)
+      // const ungroupedItems = viewMgr.isXs ? itemMgr.ungroupItems(recentItems.value) : recentItems.value
+      // return wallMgr.fillWall(wall, ungroupedItems)
+      return wallMgr.fillWall(wall, recentItems.value)
    })
 
    const wallItemsExist = computed(() => displayWall.value?.wallItems.length ? true : false)
@@ -156,24 +168,51 @@
    })
 
    const recentUpdatedItems = computed(() => {
+      console.log("user recentUpdatedItems", props.id)
+      if (!isPageActive.value) {
+         console.log("page inactive", props.id)
+         return []
+      }
+
       const items = [ ...recentItems.value ]
       const ungroupedItems = viewMgr.isMobile ? itemMgr.ungroupItems(items) : [...items]
-      viewStore.setVisibleItems(ItemOrigin.RECENT, "Recent Updates",  Route.RECENT.url + route.params.id, ungroupedItems)
+      viewStore.setVisibleItems(ItemOrigin.RECENT, "Recent Updates",  Route.RECENT.url + props.id, ungroupedItems)
    
-      if (items.length > 10) { items.length = 10 }
-      return items
+      return items.length > 10 ? items.slice(0, 10) : items
+
+      // if (items.length > 10) { items.length = 10 }
+      // return items
    })
 
-   const recentViewedItems = computed(() => {
-      let items = [ ...cacheStore.recentViewedPublicItems ]   
-      items = items.filter(item => isOwned(item, userId.value)) 
-            
-      const ungroupedItems = viewMgr.isMobile ? itemMgr.ungroupAndExtractItems(items) : [...items]
-      viewStore.setVisibleItems(ItemOrigin.VIEWED, "Recent Viewed", Route.VIEWED.url + route.params.id, ungroupedItems)
+
+   // watch([isPageActive, recentItems], ([active, items]) => {
+   //    if (!active || !items.length)  { return }
+
+   //    console.log("watch recentItems")
       
-      if (items.length > 10) { items.length = 10 }
-      return items
-   })
+   //    const ungroupedItems = viewMgr.isMobile ? itemMgr.ungroupItems(items) : [...items]
+   //    viewStore.setVisibleItems(ItemOrigin.RECENT, "Recent Updates", Route.RECENT.url + props.id, ungroupedItems)
+   // }, { immediate: true })
+
+
+   const recentViewedItems = computed(() => {
+      console.log("user recentViewedItems", props.id)
+      if (!isPageActive.value) {
+         console.log("page inactive", props.id)
+         return []
+      }
+
+      let items = [ ...itemMgr.recentViewedPublicItems ]   
+      // let items = [ ...cacheStore.recentViewedPublicItems ]   
+      items = items.filter(item => isOwned(item, userId.value))      
+      const ungroupedItems = viewMgr.isMobile ? itemMgr.ungroupAndExtractItems(items) : [...items]
+      viewStore.setVisibleItems(ItemOrigin.VIEWED, "Recent Viewed", Route.VIEWED.url + props.id, ungroupedItems)
+      
+      return items.length > 10 ? items.slice(0, 10) : items
+
+      // if (items.length > 10) { items.length = 10 }
+      // return items
+   })  
 </script>
 
 <style>

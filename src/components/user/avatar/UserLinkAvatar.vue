@@ -1,17 +1,21 @@
 <template>
-   <Avatar v-if="user" :user="user" @click="router.push(userUrl)" :toolTip="user.username" class="mt-3 hand pa-1 bg-black"/>
+   <Avatar v-if="user" :user="user" @click="toUser" class="mt-3 hand pa-1 bg-black"/>
 </template>
 
 <script setup>
    import { computed } from 'vue'
-   import { useRouter } from 'vue-router'
-   import Avatar        from './Avatar.vue'
+   import { useIonRouter } from '@ionic/vue'
+   import Avatar           from './Avatar.vue'
    import { Route } from '@/utils/constants'
    
    const props = defineProps({ user: Object })
 
-   const router  = useRouter()
-   const userUrl = computed(() => props.user ? Route.USER.url + props.user.id : null)
+   const ionRouter = useIonRouter()
+
+   const toUser = () => { 
+      console.log("toUser", Route.USER.url + props.user.id)
+      ionRouter.push(Route.USER.url + props.user.id, 'forward')
+   }
 </script>
 
 <style>

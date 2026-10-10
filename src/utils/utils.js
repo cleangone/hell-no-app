@@ -106,14 +106,14 @@ export function toSortedDateContentModifiedDesc(objs) { return objs?.length ? [.
 function millis(timestamp) {
   if (!timestamp) { return 0 }
   
-  // 1. Native iOS / Capacitor serialized timestamp
+  // ios/ion serialized timestamp
   if (typeof timestamp === 'object' && ('seconds' in timestamp || '_seconds' in timestamp)) {
     const sec  = timestamp.seconds     ?? timestamp._seconds     ?? 0
     const nano = timestamp.nanoseconds ?? timestamp._nanoseconds ?? 0
     return sec * 1000 + Math.floor(nano / 1e6);
   }
   
-  // 2. JS SDK Firestore Timestamp instance
+  // js firestore timestamp instance
   if (typeof timestamp.toMillis === 'function') { return timestamp.toMillis() }
 
   return 0
