@@ -1,4 +1,15 @@
 <template>
+<ion-page>
+<ion-content :fullscreen="true">
+   <!-- header -->
+   <div class="scrolling-header-container">
+      <ion-toolbar class="custom-scrolling-toolbar">
+         <ion-buttons slot="start"><BackButton/></ion-buttons>
+         <ion-title class="text-center text-h6">{{ Route.LOGIN.display }}</ion-title>
+         <ion-buttons slot="end"/>
+      </ion-toolbar>
+   </div>
+
    <span v-if="!viewMgr.isMobile" class="title">Login</span>
    <div class="my-5 login text-left">
       <v-form v-model="dataValid">  
@@ -11,39 +22,48 @@
          <RouterLink :to="Route.FORGOT.url" class="mt-1 mr-3">Forgot Password</RouterLink>
       </v-row>
    </div>
-   <div class="login-info  pt-4">{{ infoMsg }}</div>
-   <div class="login-error pt-4">{{ errMsg }}</div>
+   <div class="login-info  pt-4 mx-3">{{ infoMsg }}</div>
+   <div class="login-error pt-4 mx-3">{{ errMsg }}</div>
+</ion-content>  
+</ion-page>
 </template>
 
 <script setup>
    import { ref } from 'vue'
-   import { useRouter } from 'vue-router'
-   import { getAuth, signInWithEmailAndPassword } from "firebase/auth"
+   import { useIonRouter } from '@ionic/vue'
+   import { signInWithEmailAndPassword } from "firebase/auth"
+   import { auth } from '@/firebase' 
    import { useViewMgr } from '@/stores/viewMgr'
    import { emailRule } from '@/utils/utils'
    import { Route } from '@/utils/constants'
    
-   const router = useRouter()
-   const viewMgr = useViewMgr()
-   const email = ref("")
-   const password = ref("")
+   const ionRouter = useIonRouter()
+   const viewMgr   = useViewMgr()
+   const email     = ref("")
+   const password  = ref("")
    const showPassword = ref(false)
    const dataValid = ref(true)
-   const infoMsg = ref("")
-   const errMsg  = ref("")
+   const infoMsg   = ref("")
+   const errMsg    = ref("")
    
    // app.onAuthStateChanged updates userStore
    const login = () => {
+      console.log("login", email.value)
       infoMsg.value = ""
-      signInWithEmailAndPassword(getAuth(), email.value, password.value)
+      signInWithEmailAndPassword(auth, email.value, password.value)
          .then((userCredential) => {
             email.value = ""
             password.value = ""
             errMsg.value = ""
-            router.push(Route.HOME.url)
+            // router.push(Route.HOME.url)
+            ionRouter.push(Route.HOME.url, 'forward')
          })
          .catch((error) => {
-            if (error.code == "auth/invalid-email") { errMsg.value = "Email invalid" }
+            console.error("Firebase Auth Error Code:", error.code)
+            console.error("Firebase Auth Error Message:", error.message)
+            console.error("Full Error JSON:", JSON.stringify(error, Object.getOwnPropertyNames(error)))
+
+            if (error.code == "auth/invalid-email")       { errMsg.value = "Email invalid" }
             else if (error.code == "auth/user-not-found") { errMsg.value = "User not found" }
             else if (error.code == "auth/wrong=password") { errMsg.value = "Password incorrect" }
             else { errMsg.value = "Email/password incorrect" }

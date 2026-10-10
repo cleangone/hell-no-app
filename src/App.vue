@@ -42,7 +42,6 @@
                <span v-else-if="isRoute(Route.FAVORITES)">{{ Route.FAVORITES.display }}</span>
                <span v-else-if="isRoute(Route.ABOUT)">{{ Route.ABOUT.display }}</span>
                <span v-else-if="isRoute(Route.MESSAGE)">{{ Route.MESSAGE.display }}</span>
-               <span v-else-if="isRoute(Route.LOGIN)">{{ Route.LOGIN.display }}</span>
                <span v-else-if="isRoute(Route.ACCOUNT)" class="text-subtitle-1">{{ pageName }}</span>
                <span v-else-if="isRoute(Route.ADD_ITEM)">Add Item</span>
                <span v-else-if="isRoute(Route.EDIT_ITEM)">Edit Item</span>
@@ -149,6 +148,7 @@
 <script setup>
    import { computed, ref, onMounted } from 'vue'
    import { useRoute, useRouter } from 'vue-router'
+   import { useIonRouter } from '@ionic/vue'
    import { Head } from '@unhead/vue/components'
    import { useDark, useToggle } from '@vueuse/core'
    import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"
@@ -179,6 +179,7 @@
 
    const route  = useRoute()
    const router = useRouter()
+   const ionRouter = useIonRouter()
    const userStore    = useUserStore()
    const itemStore    = useItemStore()
    const galleryStore = useGalleryStore()
@@ -241,8 +242,10 @@
 
    const isRoute     = (route)     => { return currentRouteName.value == route.name }
    const inRoutes    = (...routes) => { return routes.map(route => route.name).includes(currentRouteName.value) }  
-   const toRoute     = (route)     => { router.push(route.url) }
-   const toSiteRoute = (route)     => { router.push(route.url + Defaults.SITE_ID) }
+   const toRoute     = (route)     => { 
+      console.log("app toRoute", route.name)
+      ionRouter.push(route.url, 'forward') }
+   const toSiteRoute = (route)     => { ionRouter.push(route.url + Defaults.SITE_ID, 'forward') }
 
    const user = computed(() => { 
       const currUser = userStore.userExists ? userStore.user : null 

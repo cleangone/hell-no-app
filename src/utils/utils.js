@@ -93,14 +93,22 @@ export function toSortedNameAsc(objs)         { return objs?.length ? [...objs].
 export function toSortedUsernameAsc(objs)     { return objs?.length ? [...objs].sort((a, b) => a.username.localeCompare(b.username)) : objs }
 export function toSortedSortDesc(objs)        { return objs?.length ? [...objs].sort((a, b) => b.sort - a.sort) : objs }
 
-// inefficient - should add millis to obj - then just one milli call per object
-// will begin to matter with items, hits
-export function toSortedDateCreatedAsc(objs)  { return objs?.length ? [...objs].sort((a, b) => millis(a.dateCreated) - millis(b.dateCreated)) : objs }
-export function toSortedDateCreatedDesc(objs) { return objs?.length ? [...objs].sort((a, b) => millis(b.dateCreated) - millis(a.dateCreated)) : objs }
-export function toSortedDateViewedAsc(objs)   { return objs?.length ? [...objs].sort((a, b) => millis(a.dateViewed)  - millis(b.dateViewed))  : objs }
-export function toSortedDateViewedDesc(objs)  { return objs?.length ? [...objs].sort((a, b) => millis(b.dateViewed)  - millis(a.dateViewed))  : objs }
-export function toSortedDateModifiedDesc(objs)        { return objs?.length ? [...objs].sort((a, b) => millis(b.dateModified) - millis(a.dateModified)) : objs }
-export function toSortedDateContentModifiedDesc(objs) { return objs?.length ? [...objs].sort((a, b) => millis(b.dateContentModified) - millis(a.dateContentModified)) : objs }
+// efficient date sort - millis calc'd once per object
+const SortDir = { ASC: 'ascending', DESC: 'descending' }
+export function toSortedDateCreatedAsc(objs)          { return toSortedDate(objs, 'dateCreated', SortDir.ASC) }
+export function toSortedDateViewedAsc(objs)           { return toSortedDate(objs, 'dateViewed',  SortDir.ASC) }
+export function toSortedDateCreatedDesc(objs)         { return toSortedDate(objs, 'dateCreated') }
+export function toSortedDateViewedDesc(objs)          { return toSortedDate(objs, 'dateViewed')  }
+export function toSortedDateModifiedDesc(objs)        { return toSortedDate(objs, 'dateModified') }
+export function toSortedDateContentModifiedDesc(objs) { return toSortedDate(objs, 'dateContentModified') }
+
+function toSortedDate(objs, dateProp, sortDir = SortDir.DESC) {
+   if (!objs?.length)  { return objs }
+   return objs
+      .map(obj => ({ obj, millis: millis(obj[dateProp]) }))
+      .sort((a, b) => sortDir == SortDir.DESC ? b.millis - a.millis : a.millis - b.millis)
+      .map(entry => entry.obj);
+}
 
 // universal conversion of firestre date to millis - needed for ion ios
 function millis(timestamp) {
