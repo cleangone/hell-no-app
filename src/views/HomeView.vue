@@ -61,7 +61,7 @@
             :maxRows="recentRows" bypassShowUser class="mb-5"/>
 
          <!-- groups if user logged in and not solo -->
-         <!-- <MyGroupThumbs v-if="!viewMgr.solo"/> -->
+         <MyGroupThumbs v-if="user && !viewMgr.solo"/>
 
          <!-- recent updated, viewed -->
          <div v-if="viewMgr.isXs">

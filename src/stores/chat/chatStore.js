@@ -1,11 +1,11 @@
 import { computed } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/firebase'
-import { collection, doc, query, where, setDoc, updateDoc, deleteDoc, arrayUnion, serverTimestamp } from "firebase/firestore"
-import { useFirestore } from '@vueuse/firebase/useFirestore'
+import { collection, doc, setDoc, updateDoc, deleteDoc, arrayUnion, serverTimestamp } from "firebase/firestore"
 import { useUserStore }  from '../userStore'
-import { dateUuid, isGroup } from '@/utils/utils'
-import { State, ChatStatus }  from '@/utils/constants'
+import { useChatAccess } from '../access/chatAccess'
+import { dateUuid, isGroup, isPublic } from '@/utils/utils'
+import { ChatStatus }  from '@/utils/constants'
 
 /* 
    Chat
@@ -24,14 +24,18 @@ import { State, ChatStatus }  from '@/utils/constants'
 const TABLE = 'chats'
 
 export const useChatStore = defineStore('chatStore', () => {
-   const userStore = useUserStore()
+   const chatAccess = useChatAccess() 
+   const userStore  = useUserStore()
    const chatCollection = collection(db, TABLE)
    function chatDoc(id) { return doc(db, TABLE, id) }
 
-   const chats = useFirestore(chatCollection, [])
+   const addListener    = async () => { chatAccess.addListener() } 
+   const removeListener = async () => { chatAccess.removeListener() }
+   const chats = computed(() => chatAccess.chats)
 
-   const publicChatsQuery = computed(() => query(chatCollection, where('state', '==', State.PUBLIC)))  
-   const publicChats = useFirestore(publicChatsQuery, [])
+   // const publicChatsQuery = computed(() => query(chatCollection, where('state', '==', State.PUBLIC)))  
+   // const publicChats = useFirestore(publicChatsQuery, [])
+   const publicChats = computed(() => { return chats.value.filter(chat => isPublic(chat)) })   
   
    const chatIdToChat = computed(() => new Map(chats.value.map((obj) => [obj.id, obj])))
    function getChat(id) { return chatIdToChat.value.get(id) }
@@ -72,6 +76,7 @@ export const useChatStore = defineStore('chatStore', () => {
       deleteDoc(doc(chatCollection, id))
    }
 
-   return { chats, publicChats, getChat, getGroupChats, 
+   return { chats, addListener, removeListener,
+            publicChats, getChat, getGroupChats, 
             addChat, updateChat, updateChatContentModified, deleteChat }
 })

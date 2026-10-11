@@ -159,6 +159,7 @@
    import { useGroupStore }   from '@/stores/groupStore'
    // import { useGroupMgr }     from '@/stores/groupMgr'
    // import { useNotificationStore } from '@/stores/notificationStore'
+   import { useChatStore }    from '@/stores/chat/chatStore'
    import { useHitStore }     from '@/stores/hitStore'
    import { useWallStore }    from '@/stores/wallStore'
    import { useViewStore }    from '@/stores/viewStore'
@@ -185,6 +186,7 @@
    const itemStore    = useItemStore()
    const galleryStore = useGalleryStore()
    const groupStore   = useGroupStore()
+   const chatStore    = useChatStore()
    // const groupMgr  = useGroupMgr()
    // const notificationStore = useNotificationStore()
    const hitStore     = useHitStore()
@@ -223,6 +225,7 @@
          itemStore.addListener().catch(err    => console.error("itemStore init error",    err)),
          galleryStore.addListener().catch(err => console.error("galleryStore init error", err)),
          groupStore.addListener().catch(err   => console.error("groupStore init error",   err)),
+         chatStore.addListener().catch(err    => console.error("chatStore init error",    err)),
          hitStore.addListener().catch(err     => console.error("hitStore init error",     err)),
          wallStore.addListener().catch(err    => console.error("wallStore init error",    err))
       ])

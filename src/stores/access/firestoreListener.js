@@ -25,7 +25,7 @@ export function useFirestoreListener(tableName) {
 
                if (event?.snapshots) {
                   records.value = event.snapshots.map(snapshot => snapshot.data)
-                  console.log(`[Native Sync] Read ${records.value.length} ${tableName} records`)
+                  console.log(`[Native Sync] Read ${records.value.length} ${tableName}`)
                }
                loading.value = false
             }

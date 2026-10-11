@@ -1,4 +1,19 @@
 <template>
+<ion-page>
+<ion-content :fullscreen="true">
+   <!-- header -->
+   <div class="scrolling-header-container">
+      <ion-toolbar class="custom-scrolling-toolbar">
+         <ion-buttons slot="start"><BackButton/></ion-buttons>
+         <ion-title class="text-center text-h6">{{ groupName }} Group</ion-title>
+         <ion-buttons slot="end">
+            <ThumbSizeButton class="mr-2"/>
+            <ItemThumbConfig :origin="ItemOrigin.GROUP"/> 
+         </ion-buttons>
+      </ion-toolbar>
+   </div>
+
+   <v-container class="mr-6">
    <v-row v-if="!viewMgr.isXs" no-gutters class="flex-nowrap">
        <v-col cols="2" class="d-flex justify-start flex-grow-0 flex-shrink-0">
          <GroupImage v-if="groupImage" :src="groupImage.thumbUrl" :height="60" cardClass="pa-1 bg-black" class="mt-2"/>      
@@ -12,14 +27,14 @@
          <EditButton v-if="canEdit" @click="showEditGroupDialog=true" class="mr-n2"/>          
       </v-col>
    </v-row>
-   <div class="mt-5 w-100">
-      <div class="bg-shade border-md fill-height pa-3"> <!-- users -->
+   <div class="w-100">
+      <div class="bg-shade border-md fill-height pa-3"> 
          <UserThumbSwiper :users="groupUsers" @userId="selectUser"/>
       </div>
       <div class="mt-5">
          <Chats :state="State.GROUP" :group="paramGroup" :initialChatId="route.params.chatId" collapsible @select="onChatSelected"/>
       </div>
-      <v-row class="mt-5"> <!-- items -->
+      <v-row class="mt-5 mx-1"> <!-- items -->
          <div v-for="item in displayItems" :key="item.id" class="group-thumb mr-2">
             <ItemThumb :item="item" :origin="ItemOrigin.GROUP"/>
             <div v-if="selectedChatId" class="group-thumb-icon" :class="thumbIconRight">
@@ -28,10 +43,13 @@
          </div>
       </v-row>
    </div>
+   </v-container>
 
    <v-dialog v-model="showEditGroupDialog" width="75%" height="90%">
       <EditGroupCard :groupId="paramGroup.id" @done="showEditGroupDialog=false"/>
    </v-dialog>
+</ion-content>  
+</ion-page>
 </template>
 
 <script setup>

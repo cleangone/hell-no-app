@@ -1,5 +1,16 @@
 <template>
-   <v-container v-if="!viewMgr.isMobile" class="pa-0 mt-1 pb-3 width-100">
+<ion-page>
+<ion-content :fullscreen="true">
+   <!-- header -->
+   <div class="scrolling-header-container">
+      <ion-toolbar class="custom-scrolling-toolbar">
+         <ion-buttons slot="start"><BackButton/></ion-buttons>
+         <ion-title class="text-center text-h6">{{ Route.GROUPS.display }}</ion-title>
+         <ion-buttons slot="end"/>
+      </ion-toolbar>
+   </div>
+
+   <v-container v-if="!viewMgr.isMobile" class="pa-0 mt-1 ml-1 mr-5 pb-3 w-100">
       <v-row no-gutters class="d-flex align-center flex-nowrap">
          <v-col cols="1" class="d-flex justify-start flex-grow-0 flex-shrink-0">
             <UserLinkAvatar :v-if="user" :user="user"/>  
@@ -12,9 +23,13 @@
       </v-row>
    </v-container>
 
-   <div v-for="group in thumbGroups" :key="group.id" class="mt-1">
-      <GroupThumb :group="group"/>
-   </div>
+   <v-container class="mr-6">
+      <div v-for="group in thumbGroups" :key="group.id">
+         <GroupThumb :group="group" class="mb-3"/>
+      </div>
+   </v-container>
+</ion-content>  
+</ion-page>
 </template>
 
 <script setup>
@@ -29,6 +44,8 @@
    
    import Avatar              from '@/components/user/avatar/Avatar.vue'
    import UserLinkAvatar      from '@/components/user/avatar/UserLinkAvatar.vue'
+   import BackButton       from '@/components/util/BackButton.vue'  
+   
    import HorizontalDiv       from '@/components/util/HorizontalDiv.vue'
    import SortButton          from '@/components/util/SortButton.vue'
    import ThumbSizeButton     from '@/components/util/ThumbSizeButton.vue'
