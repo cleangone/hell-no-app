@@ -1,13 +1,11 @@
 <template>
-   
-   <!-- <v-card :width="cardWidth" ref="cardRef"  -->
-   
    <v-card :width="cardWidth" @click="toGallery" class="position-relative d-flex flex-column text-center thumb-link" 
          :class="cardMargin" :style="backgroundStyle" style="z-index: 1">
          <v-carousel v-if="galleryImages.length>1" cycle :interval="carouselInterval" :height="carouselHeight"
             hide-delimiters :show-arrows="false" v-on:update:modelValue="setGalleryImageIndex">
             <v-carousel-item v-for="image in galleryImages" :key="image.id">
-               <v-img :src="image.thumbUrl" class="pointer"/>
+               <!-- <v-img :src="image.thumbUrl" class="pointer"/> -->
+               <CachedImg :src="image.thumbUrl" class="pointer"/>
             </v-carousel-item>
          </v-carousel>
          <v-img v-else :src="galleryImage.thumbUrl"/>
@@ -35,12 +33,13 @@
    import { computed, ref } from 'vue'
    import { useWindowSize } from '@vueuse/core'
    import { useIonRouter } from '@ionic/vue'
-   import EditGallery  from '@/components/gallery/EditGallery.vue'
-   import UserDateText from '@/components/util/UserDateText.vue'
    import { useUserStore }    from '@/stores/userStore'
    import { useGalleryStore } from '@/stores/galleryStore'
    import { useViewStore }    from '@/stores/viewStore'
    import { useViewMgr }      from '@/stores/viewMgr'
+   import EditGallery  from '@/components/gallery/EditGallery.vue'
+   import UserDateText from '@/components/util/UserDateText.vue'
+   import CachedImg    from '@/components/image/CachedImg.vue'
    import { thumbBackgroundColorStyle } from '@/utils/utils'
    import { Emit, GalleryThumbMaxWidths as MaxWidths, GalleryThumbOptions, ImageType, Route, ThumbSize } from '@/utils/constants'
    

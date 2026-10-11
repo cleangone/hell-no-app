@@ -2,7 +2,8 @@
    <v-card :height="height" :class="cardMargin" class="group-card d-flex flex-column thumb-link">
       <HorizontalDiv>
          <div v-if="image" @click="router.push(groupUrl)"> 
-            <v-img v-if="image" :src="image.thumbUrl" :width="width" :height="height" class="hand image-tails"/>
+            <!-- <v-img v-if="image" :src="image.thumbUrl" :width="width" :height="height" class="hand image-tails"/> -->
+            <CachedImg v-if="image" :src="image.thumbUrl" :width="width" :height="height" class="hand image-tails"/>
          </div>
          <div class="mt-1 mr-3 d-flex flex-column justify-center">
             <div class="font-weight-bold">{{ group.name }}</div>        
@@ -17,6 +18,7 @@
    import { useRouter }   from 'vue-router'
    import { useGroupMgr } from '@/stores/groupMgr'
    import { useViewMgr }  from '@/stores/viewMgr'
+   import CachedImg       from '@/components/image/CachedImg.vue'
    import HorizontalDiv   from '@/components/util/HorizontalDiv.vue'
    import UserDateText    from '@/components/util/UserDateText.vue'
    import { Route, ThumbAspectRatio } from '@/utils/constants'

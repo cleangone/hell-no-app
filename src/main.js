@@ -26,6 +26,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import { IonicVue } from '@ionic/vue'
+import { AssetCache } from '@capgo/capacitor-asset-cache'
 import '@ionic/vue/css/core.css'
 import '@ionic/vue/css/normalize.css'
 import '@ionic/vue/css/structure.css'
@@ -49,6 +50,14 @@ import 'swiper/css/navigation'
 
 
 // setLogLevel("debug") 
+
+// global caching rules 
+AssetCache.configure({
+  revalidate: {
+    strategy: 'ttl',
+    maxAgeSeconds: 86400 * 7, // 7 days
+  },
+})
 
 const app = createApp(App)
 const vuetify = createVuetify({ 

@@ -1,5 +1,5 @@
 import { initializeApp }  from "firebase/app"
-import { initializeFirestore, memoryLocalCache } from "firebase/firestore"
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore"
 import { getAuth, initializeAuth, indexedDBLocalPersistence } from "firebase/auth"
 import { getStorage }     from "firebase/storage"
 import { Capacitor }      from '@capacitor/core'
@@ -9,7 +9,7 @@ const app = initializeApp(FirebaseConfig)
 
 const db = initializeFirestore(app, {
   experimentalAutoDetectLongPolling: true,
-  localCache: memoryLocalCache()
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
 })
 
 const auth = Capacitor.isNativePlatform()

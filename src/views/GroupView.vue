@@ -15,7 +15,7 @@
 
    <v-container class="mr-6">
    <v-row v-if="!viewMgr.isXs" no-gutters class="flex-nowrap">
-       <v-col cols="2" class="d-flex justify-start flex-grow-0 flex-shrink-0">
+      <v-col cols="2" class="d-flex justify-start flex-grow-0 flex-shrink-0">
          <GroupImage v-if="groupImage" :src="groupImage.thumbUrl" :height="60" cardClass="pa-1 bg-black" class="mt-2"/>      
       </v-col>
       <v-col cols="8" class="title d-flex justify-center align-center flex-grow-1 flex-shrink-0">

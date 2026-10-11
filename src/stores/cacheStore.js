@@ -1,15 +1,17 @@
 import { computed } from 'vue'
 import { defineStore } from 'pinia'
 import { Timestamp } from "firebase/firestore"
+import { AssetCache } from '@capgo/capacitor-asset-cache'
 import { useLocalStorage } from '@vueuse/core'
 import { useItemMgr }      from '@/stores/itemMgr'
 
 /*
-   Cache store - pass-through cache for item retrieval
+   Cache store - pass-through cache for images and item retrieval
 */
 
 export const useCacheStore = defineStore('cache', () => {
    const itemMgr = useItemMgr()
+   const imageCacheMap = new Map()
    
    const recentPublicItemsLocal = useLocalStorage('recent-public-items', [])
    const recentPublicItems = computed(() => {
@@ -50,5 +52,30 @@ export const useCacheStore = defineStore('cache', () => {
 
    function getTimestamp(dateObj) { return new Timestamp(dateObj.seconds, dateObj.nanoseconds) }
    
-   return { recentPublicItems, recentViewedPublicItems }
+   //
+   // Capacitor image cache
+   //
+   async function getCachedUrl(remoteUrl) {
+      if (!remoteUrl) { return remoteUrl }
+
+      if (imageCacheMap.has(remoteUrl)) { return imageCacheMap.get(remoteUrl) }
+
+      try {
+         // ion disk cache - either return cache hit, or make remote call and populates cache 
+         const localSrc = await AssetCache.src(remoteUrl)
+         
+         // const resolved = await AssetCache.resolve(remoteUrl)
+         // console.log("cache status:", resolved.status) 
+         // const localSrc = resolved.url
+
+         imageCacheMap.set(remoteUrl, localSrc)
+         return localSrc
+      } 
+      catch (error) {
+        console.log('Image cache error', remoteUrl, error)
+        return remoteUrl
+      }
+   }
+
+   return { recentPublicItems, recentViewedPublicItems, getCachedUrl }
 })

@@ -1,7 +1,8 @@
 <template>
    <v-card :width="cardWidth" @click="toItem" style="z-index: 1" :style="cardStyle" 
          :class="cardClass" class="d-flex flex-column text-center thumb-container thumb-link">
-      <v-img :src="thumbUrl"/>
+      <!-- <v-img :src="thumbUrl"/> -->
+      <CachedImg :src="thumbUrl"/>
       <ItemThumbText v-if="showText" :item="item" :origin="origin" :useAltName="useAltName" :useLocalName="useLocalName" 
          :bypassShowUser="bypassShowUser" :showDateViewed="showDateViewed"/>
    </v-card>
@@ -14,6 +15,7 @@
    import { useViewStore } from '@/stores/viewStore'
    import { useViewMgr }   from '@/stores/viewMgr'
    import ItemThumbText    from './ItemThumbText.vue'
+   import CachedImg        from '@/components/image/CachedImg.vue'
    import { thumbBackgroundColorStyle } from '@/utils/utils'
    import { ThumbSize } from '@/utils/constants'
    
