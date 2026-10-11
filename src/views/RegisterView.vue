@@ -14,7 +14,8 @@
 <script setup>
    import { computed, onMounted, ref } from 'vue'
    import { useRoute, useRouter } from 'vue-router'
-   import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"
+   import { auth } from '@/firebase' 
+   import { createUserWithEmailAndPassword } from "firebase/auth"
    import { useUserStore }   from '@/stores/userStore'
    import { useActionStore } from '@/stores/actionStore'
    // import { useGroupStore }  from '@/stores/groupStore'
@@ -78,7 +79,7 @@
       console.log("register/email", email.value)
       console.log("register/registeredInvite", registeredInvite.value)
       
-      createUserWithEmailAndPassword(getAuth(), email.value, password.value)
+      createUserWithEmailAndPassword(auth, email.value, password.value)
          .then((userCredential) => {
             console.log("register/setUser")
             userStore.setUser({

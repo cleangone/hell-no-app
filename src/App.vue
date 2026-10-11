@@ -106,7 +106,7 @@
          <ion-tab-button @click="toSiteRoute(Route.RECENT)" :class="{ 'tab-selected': navIndex === 3 }">
             <Icon icon="mdi-history" />
          </ion-tab-button>
-         <ion-tab-button v-if="userExists" @click="router.push(isRoute(Route.USER) ? Route.ACCOUNT.url : Route.USER.url + userId)" :class="{ 'tab-selected': navIndex === 4 }">
+         <ion-tab-button v-if="userExists" @click="toUserRoute" :class="{ 'tab-selected': navIndex === 4 }">
             <Icon :icon="isRoute(Route.USER) ? 'mdi-cog' : 'mdi-account'" />
          </ion-tab-button>
          <ion-tab-button v-else @click="toRoute(Route.LOGIN)" :class="{ 'tab-selected': navIndex === 4 }">
@@ -151,7 +151,8 @@
    import { useIonRouter } from '@ionic/vue'
    import { Head } from '@unhead/vue/components'
    import { useDark, useToggle } from '@vueuse/core'
-   import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"
+   import { auth } from '@/firebase' 
+   import { onAuthStateChanged, signOut } from "firebase/auth"
    import { useUserStore }    from '@/stores/userStore'
    import { useItemStore }    from '@/stores/itemStore'
    import { useGalleryStore } from '@/stores/galleryStore'
@@ -196,9 +197,8 @@
    
    onMounted(async() => {
       // console.log("App.onMounted")
-      const auth = getAuth()
       onAuthStateChanged(auth, (user) => {     
-         // console.log("onAuthStateChanged") 
+         console.log("onAuthStateChanged") 
          if (user) { userStore.userId = user.uid } 
          else { 
             userStore.userId = "" 
@@ -208,7 +208,8 @@
          if (userStore.userId) {
             setTimeout(() => {
                if (userStore.user && (!userStore.user.dateVisited || daysOld(userStore.user.dateVisited))) {
-                  userStore.updateDateVisited(userStore.userId)
+                  console.log("userStore.updateDateVisited bypassed")
+                  // userStore.updateDateVisited(userStore.userId)
                }
             }, 2000)
          }
@@ -245,6 +246,9 @@
    const toRoute     = (route)     => { 
       console.log("app toRoute", route.name)
       ionRouter.push(route.url, 'forward') }
+   const toRouteUrl  = (routeUrl)  => { 
+      console.log("app toRouteUrl", routeUrl)
+      ionRouter.push(routeUrl, 'forward') }
    const toSiteRoute = (route)     => { ionRouter.push(route.url + Defaults.SITE_ID, 'forward') }
 
    const user = computed(() => { 
@@ -255,6 +259,10 @@
    })
    const userExists  = computed(() => userStore.userExists)
    const userId      = computed(() => userStore.userId)
+   const toUserRoute = () => { 
+      console.log("app toUserRoute")
+      toRouteUrl(isRoute(Route.USER) ? Route.ACCOUNT.url : Route.USER.url + userId.value) }
+
    // const userOwnerId = computed(() => userStore.user.ownerId) 
    
    // const activeNotificationsExist = computed(() => notificationStore.myActiveNotifications.length)

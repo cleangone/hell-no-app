@@ -1,8 +1,10 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useRouter } from 'vue-router'
+import { useIonRouter } from '@ionic/vue'
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
-import { getAuth, signOut } from "firebase/auth"
+import { auth } from '@/firebase' 
+import { signOut } from "firebase/auth"
 import { useUserStore }  from '@/stores/userStore'
 import { useItemMgr }    from '@/stores/itemMgr'
 import { useGalleryMgr } from '@/stores/galleryMgr'
@@ -14,7 +16,8 @@ import { dateUuid, isHidden, isOwned, isPublic } from '@/utils/utils'
 import { ItemMaxLandscapeWidths, Route, ThumbHeights, ThumbSize } from '@/utils/constants'
    
 export const useViewMgr = defineStore('viewMgr', () => {   
-   const router = useRouter()
+   const router    = useRouter()
+   const ionRouter = useIonRouter()
    const breakpoints = useBreakpoints(breakpointsTailwind)
    const xs = breakpoints.smaller('sm')
    const userStore    = useUserStore()
@@ -46,8 +49,9 @@ export const useViewMgr = defineStore('viewMgr', () => {
    }
 
    function logout() {
-      signOut(getAuth()) 
-      router.push(Route.HOME.url)
+      console.log("viewMgr logout")
+      signOut(auth) 
+      ionRouter.push(Route.HOME.url, 'forward')
    }
 
    const isStandalone = computed(() => window.matchMedia('(display-mode: standalone)').matches)

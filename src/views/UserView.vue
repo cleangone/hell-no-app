@@ -7,11 +7,37 @@
             <ion-buttons slot="start"><BackButton/></ion-buttons>
             <ion-title class="text-center text-h6">{{ displayName }}</ion-title>
             <ion-buttons slot="end">
-               <div v-if="isLoggedInUser">  
-                  <!-- todo - use ion router logic in GalleryThumb -->
-                  <RouterLink v-if="invisibleItemsExist" :to="Route.INVISIBLE.url">
-                     <v-icon icon="mdi-incognito" class="mr-2"/>
-                  </RouterLink>
+              <div v-if="isLoggedInUser">  
+                  <!--    todo - use ion router logic in GalleryThumb
+                     <RouterLink v-if="invisibleItemsExist" :to="Route.INVISIBLE.url">
+                        <v-icon icon="mdi-incognito" class="mr-2"/>
+                     </RouterLink>
+                  </div> -->
+                  <v-menu>
+                     <template v-slot:activator="{ props }">
+                        <v-btn v-bind="props" icon="mdi-account" size="medium" variant="text" class="icon-btn"/>
+                     </template>
+                     <v-list>
+                        <!-- <v-list-item @click="toggleSoloMode()">
+                           <v-list-item-title>{{ viewMgr.solo ? "Exit " : "" }}Solo Mode</v-list-item-title>
+                        </v-list-item>
+                        <v-list-item @click="toRoute(Route.ACCOUNT)">
+                           <v-list-item-title>My Account</v-list-item-title>
+                        </v-list-item>
+                        <v-list-item v-if="userIsAdmin" @click="toRoute(Route.ADMIN)">
+                           <v-list-item-title>Admin</v-list-item-title>
+                        </v-list-item>
+                        <v-list-item v-for="profile in myProfiles" @click="swapToUser(profile.id)">
+                           <v-list-item-title>Swap to profile {{ profile.username }}</v-list-item-title>
+                        </v-list-item> -->
+                        <!-- <v-list-item v-if="userOwnerId" @click="swapBack">
+                           <v-list-item-title>Swap Back from Profile</v-list-item-title>
+                        </v-list-item> -->
+                        <v-list-item @click="logout">
+                           <v-list-item-title>Logout</v-list-item-title>
+                        </v-list-item>
+                     </v-list>
+                  </v-menu>
                </div>
                <EmailButton v-else-if="userExists" :user="user"/>
             </ion-buttons>
@@ -213,6 +239,8 @@
       // if (items.length > 10) { items.length = 10 }
       // return items
    })  
+
+   const logout = () => { viewMgr.logout() }
 </script>
 
 <style>

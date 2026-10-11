@@ -16,7 +16,8 @@
 
 <script setup>
    import { ref } from 'vue'
-   import { getAuth, updatePassword  } from "firebase/auth"
+   import { auth } from '@/firebase' 
+   import { updatePassword  } from "firebase/auth"
    import { minRule } from '@/utils/utils'
    import { Emit } from '@/utils/constants'
    
@@ -28,7 +29,7 @@
    const errorMsg = ref("")
 
    const save = () => {
-      updatePassword(getAuth().currentUser, password.value)
+      updatePassword(auth.currentUser, password.value)
          .then(() => { 
             console.log("Password updated")
             emit(Emit.DONE)

@@ -14,7 +14,8 @@
 
 <script setup>
    import { ref } from 'vue'
-   import { getAuth, sendPasswordResetEmail } from "firebase/auth"
+   import { auth } from '@/firebase' 
+   import { sendPasswordResetEmail } from "firebase/auth"
    import { useViewMgr } from '@/stores/viewMgr'
    import { emailRule } from '@/utils/utils'
    
@@ -27,7 +28,7 @@
    const resetPassword = () => {
       infoMsg.value = ""
       errMsg.value = ""
-      sendPasswordResetEmail(getAuth(), email.value).then(() => {
+      sendPasswordResetEmail(auth, email.value).then(() => {
          infoMsg.value = "Reset email sent"
       })
       .catch((error) => {

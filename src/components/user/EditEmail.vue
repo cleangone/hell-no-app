@@ -17,7 +17,8 @@
 
 <script setup>
    import { onMounted, ref } from 'vue'
-   import { getAuth, updateEmail  } from "firebase/auth"
+   import { auth } from '@/firebase' 
+   import { updateEmail  } from "firebase/auth"
    import { useUserStore } from '@/stores/userStore'
    import { emailRule } from '@/utils/utils'
    import { Emit } from '@/utils/constants'
@@ -34,7 +35,6 @@
    })
 
    const save = () => {
-      const auth = getAuth()
       updateEmail(auth.currentUser, email.value)
          .then(() => { 
             // console.log("Auth email updated, updating user.email", email.value)
