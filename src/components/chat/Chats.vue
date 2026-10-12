@@ -18,7 +18,7 @@
           <div v-for="chat in displayChats" :key="chat.id"  @click="selectChat(chat)" class="hand mb-2">
             <Chat :chat="chat" :postCount="postCount(chat)" :isSeleted="isSelected(chat)" :canUpdate="canUpdate"/> 
             <div v-if="selectedChat && selectedChat.id == chat.id" class="mb-2 flex-grow-1">
-               <div><Posts :chat="chat" :group="group" @popup="onPopup"/></div>
+               <div><Posts :chat="chat" :group="group"/></div>
                <AddPost :chat="chat" :group="group"/>
             </div> 
          </div>
@@ -30,13 +30,12 @@
             </div>
          </div>
          <div class="mb-2 flex-grow-1">
-            <div><Posts :chat="selectedChat" :group="group" @popup="onPopup"/></div>
+            <div><Posts :chat="selectedChat" :group="group"/></div>
             <AddPost v-if="selectedChat && isActive(selectedChat)" :chat="selectedChat" :group="group"/>
          </div> 
       </HorizontalDiv>
     </v-card>
 
-   <ItemPopup v-if="popupImage" :popupImage="popupImage"/>
    <v-dialog v-model="showAddChatDialog" width="auto">
       <AddChat :state="state" :groupId="group.id" @done="showAddChatDialog=false"/>
    </v-dialog>
@@ -53,7 +52,6 @@
    import AddChat           from './crud/AddChat.vue'
    import Posts             from './Posts.vue'
    import AddPost           from './crud/AddPost.vue'
-   import ItemPopup         from '@/components/item/ItemPopup.vue'
    import TextButton        from '@/components/util/TextButton.vue'
    import ExpandIcon        from '../util/icon/ExpandIcon.vue'
    import HorizontalDiv     from '../util/HorizontalDiv.vue'
@@ -70,7 +68,6 @@
    const adminStore   = useAdminStore()
    const viewMgr      = useViewMgr()
    const showArchived = ref(false)
-   const popupImage   = ref(null)
    const selectedChat = ref(null)
    const isExpanded   = ref(false)
    const showAddChatDialog = ref(false)
@@ -126,14 +123,12 @@
    const isSelected = (chat) => { return selectedChat.value?.id == chat.id }
    const postCount  = (chat) => { return chatMgr.getPostCount(chat.id) }   
 
-   const selectChat  = (chat) => { 
+   const selectChat = (chat) => {
       // xs toggles selectedChat so user can see a view of just chats
       if (viewMgr.isXs && isSelected(chat)) { selectedChat.value = null }
       else { selectedChat.value = chat }
       emit(Emit.SELECT, chat.id)
    }   
-   
-   const onPopup = (popup)  => { popupImage.value = popup }
 </script>
 
 <style>

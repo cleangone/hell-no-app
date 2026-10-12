@@ -48,7 +48,7 @@
          <!-- <div v-if="viewMgr.solo" class="text-subtitle-1 mt-n2 mb-2">Solo Mode</div> -->
          <!-- <ShowNotifications v-if="invites.length" :notifications="invites" class="mb-3"/> -->
          <div class="walldiv" :style="wallDivStyle">
-            <v-img :src="wallImage" cover :style="wallBackgroundStyle" class="wall-background"></v-img>
+            <v-img :src="wallImage" cover :style="wallBackgroundStyle" class="wall-background"/>
             <div class="wall-content">
                <SplitWall v-if="showWall" :wall="displayWall" :rowHeight="slideRowHeight"/>
             </div> 

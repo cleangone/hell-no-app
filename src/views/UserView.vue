@@ -37,6 +37,10 @@
                            <template v-slot:prepend><v-icon icon="mdi-incognito" class="icon-btn"></v-icon></template>
                            <v-list-item-title>My Invisibles</v-list-item-title>
                         </v-list-item>
+                        <v-list-item @click="toRoute(Route.ACCOUNT)">
+                           <template v-slot:prepend><v-icon icon="mdi-cog" class="icon-btn"></v-icon></template>
+                           <v-list-item-title>Account</v-list-item-title>
+                        </v-list-item>
                         <v-list-item @click="logout">
                            <v-list-item-title>Logout</v-list-item-title>
                         </v-list-item>
@@ -54,7 +58,8 @@
 
       <!-- wall -->
       <div v-if="wallItemsExist" class="walldiv" :style="wallDivStyle">
-         <v-img :src="wallImage" cover :style="wallBackgroundStyle" class="wall-background"></v-img>
+         <!-- <v-img :src="wallImage" cover :style="wallBackgroundStyle" class="wall-background"/> -->
+         <CachedImg :src="wallImage" cover :style="wallBackgroundStyle" class="wall-background"/>
          <div class="wall-content">
             <SplitWall :wall="displayWall" :rowHeight="slideRowHeight" :linkUrl="userLinkUrl"/>
          </div> 
@@ -111,6 +116,7 @@
    import Avatar              from '@/components/user/avatar/Avatar.vue'
    import SplitWall           from '@/components/wall/SplitWall.vue'
    import EmailButton         from '@/components/email/EmailButton.vue'
+   import CachedImg           from '@/components/image/CachedImg.vue'
    import { isOwned, randomizeArray, toSortedDateContentModifiedDesc } from '@/utils/utils'
    import { ItemOrigin, Route, WallRowHeight } from '@/utils/constants'
    

@@ -38,7 +38,7 @@
          </div>
       </div>
       <div v-else> <!-- infinite scroll -->
-         <v-img :src="imageUrl(props.item.primaryImage)" contain class="no-pointer-events" />
+         <CachedImg :src="imageUrl(props.item.primaryImage)" contain class="no-pointer-events"/>
          <div class="text-left mt-2">
             <ItemArtistYear :item="props.item" />
          </div>
@@ -52,7 +52,7 @@
                   </span>
                </div>
             </div>
-            <v-img :src="imageUrl(item.primaryImage)" contain class="no-pointer-events"/>
+            <CachedImg :src="imageUrl(item.primaryImage)" contain class="no-pointer-events"/>
             <div class="text-left mt-2">
                <ItemArtistYear :item="item"/>
             </div>
@@ -74,8 +74,9 @@
    import { useGalleryStore } from '@/stores/galleryStore'
    import { useViewStore }    from '@/stores/viewStore'
    import { useViewMgr }      from '@/stores/viewMgr'
-   import ItemArtistYear      from '@/components/item/ItemArtistYear.vue'
-   import ItemSwipe           from '@/components/item/ItemSwipe.vue'
+   import ItemArtistYear from '@/components/item/ItemArtistYear.vue'
+   import ItemSwipe      from '@/components/item/ItemSwipe.vue'
+   import CachedImg      from '@/components/image/CachedImg.vue'
    import { Emit, ItemNavAction, ItemOrigin, Route } from '@/utils/constants'
 
    const props = defineProps({ item: Object, origin: String, nav: String })

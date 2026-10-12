@@ -94,23 +94,23 @@
 
    <ion-footer class="ion-no-border persistent-footer">
       <ion-tab-bar>
-         <ion-tab-button @click="toRoute(Route.HOME)" :class="{ 'tab-selected': navIndex === 0 }">
+         <ion-tab-button @click="toRoute(Route.HOME)" :class="{ 'tab-selected': isRoute(Route.HOME) }">
             <Icon icon="mdi-home" />
          </ion-tab-button>
-         <ion-tab-button @click="toSiteRoute(Route.GALLERIES)" :class="{ 'tab-selected': navIndex === 1 }">
+         <ion-tab-button @click="toSiteRoute(Route.GALLERIES)" :class="{ 'tab-selected': isRoute(Route.GALLERIES) }">
             <Icon icon="mdi-image-multiple" />
          </ion-tab-button>
-         <ion-tab-button @click="toRoute(Route.SEARCH)" :class="{ 'tab-selected': navIndex === 2 }">
+         <ion-tab-button @click="toRoute(Route.SEARCH)" :class="{ 'tab-selected': isRoute(Route.SEARCH) }">
             <Icon icon="mdi-magnify" />
          </ion-tab-button>
-         <ion-tab-button @click="toSiteRoute(Route.RECENT)" :class="{ 'tab-selected': navIndex === 3 }">
+         <ion-tab-button @click="toSiteRoute(Route.RECENT)" :class="{ 'tab-selected': isRoute(Route.RECENT) }">
             <Icon icon="mdi-history" />
          </ion-tab-button>
-         <ion-tab-button v-if="userExists" @click="toUserRoute" :class="{ 'tab-selected': navIndex === 4 }">
-            <Icon :icon="isRoute(Route.USER) ? 'mdi-cog' : 'mdi-account'" />
-         </ion-tab-button>
-         <ion-tab-button v-else @click="toRoute(Route.LOGIN)" :class="{ 'tab-selected': navIndex === 4 }">
+         <ion-tab-button v-if="userExists" @click="toUserRoute()" :class="{ 'tab-selected': isRoute(Route.USER) }">
             <Icon icon="mdi-account" />
+         </ion-tab-button>
+         <ion-tab-button v-else @click="toRoute(Route.LOGIN)" :class="{ 'tab-selected': isRoute(Route.LOGIN)} ">
+            <Icon icon="mdi-account-outline" />
          </ion-tab-button>
       </ion-tab-bar>
    </ion-footer>
@@ -241,7 +241,8 @@
    const setWindowSize = () => { windowSize.value = { width: window.innerWidth, height: window.innerHeight }}
    const pageName = computed(() => viewStore.pageName)
    const currentRoute     = computed(() => router.currentRoute.value ? router.currentRoute.value : {})
-   const currentRouteName = computed(() => router.currentRoute.value ? router.currentRoute.value.name : "")
+   // const currentRouteName = computed(() => router.currentRoute.value ? router.currentRoute.value.name : "")
+   const currentRouteName = computed(() => route.name)
    const isMyUserPage     = computed(() => currentRouteName.value == Route.USER.name && route.params.id == userStore.userId)
 
    const isRoute     = (route)     => { return currentRouteName.value == route.name }
@@ -264,7 +265,14 @@
    const userId      = computed(() => userStore.userId)
    const toUserRoute = () => { 
       console.log("app toUserRoute")
-      toRouteUrl(isRoute(Route.USER) ? Route.ACCOUNT.url : Route.USER.url + userId.value) }
+      toRouteUrl(Route.USER.url + userId.value)  }
+
+
+// <ion-tab-button v-if="userExists" @click="toRoute(Route.USER)" :class="{ 'tab-selected': isRoute(Route.USER) }">
+//             <Icon icon="mdi-account" />
+//          </ion-tab-button>
+//          <ion-tab-button v-else @click="toRoute(Route.LOGIN)" :class="{ 'tab-selected': isRoute(Route.USER)} ">
+           
 
    // const userOwnerId = computed(() => userStore.user.ownerId) 
    
@@ -289,19 +297,6 @@
       const installed = isStandalone.value ? "Installed" : ""
       const iosDevice = navigator.userAgent.match(/iPhone|iPad|iPod/) // ipad no longer matches
       return installed + (installed.length && iosDevice ? " on " : "") + (iosDevice ? iosDevice : "")
-   })
-
-   // used by mobile to indicate which, if any, bottom nav option the current page is
-   const navIndex = computed({ 
-      get() { 
-         if (currentRouteName.value == Route.HOME.name)           { return 0 }
-         else if (currentRouteName.value == Route.GALLERIES.name) { return 1 }
-         else if (currentRouteName.value == Route.SEARCH.name)    { return 2 }
-         else if (currentRouteName.value == Route.RECENT.name)    { return 3 }
-         else if (inRoutes(Route.ACCOUNT, Route.LOGIN))           { return 4 }
-         else return null
-       },
-      set(index) {} 
    })
 
    const username = computed(() => {
@@ -369,6 +364,11 @@ ion-tab-button > * {
   display: flex !important;
   align-items: center;
   justify-content: center;
+}
+
+ion-tab-button.tab-selected {
+  background-color: #f4f5f8; /* Replace with your preferred active background color */
+  --background: #f4f5f8;     /* Ensures Ionic's internal background variable is covered */
 }
 
 .app { 

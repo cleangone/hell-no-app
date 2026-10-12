@@ -3,7 +3,7 @@
       <div v-if="topRow" class="position-relative">
          <v-card class="mt-7 bg-black">
             <div @click="toItem" class="ma-1">
-               <v-img :src="wallItem.wallImageUrl"/>
+               <CachedImg :src="wallItem.wallImageUrl"/>
                <div class="text-white">{{ wallItem.title }}</div>  
             </div> 
          </v-card>
@@ -20,9 +20,10 @@
 <script setup>
    import { computed, ref } from 'vue'
    import { useIonRouter } from '@ionic/vue'
-   import { useUserStore }  from '@/stores/userStore'
-   import { useItemMgr }    from '@/stores/itemMgr'
-   import UserLinkAvatar    from '@/components/user/avatar/UserLinkAvatar.vue'
+   import { useUserStore } from '@/stores/userStore'
+   import { useItemMgr }   from '@/stores/itemMgr'
+   import CachedImg        from '@/components/image/CachedImg.vue'
+   import UserLinkAvatar   from '@/components/user/avatar/UserLinkAvatar.vue'
    
    const props = defineProps({ wallItem:Object, origin:String, row:Number, showAvatar:Boolean })
    

@@ -1,9 +1,10 @@
 <template>
-   <img v-if="url" :src="url" class="image-circle" :style="style"/>
+   <CachedImg v-if="url" :src="url" class="image-circle" :style="style"/>
 </template>
 
 <script setup>
    import { computed } from 'vue'
+   import CachedImg from '@/components/image/CachedImg.vue'
    
    const props = defineProps({ image: Object, size: Number })
    
