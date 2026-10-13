@@ -15,7 +15,7 @@
                   </div> -->
                   <v-menu>
                      <template v-slot:activator="{ props }">
-                        <v-btn v-bind="props" icon="mdi-account" size="medium" variant="text" class="icon-btn"/>
+                        <v-btn v-bind="props" icon="mdi-menu" size="medium" variant="text" class="icon-btn"/>
                      </template>
                      <v-list>
                         <!-- <v-list-item @click="toggleSoloMode()">

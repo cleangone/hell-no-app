@@ -52,6 +52,7 @@
     "vuetify": "^3.7.4"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^8.5.2",
     "@mdi/font": "^7.3.67",
     "@vitejs/plugin-vue": "^4.4.0",
