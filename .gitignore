@@ -24,7 +24,8 @@ coverage
 # ionic 
 ios/DerivedData/
 ios/App/App/public/
-ios/App/App/Assets.xcassets/
+ios/App/App/Assets.xcassets/AppIcon.appiconset/*.png
+ios/App/App/Assets.xcassets/Splash.imageset/*.png
 ios/App/Pods/
 ios/App/Podfile.lock
 ios/capacitor-cordova-ios-plugins/
