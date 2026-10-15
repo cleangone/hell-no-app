@@ -1,5 +1,15 @@
 <template>
-   <br v-if="viewMgr.isDeskTop">
+<ion-page>
+<ion-content :fullscreen="true">
+   <!-- header -->
+   <div class="scrolling-header-container">
+      <ion-toolbar class="custom-scrolling-toolbar">
+         <ion-buttons slot="start"><BackButton/></ion-buttons>
+         <ion-title class="text-center text-h6">{{ Route.MESSAGE.display }}</ion-title>
+         <ion-buttons slot="end"/>
+      </ion-toolbar>
+   </div>
+
    <v-card>
       <v-tabs v-model="tab" bg-color="primary">
          <v-tab :value="TABS.email">Emails</v-tab>
@@ -14,22 +24,22 @@
          </v-window>
       </v-card-text>
   </v-card>
+</ion-content>  
+</ion-page>
 </template>
 
 <script setup>
    import { onMounted, ref } from 'vue'
    import { useNotificationStore } from '@/stores/notificationStore'
-   import { useViewMgr } from '@/stores/viewMgr'
    import Emails         from '@/components/email/Emails.vue'
    import Chats          from '@/components/chat/Chats.vue'
    import Notifications  from '@/components/notification/Notifications.vue'
-   import { State }  from '@/utils/constants'
+   import BackButton     from '@/components/util/BackButton.vue'    
+   import { Route, State }  from '@/utils/constants'
 
    const TABS = { email: "email", chat: "chat", notification: "notification" }
    
-   const viewMgr = useViewMgr()
    const notificationStore = useNotificationStore()
-   
    const tab = ref(TABS.email)
 
    onMounted(async() => {

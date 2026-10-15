@@ -1,9 +1,9 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/firebase'
-import { collection, doc, query, where, setDoc, updateDoc, deleteDoc, serverTimestamp, writeBatch } from "firebase/firestore"
-import { useFirestore } from '@vueuse/firebase/useFirestore'
+import { collection, doc, setDoc, deleteDoc, serverTimestamp, writeBatch } from "firebase/firestore"
 import { useUserStore } from './userStore'
+import { useNotificationAccess } from './access/notificationAccess'
 import { dateUuid, toSortedDateCreatedDesc } from '@/utils/utils'
 import { NotificationStatus } from '@/utils/constants'
 
@@ -23,11 +23,14 @@ import { NotificationStatus } from '@/utils/constants'
 const TABLE = 'notifications'
 
 export const useNotificationStore = defineStore('notification', () => {
+   const notificationAccess = useNotificationAccess() 
    const userStore = useUserStore()
    const notificationCollection = collection(db, TABLE)
    function notificationDoc(id) { return doc(db, TABLE, id) }
 
-   const notifications = useFirestore(notificationCollection, [])      
+   const init = async () => { notificationAccess.addListener() } 
+   const notifications = computed(() => notificationAccess.records)
+    
    const userIdToNotifications = computed(() => {
       const map = new Map()
       for (const notification of notifications.value) {
@@ -37,9 +40,8 @@ export const useNotificationStore = defineStore('notification', () => {
       return map
    })
 
-   const myNotificationsQuery  = computed(() => userStore.userId && query(notificationCollection, where('userId', '==', userStore.userId)) )
-   const myRawNotifications    = useFirestore(myNotificationsQuery, [])
-   const myNotifications       = computed(() => toSortedDateCreatedDesc(myRawNotifications.value))
+   const myNotifications = computed(() => toSortedDateCreatedDesc(
+      notifications.value.filter(notification => notification.userId == userStore.userId)))
    const myActiveNotifications = computed(() => myNotifications.value.filter(notification => notification.status == NotificationStatus.ACTIVE))
 
    function addNotification(notification) {
@@ -59,7 +61,10 @@ export const useNotificationStore = defineStore('notification', () => {
       else { setDoc(notificationDoc(notificationToSet.id), notificationToSet) }
    }
 
-   function setInactive(id) { updateDoc(notificationDoc(id), { status: NotificationStatus.INACTIVE }) }
+   // function setInactive(id) { updateDoc(notificationDoc(id), { status: NotificationStatus.INACTIVE }) }
+   function setInactive(id) { 
+      console.log("notificationStore.setInactive", id)
+      notificationAccess.update(id, { status: NotificationStatus.INACTIVE }) }
 
    function deleteNotification(id) { deleteDoc(doc(notificationCollection, id)) }
 
@@ -71,6 +76,6 @@ export const useNotificationStore = defineStore('notification', () => {
       batch.commit()
    }
 
-   return { myNotifications, myActiveNotifications, addNotification, setInactive, deleteNotification, deleteNotifications }
+   return { init, myNotifications, myActiveNotifications, addNotification, setInactive, deleteNotification, deleteNotifications }
 })
 

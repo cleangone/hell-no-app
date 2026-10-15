@@ -41,7 +41,6 @@
                <span v-else-if="isRoute(Route.SEARCH)">{{ Route.SEARCH.display }}</span>
                <span v-else-if="isRoute(Route.FAVORITES)">{{ Route.FAVORITES.display }}</span>
                <span v-else-if="isRoute(Route.ABOUT)">{{ Route.ABOUT.display }}</span>
-               <span v-else-if="isRoute(Route.MESSAGE)">{{ Route.MESSAGE.display }}</span>
                <span v-else-if="isRoute(Route.ACCOUNT)" class="text-subtitle-1">{{ pageName }}</span>
                <span v-else-if="isRoute(Route.ADD_ITEM)">Add Item</span>
                <span v-else-if="isRoute(Route.EDIT_ITEM)">Edit Item</span>
@@ -146,9 +145,10 @@
          </v-bottom-navigation> -->
 
 <script setup>
-   import { computed, ref, onMounted } from 'vue'
+   import { computed, ref, onMounted, watch } from 'vue'
    import { useRoute, useRouter } from 'vue-router'
    import { useIonRouter } from '@ionic/vue'
+   import { Badge } from '@capawesome/capacitor-badge'
    import { Head } from '@unhead/vue/components'
    import { useDark, useToggle } from '@vueuse/core'
    import { auth } from '@/firebase' 
@@ -158,21 +158,17 @@
    import { useGalleryStore } from '@/stores/galleryStore'
    import { useGroupStore }   from '@/stores/groupStore'
    // import { useGroupMgr }     from '@/stores/groupMgr'
-   // import { useNotificationStore } from '@/stores/notificationStore'
+   import { useNotificationStore } from '@/stores/notificationStore'
    import { useChatStore }    from '@/stores/chat/chatStore'
    import { useHitStore }     from '@/stores/hitStore'
    import { useWallStore }    from '@/stores/wallStore'
    import { useViewStore }    from '@/stores/viewStore'
    import { useViewMgr }      from '@/stores/viewMgr'
    import { useLocalStore }   from '@/stores/localStore'
-   import GalleryThumbConfig  from '@/components/gallery/thumb/GalleryThumbConfig.vue'
-   import ItemThumbConfig     from '@/components/item/thumb/ItemThumbConfig.vue'
    import DarkButton          from '@/components/util/DarkButton.vue'
    import Icon                from '@/components/util/icon/Icon.vue'
-   import ThumbSizeButton     from '@/components/util/ThumbSizeButton.vue'
    import ToggleIcon          from '@/components/util/icon/ToggleIcon.vue'
    import IconButton          from '@/components/util/IconButton.vue'
-   import ShakeIcon          from '@/components/util/icon/ShakeIcon.vue'
    import ViewedSortButton    from '@/views/viewed/ViewedSortButton.vue'
    import { handleError }     from '@/utils/utils'
    import { daysOld }         from '@/utils/dateUtils'
@@ -188,17 +184,16 @@
    const groupStore   = useGroupStore()
    const chatStore    = useChatStore()
    // const groupMgr  = useGroupMgr()
-   // const notificationStore = useNotificationStore()
+   const notificationStore = useNotificationStore()
    const hitStore     = useHitStore()
    const wallStore    = useWallStore()
    const viewStore    = useViewStore()
    const viewMgr      = useViewMgr()
    const localStore   = useLocalStore()
    const windowSize = ref({})
-   // useNotificationStore() // instantiated ahead of time for messages/onMounted
    
    onMounted(async() => {
-      // console.log("App.onMounted")
+      console.log("App.onMounted")
       onAuthStateChanged(auth, (user) => {     
          console.log("onAuthStateChanged") 
          if (user) { userStore.userId = user.uid } 
@@ -221,17 +216,26 @@
       console.log("window.location.hostname", window.location.hostname)
 
       await Promise.allSettled([
-         userStore.addListener().catch(err    => console.error("userStore init error",    err)),
-         itemStore.addListener().catch(err    => console.error("itemStore init error",    err)),
-         galleryStore.addListener().catch(err => console.error("galleryStore init error", err)),
-         groupStore.addListener().catch(err   => console.error("groupStore init error",   err)),
-         chatStore.addListener().catch(err    => console.error("chatStore init error",    err)),
-         hitStore.addListener().catch(err     => console.error("hitStore init error",     err)),
-         wallStore.addListener().catch(err    => console.error("wallStore init error",    err))
+         userStore.addListener().catch(err  => console.error("userStore init error",    err)),
+         itemStore.addListener().catch(err  => console.error("itemStore init error",    err)),
+         galleryStore.init().catch(err      => console.error("galleryStore init error", err)),
+         groupStore.addListener().catch(err => console.error("groupStore init error",   err)),
+         chatStore.addListener().catch(err  => console.error("chatStore init error",    err)),
+         hitStore.addListener().catch(err   => console.error("hitStore init error",     err)),
+         wallStore.init().catch(err         => console.error("wallStore init error",    err)),
+         notificationStore.init().catch(err => console.error("notificationStore init error", err))
       ])
 
       setWindowSize()
       window.addEventListener('resize', setWindowSize)
+   })
+
+   // placeholder for background set of icon badge
+   const activeNotifications = computed(() => notificationStore.myActiveNotifications.length)
+   watch(activeNotifications, (newValue) => { 
+      console.log("activeNotifications", newValue)
+      if (newValue > 0) { setBadge(newValue) }
+      else { clearBadge() }
    })
 
    router.beforeEach((to, from) => {
@@ -276,8 +280,6 @@
 
    // const userOwnerId = computed(() => userStore.user.ownerId) 
    
-   // const activeNotificationsExist = computed(() => notificationStore.myActiveNotifications.length)
-
    const displayName = computed(() => {
       const currUser = user.value // ugly - check user, which drives update of localStore.soloMode
       return localStore.soloMode ? "Solo" : (currUser ? currUser.firstName : "")
@@ -303,13 +305,31 @@
       let owner = userStore.getUser(route.params.id)
       return owner ? owner.username : "User" 
    })
-   
+
    const toggleSoloMode = () => {   
       const settings = { ...user.value.settings }
       settings.soloMode = settings.soloMode ? false : true 
       userStore.updateSettings(settings)
       toRoute(Route.HOME)
    }
+
+   const setBadge = async (count) => {
+      console.log("updateBadge")
+      try {
+         let status = await Badge.checkPermissions()
+         if (status.display !== 'granted') {
+            console.log("initial badge permission", status.display)
+            status = await Badge.requestPermissions();
+         }
+         console.log("badge permission", status.display)
+         if (status.display === 'granted') {
+            await Badge.set({ count: count })
+         }
+      } catch (error) {
+         console.error('Failed to set badge:', error)
+      }
+   }
+   const clearBadge = async () => { Badge.clear() }
 
    const logout = () => { viewMgr.logout() }
 </script>
@@ -344,7 +364,7 @@ ion-app.app-root-container {
   background-color: white !important;
   box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.1);
   /* padding-bottom: env(safe-area-inset-bottom, 0px) !important; */
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) * 0.25) !important;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) * 0.33) !important;
   z-index: 99999 !important;
 }
 
@@ -352,9 +372,8 @@ ion-app.app-root-container {
 .persistent-footer ion-tab-bar {
   --background: #ffffff;
   --border: none;
-  height: 40px !important;
+  height: 44px !important;
 }
-
 
 /* Force custom Icon wrapper components inside tab buttons to match header scale */
 ion-tab-button > * {

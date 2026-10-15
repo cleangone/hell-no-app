@@ -68,6 +68,7 @@
    import ItemThumbConfig   from '@/components/item/thumb/ItemThumbConfig.vue'
    import UserThumbSwiper   from '@/components/user/thumb/UserThumbSwiper.vue'
    import Chats             from '@/components/chat/Chats.vue'
+   import BackButton        from '@/components/util/BackButton.vue'  
    import EditButton        from '@/components/util/EditButton.vue'
    import ThumbSizeButton   from '@/components/util/ThumbSizeButton.vue'
    import { toSortedSortDesc } from '@/utils/utils'

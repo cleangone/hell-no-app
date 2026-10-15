@@ -39,25 +39,17 @@ export const useWallStore = defineStore('wall', () => {
    // const wallCollection = collection(db, TABLE)
    function wallDoc(id) { return doc(db, TABLE, id) }
 
-   const addListener    = async () => { wallAccess.addListener() } 
-   const removeListener = async () => { wallAccess.removeListener() }
+   const init = async () => { wallAccess.addListener() } 
+   const walls = computed(() => wallAccess.records)  
    
-   // const walls        = useFirestore(wallCollection)   
-   // const siteWall     = useFirestore(wallDoc(Defaults.SITE_ID), DefaultWall)
-
-   const walls = computed(() => wallAccess.walls)  
    const wallIdToWall = computed(() => { return walls.value ? new Map(walls.value.map((obj) => [obj.id, obj])) : new Map() })
    function getWall(id) { return wallIdToWall.value.has(id) ? wallIdToWall.value.get(id) : DefaultWall } 
    const siteWall = computed(() => getWall(Defaults.SITE_ID))
-
-   // const myWallQuery  = computed(() => userStore.userId && wallDoc(userStore.userId))
-   // const myWall       = useFirestore(myWallQuery, DefaultWall)
+   
    const myWall = computed(() => userStore.userId ? getWall(userStore.userId) : DefaultWall)
 
    const visibleWalls = computed(() => [ siteWall.value, myWall.value ])
    
-   // const userWallsQuery = computed(() => query(wallCollection, where('type', '==', WallType.USER)))
-   // const userWalls = useFirestore(userWallsQuery, [])
    const userWalls = computed(() => { return walls.value.filter(wall => wall.type == WallType.USER) })
    const userWallItems = computed(() => { 
       const wallItems = []
@@ -155,8 +147,7 @@ export const useWallStore = defineStore('wall', () => {
    function updateWallDoc(id, wall) { updateDoc(wallDoc(id), { ...wall, dateModified: serverTimestamp() }) }
 
    return { 
-      walls, addListener, removeListener, 
-      siteWall, userWallItems, myWall, myWallIncludesItem, myWallIncludesImage, 
+      walls, init, siteWall, userWallItems, myWall, myWallIncludesItem, myWallIncludesImage, 
       addWall, addUserWall, addMyWallItem, addWallItem, 
       getWall, getUserWall, createWallItem, updateWall, removeWallsImageId, removeWallItem
    }

@@ -37,8 +37,8 @@
             <ion-buttons slot="end">
                <nav>
                   <!-- <Icon icon="mdi-dice-multiple" @click="toRoute(Route.RANDOM)"/> -->
-                  <!-- <ShakeIcon v-if="activeNotificationsExist" icon="mdi-bell-ring" size="small" @click="toRoute(Route.MESSAGE)" class="mr-n1"/> -->
-                  <DarkButton class="mr-n2"/>
+                  <ShakeIcon v-if="activeNotificationsExist" icon="mdi-bell-ring" size="small" @click="toRoute(Route.MESSAGE)" class="mr-1"/>
+                  <!-- <DarkButton class="mr-n2"/> -->
                </nav>
             </ion-buttons>
          </ion-toolbar>
@@ -94,11 +94,13 @@
    import { computed, onMounted, ref } from 'vue'
    // import { useElementSize } from '@vueuse/core'
    import { useRoute } from 'vue-router'
+   import { useIonRouter } from '@ionic/vue'
    import { useUserStore }    from '@/stores/userStore'
    import { useGalleryStore } from '@/stores/galleryStore'
    import { useInviteStore }  from '@/stores/inviteStore'
    import { useItemMgr }      from '@/stores/itemMgr'
    import { useWallMgr }      from '@/stores/wallMgr'
+   import { useNotificationStore } from '@/stores/notificationStore'
    import { useViewStore }    from '@/stores/viewStore'
    import { useViewMgr }      from '@/stores/viewMgr'
    import { useCacheStore }   from '@/stores/cacheStore'
@@ -114,11 +116,13 @@
    import { Defaults, ItemOrigin, Route, TodoType, WallRowHeight } from '@/utils/constants'
    
    const route        = useRoute()
+   const ionRouter    = useIonRouter()
    const userStore    = useUserStore()
    const galleryStore = useGalleryStore()
    const inviteStore  = useInviteStore()
    const itemMgr      = useItemMgr()
    const wallMgr      = useWallMgr()
+   const notificationStore = useNotificationStore()
    const viewStore    = useViewStore()
    const viewMgr      = useViewMgr()
    const cacheStore   = useCacheStore()
@@ -154,6 +158,8 @@
          setTimeout(() => { fadeWallBackground() }, 50)  
       }
    }
+
+   const activeNotificationsExist = computed(() => notificationStore.myActiveNotifications.length)
 
    // const invites = computed(() => {
    //    // console.log("notifications", inviteStore.myActiveInvites)
@@ -231,6 +237,24 @@
       return true // gallery is a parent with dateContentModified different than all children
    }
    
+   // const setBadge = async () => {
+   //    console.log("updateBadge")
+   //    try {
+   //       let status = await Badge.checkPermissions();
+   //       if (status.display !== 'granted') {
+   //          console.log("initial badge permission", status.display)
+   //          status = await Badge.requestPermissions();
+   //       }
+   //       console.log("badge permission", status.display)
+   //       if (status.display === 'granted') {
+   //          await Badge.set({ count: 5 });
+   //       }
+   //    } catch (error) {
+   //       console.error('Failed to set badge:', error);
+   //    }
+   // }
+   // const clearBadge = async () => { Badge.clear() }
+
    const recentUpdatedItems = computed(() => {
       console.log("home recentUpdatedItems")
       if (!isPageActive.value) {
@@ -270,6 +294,8 @@
    })
 
    const recentRows = computed(() => viewMgr.isXs ? 1 : 2)
+
+   const toRoute = (route) => { ionRouter.push(route.url, 'forward') }
 </script>
 
 <style>

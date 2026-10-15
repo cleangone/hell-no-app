@@ -4,13 +4,7 @@ import { useFirestoreListener } from './firestoreListener'
 const Table = 'galleries'
 
 export const useGalleryAccess = defineStore('galleryAccess', () => {
-   const { 
-      records: galleries, 
-      loading, 
-      error, 
-      addListener, 
-      removeListener 
-   } = useFirestoreListener(Table)
+   const { records, addListener, removeListener } = useFirestoreListener(Table)
 
-   return { galleries, loading, error, addListener, removeListener }
+   return { records, addListener, removeListener }
 })
