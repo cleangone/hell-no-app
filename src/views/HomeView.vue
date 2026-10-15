@@ -295,7 +295,7 @@
 
    const recentRows = computed(() => viewMgr.isXs ? 1 : 2)
 
-   const toRoute = (route) => { ionRouter.push(route.url, 'forward') }
+   const toRoute = (route) => { ionRouter.push(route.url) }
 </script>
 
 <style>

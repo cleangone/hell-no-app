@@ -14,8 +14,9 @@
 <script setup>
    import { computed, onMounted, ref } from 'vue'
    import { useRoute, useRouter } from 'vue-router'
-   import { auth } from '@/firebase' 
-   import { createUserWithEmailAndPassword } from "firebase/auth"
+   // import { auth } from '@/firebase' 
+   // import { createUserWithEmailAndPassword } from "firebase/auth"
+   import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
    import { useUserStore }   from '@/stores/userStore'
    import { useActionStore } from '@/stores/actionStore'
    // import { useGroupStore }  from '@/stores/groupStore'
@@ -33,12 +34,12 @@
    const inviteStore = useInviteStore()
    const wallStore   = useWallStore()
    const viewMgr     = useViewMgr()
-   const email = ref("")
+   const email     = ref("")
    const firstName = ref("")
-   const username = ref("")
-   const password = ref("")
+   const username  = ref("")
+   const password  = ref("")
    const dataValid = ref(true)
-   const errMsg = ref("")
+   const errMsg    = ref("")
 
    onMounted(() => {
       viewMgr.init() 
@@ -75,57 +76,110 @@
    const displayError = computed(() => inviteError.value ? inviteError.value : errMsg.value)
    const resetError = () => { errMsg.value = "" }
    
-   const register = () => {
+   const register = async () => {
       console.log("register/email", email.value)
       console.log("register/registeredInvite", registeredInvite.value)
       
-      createUserWithEmailAndPassword(auth, email.value, password.value)
-         .then((userCredential) => {
-            console.log("register/setUser")
-            userStore.setUser({
-               id: userCredential.user.uid,
-               username: username.value,
-               firstName: firstName.value,
-               email: email.value,
+      try {
+         const result = await FirebaseAuthentication.createUserWithEmailAndPassword(
+            { email: email.value, password: password.value })
+
+         const uid = result.user?.uid
+         if (!uid) { throw new Error("User creation succeeded but no user UID was returned.") }
+         console.log("register/setUser with UID:", uid)
+
+         userStore.setUser({
+            id: uid,
+            username: username.value,
+            firstName: firstName.value,
+            email: email.value,
+         })
+
+         wallStore.addWall(userStore.userId, WallType.USER)
+
+         // join group if one specified
+         console.log("register checking invite group", registeredInvite.value)
+         if (registeredInvite.value?.groupId) { 
+            console.log("register/addUserIds/groupId", registeredInvite.value.groupId)
+            console.log("register/addUserIds/userId", userStore.userId)
+
+            actionStore.addAction({
+              actionType: ActionType.ACCEPT_GROUP_INVITE, 
+              groupId: registeredInvite.value.groupId, 
+              userId: userStore.userId
             })
+         }
 
-            // TODO - incorporate this into userMgr
-            wallStore.addWall(userStore.userId, WallType.USER)
+         // accept invite via action
+         console.log("Accepting invite")
+         const action = { actionType: ActionType.ACCEPT_INVITE, inviteId: registeredInvite.value.id, userId: userStore.userId }
+         if (registeredInvite.value?.toGroupName) { action.groupAcceptance = { email: email.value, firstName: firstName.value } }
+         actionStore.addAction(action)
 
-            // join group if one specified
-            console.log("register checking invite group", registeredInvite.value)
-            if (registeredInvite.value.groupId) { 
-               console.log("register/addUserIds/groupId", registeredInvite.value.groupId)
-               console.log("register/addUserIds/userId", userStore.userId)
-
-               // accept group invite via action because do not have permission to update
-               // groupStore.addUserIds(registeredInvite.value.groupId, [userStore.userId]) 
-               actionStore.addAction( {
-                 actionType: ActionType.ACCEPT_GROUP_INVITE, 
-                 groupId: registeredInvite.value.groupId, 
-                 userId: userStore.userId
-               })
-            }
-
-            // accept invite via action because do not have permission to update
-            console.log("Accepting invite")
-            const action = { actionType: ActionType.ACCEPT_INVITE, inviteId: registeredInvite.value.id, userId: userStore.userId }
-            if (registeredInvite.value.toGroupName) { action.groupAcceptance = { email: email.value, firstName: firstName.value }}
-            actionStore.addAction(action)
-
-            console.log("Forwarding to Home")
-            router.push(Route.HOME.url)
-         })
-         .catch((error) => {
-            if      (error.code == "auth/invalid-email")  { errMsg.value = "Email invalid" }
-            else if (error.code == "auth/user-not-found") { errMsg.value = "User not found" }
-            else if (error.code == "auth/wrong=password") { errMsg.value = "Password incorrect" }
-            else { 
-               console.log("unknown error", error)
-               errMsg.value = "Email/password incorrect" 
-            }
-         })
+         console.log("Forwarding to Home")
+         router.push(Route.HOME.url)
+      } 
+      catch (error) {
+         console.error("Registration failed", error)
+         if (error.code === "auth/email-already-in-use") { errMsg.value = "Email is already registered" }
+         else if (error.code === "auth/invalid-email")   { errMsg.value = "Invalid email address" } 
+         else if (error.code === "auth/weak-password")   { errMsg.value = "Password is too weak" } 
+         else { errMsg.value = error.message || "Registration failed" }
+      }
    }
+
+
+   // const register = () => {
+   //    console.log("register/email", email.value)
+   //    console.log("register/registeredInvite", registeredInvite.value)
+      
+   //    createUserWithEmailAndPassword(auth, email.value, password.value)
+   //       .then((userCredential) => {
+   //          console.log("register/setUser")
+   //          userStore.setUser({
+   //             id: userCredential.user.uid,
+   //             username: username.value,
+   //             firstName: firstName.value,
+   //             email: email.value,
+   //          })
+
+   //          // TODO - incorporate this into userMgr
+   //          wallStore.addWall(userStore.userId, WallType.USER)
+
+   //          // join group if one specified
+   //          console.log("register checking invite group", registeredInvite.value)
+   //          if (registeredInvite.value.groupId) { 
+   //             console.log("register/addUserIds/groupId", registeredInvite.value.groupId)
+   //             console.log("register/addUserIds/userId", userStore.userId)
+
+   //             // accept group invite via action because do not have permission to update
+   //             // groupStore.addUserIds(registeredInvite.value.groupId, [userStore.userId]) 
+   //             actionStore.addAction( {
+   //               actionType: ActionType.ACCEPT_GROUP_INVITE, 
+   //               groupId: registeredInvite.value.groupId, 
+   //               userId: userStore.userId
+   //             })
+   //          }
+
+   //          // accept invite via action because do not have permission to update
+   //          console.log("Accepting invite")
+   //          const action = { actionType: ActionType.ACCEPT_INVITE, inviteId: registeredInvite.value.id, userId: userStore.userId }
+   //          if (registeredInvite.value.toGroupName) { action.groupAcceptance = { email: email.value, firstName: firstName.value }}
+   //          actionStore.addAction(action)
+
+   //          console.log("Forwarding to Home")
+   //          router.push(Route.HOME.url)
+   //       })
+   //       .catch((error) => {
+   //          if      (error.code == "auth/invalid-email")  { errMsg.value = "Email invalid" }
+   //          else if (error.code == "auth/user-not-found") { errMsg.value = "User not found" }
+   //          else if (error.code == "auth/wrong=password") { errMsg.value = "Password incorrect" }
+   //          else { 
+   //             console.log("unknown error", error)
+   //             errMsg.value = "Email/password incorrect" 
+   //          }
+   //       })
+   // }
 </script>
 
 <style>

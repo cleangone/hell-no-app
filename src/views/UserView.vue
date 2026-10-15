@@ -254,7 +254,7 @@
 
    function toRoute(route) {
       console.log("userView toRoute", route.name)
-      ionRouter.push(route.url, 'forward')
+      ionRouter.push(route.url)
    }
 
    const logout = () => { viewMgr.logout() }

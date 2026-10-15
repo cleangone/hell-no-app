@@ -17,7 +17,9 @@
 
 <script setup>
    import { onMounted, ref } from 'vue'
-   import { auth } from '@/firebase' 
+   // import { auth } from '@/firebase' 
+
+   // TODO - will have to be updated for ion/firebase 
    import { updateEmail  } from "firebase/auth"
    import { useUserStore } from '@/stores/userStore'
    import { emailRule } from '@/utils/utils'
@@ -35,20 +37,20 @@
    })
 
    const save = () => {
-      updateEmail(auth.currentUser, email.value)
-         .then(() => { 
-            // console.log("Auth email updated, updating user.email", email.value)
-            userStore.updateUser({ id: props.user.id, email: email.value }) 
-            emit(Emit.DONE)
-         })
-         .catch((error) => {
-            console.log("Error updating email", error)
-            if (error.code == "auth/invalid-email") { errorMsg.value = "Email invalid" }
-            else if (error.code == "auth/user-not-found") { errorMsg.value = "User not found" }
-            else if (error.code == "auth/operation-not-allowed") { errorMsg.value = "Must verify new email before changing" }
-            else if (error.code == "auth/requires-recent-login") { errorMsg.value = "Must login recently to update email" }
-            else { errorMsg.value = "Error updating email" }
-         })
+      // updateEmail(auth.currentUser, email.value)
+      //    .then(() => { 
+      //       // console.log("Auth email updated, updating user.email", email.value)
+      //       userStore.updateUser({ id: props.user.id, email: email.value }) 
+      //       emit(Emit.DONE)
+      //    })
+      //    .catch((error) => {
+      //       console.log("Error updating email", error)
+      //       if (error.code == "auth/invalid-email") { errorMsg.value = "Email invalid" }
+      //       else if (error.code == "auth/user-not-found") { errorMsg.value = "User not found" }
+      //       else if (error.code == "auth/operation-not-allowed") { errorMsg.value = "Must verify new email before changing" }
+      //       else if (error.code == "auth/requires-recent-login") { errorMsg.value = "Must login recently to update email" }
+      //       else { errorMsg.value = "Error updating email" }
+      //    })
    }
 </script>
 

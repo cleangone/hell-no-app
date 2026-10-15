@@ -15,14 +15,10 @@ import { toSortedDateModifiedDesc } from '@/utils/utils'
 export const useHitStore = defineStore('hit', () => {
    const hitAccess = useHitAccess()
    
-   const addListener    = async () => { hitAccess.addListener() } 
-   const removeListener = async () => { hitAccess.removeListener() }
+   const init = async () => { hitAccess.addListener() } 
+   const rawHits = computed(() => hitAccess.records)  
    
-   const rawHits = computed(() => hitAccess.hits)  
-   const hits = computed(() => {
-      console.log("hitStore.hits")
-      return rawHits.value ? toSortedDateModifiedDesc(rawHits.value) : []
-   })
+   const hits = computed(() => rawHits.value ? toSortedDateModifiedDesc(rawHits.value) : [])
    const idToHit = computed(() => { return rawHits.value ? new Map(rawHits.value.map((obj) => [obj.id, obj])) : new Map() })
    function getHit(id) { return idToHit.value ? idToHit.value.get(id) : null } 
 
@@ -40,7 +36,5 @@ export const useHitStore = defineStore('hit', () => {
       console.log("addHit sync done")
    }
 
-   return { 
-      hits, addListener, removeListener, 
-      getHit, addHit }
+   return { hits, init, getHit, addHit }
 })

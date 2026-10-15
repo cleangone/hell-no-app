@@ -3,8 +3,9 @@ import { defineStore } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useIonRouter } from '@ionic/vue'
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
-import { auth } from '@/firebase' 
-import { signOut } from "firebase/auth"
+// import { auth } from '@/firebase' 
+// import { signOut } from "firebase/auth"
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
 import { useUserStore }  from '@/stores/userStore'
 import { useItemMgr }    from '@/stores/itemMgr'
 import { useGalleryMgr } from '@/stores/galleryMgr'
@@ -48,10 +49,20 @@ export const useViewMgr = defineStore('viewMgr', () => {
       }
    }
 
-   function logout() {
+   // function logout() {
+   //    console.log("viewMgr logout")
+   //    signOut(auth) 
+   //    ionRouter.push(Route.HOME.url, 'forward')
+   // }
+
+   const logout = async () => {
       console.log("viewMgr logout")
-      signOut(auth) 
-      ionRouter.push(Route.HOME.url, 'forward')
+      try {
+         await FirebaseAuthentication.signOut()
+         ionRouter.push(Route.HOME.url, 'forward')
+      } catch (err) {
+         console.error("Logout failed", err)
+      }
    }
 
    const isStandalone = computed(() => window.matchMedia('(display-mode: standalone)').matches)

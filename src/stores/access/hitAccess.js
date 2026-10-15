@@ -7,13 +7,7 @@ const Table = 'hits'
 export const useHitAccess = defineStore('hitAccess', () => {
    function docPath(id) { return `${Table}/${id}` }
 
-   const { 
-      records: hits, 
-      loading, 
-      error, 
-      addListener, 
-      removeListener 
-   } = useFirestoreListener(Table)
+   const { records, addListener, removeListener } = useFirestoreListener(Table)
 
    async function create(id, data) {
       console.log("hitAccess.create", id)
@@ -39,5 +33,5 @@ export const useHitAccess = defineStore('hitAccess', () => {
       }
    }
 
-   return { hits, create, update, loading, error, addListener, removeListener }
+   return { records, addListener, removeListener, create, update }
 })

@@ -31,8 +31,7 @@
 <script setup>
    import { ref } from 'vue'
    import { useIonRouter } from '@ionic/vue'
-   import { signInWithEmailAndPassword } from "firebase/auth"
-   import { auth } from '@/firebase' 
+   import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
    import { useViewMgr } from '@/stores/viewMgr'
    import { emailRule } from '@/utils/utils'
    import { Route } from '@/utils/constants'
@@ -45,29 +44,30 @@
    const dataValid = ref(true)
    const infoMsg   = ref("")
    const errMsg    = ref("")
-   
+
    // app.onAuthStateChanged updates userStore
-   const login = () => {
+   const login = async () => {
       console.log("login", email.value)
       infoMsg.value = ""
-      signInWithEmailAndPassword(auth, email.value, password.value)
-         .then((userCredential) => {
-            email.value = ""
-            password.value = ""
-            errMsg.value = ""
-            // router.push(Route.HOME.url)
-            ionRouter.push(Route.HOME.url, 'forward')
-         })
-         .catch((error) => {
-            console.error("Firebase Auth Error Code:", error.code)
-            console.error("Firebase Auth Error Message:", error.message)
-            console.error("Full Error JSON:", JSON.stringify(error, Object.getOwnPropertyNames(error)))
+      
+      try {
+         await FirebaseAuthentication.signInWithEmailAndPassword(
+            { email: email.value, password: password.value })
+         email.value = ""
+         password.value = ""
+         errMsg.value = ""
+         ionRouter.push(Route.HOME.url)
+      }
+      catch(error) {
+         console.error("Firebase Auth Error Code:", error.code)
+         console.error("Firebase Auth Error Message:", error.message)
+         console.error("Full Error JSON:", JSON.stringify(error, Object.getOwnPropertyNames(error)))
 
-            if (error.code == "auth/invalid-email")       { errMsg.value = "Email invalid" }
-            else if (error.code == "auth/user-not-found") { errMsg.value = "User not found" }
-            else if (error.code == "auth/wrong=password") { errMsg.value = "Password incorrect" }
-            else { errMsg.value = "Email/password incorrect" }
-         })
+         if (error.code == "auth/invalid-email")       { errMsg.value = "Email invalid" }
+         else if (error.code == "auth/user-not-found") { errMsg.value = "User not found" }
+         else if (error.code == "auth/wrong=password") { errMsg.value = "Password incorrect" }
+         else { errMsg.value = "Email/password incorrect" }
+      }
    }
 </script>
 

@@ -16,7 +16,9 @@
 
 <script setup>
    import { ref } from 'vue'
-   import { auth } from '@/firebase' 
+   // import { auth } from '@/firebase' 
+
+   // TODO - will have to be updated for ion/firebase 
    import { updatePassword  } from "firebase/auth"
    import { minRule } from '@/utils/utils'
    import { Emit } from '@/utils/constants'
@@ -29,18 +31,18 @@
    const errorMsg = ref("")
 
    const save = () => {
-      updatePassword(auth.currentUser, password.value)
-         .then(() => { 
-            console.log("Password updated")
-            emit(Emit.DONE)
-         })
-         .catch((error) => {
-            console.log("Error updating password", error.message)
-            if (error.code == "auth/user-not-found") { errorMsg.value = "User not found" }
-            else if (error.code == "auth/operation-not-allowed") { errorMsg.value = "Must verify new email before changing" }
-            else if (error.code == "auth/requires-recent-login") { errorMsg.value = "Must login recently to update password" }
-            else { errorMsg.value = "Error updating email" }
-         })
+      // updatePassword(auth.currentUser, password.value)
+      //    .then(() => { 
+      //       console.log("Password updated")
+      //       emit(Emit.DONE)
+      //    })
+      //    .catch((error) => {
+      //       console.log("Error updating password", error.message)
+      //       if (error.code == "auth/user-not-found") { errorMsg.value = "User not found" }
+      //       else if (error.code == "auth/operation-not-allowed") { errorMsg.value = "Must verify new email before changing" }
+      //       else if (error.code == "auth/requires-recent-login") { errorMsg.value = "Must login recently to update password" }
+      //       else { errorMsg.value = "Error updating email" }
+      //    })
    }
 </script>
 

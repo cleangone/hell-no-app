@@ -1,9 +1,9 @@
 import { computed } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/firebase'
-import { collection, doc, setDoc, updateDoc, deleteDoc, arrayUnion, serverTimestamp } from "firebase/firestore"
-import { useUserStore }  from '../userStore'
-import { useChatAccess } from '../access/chatAccess'
+import { collection, doc, setDoc, updateDoc, deleteDoc, serverTimestamp } from "firebase/firestore"
+import { useUserStore }  from '@/stores/userStore'
+import { useChatAccess } from '@/stores/access/chat/chatAccess'
 import { dateUuid, isGroup, isPublic } from '@/utils/utils'
 import { ChatStatus }  from '@/utils/constants'
 
@@ -29,12 +29,9 @@ export const useChatStore = defineStore('chatStore', () => {
    const chatCollection = collection(db, TABLE)
    function chatDoc(id) { return doc(db, TABLE, id) }
 
-   const addListener    = async () => { chatAccess.addListener() } 
-   const removeListener = async () => { chatAccess.removeListener() }
-   const chats = computed(() => chatAccess.chats)
+   const init = async () => { chatAccess.addListener() } 
+   const chats = computed(() => chatAccess.records)
 
-   // const publicChatsQuery = computed(() => query(chatCollection, where('state', '==', State.PUBLIC)))  
-   // const publicChats = useFirestore(publicChatsQuery, [])
    const publicChats = computed(() => { return chats.value.filter(chat => isPublic(chat)) })   
   
    const chatIdToChat = computed(() => new Map(chats.value.map((obj) => [obj.id, obj])))
@@ -76,7 +73,6 @@ export const useChatStore = defineStore('chatStore', () => {
       deleteDoc(doc(chatCollection, id))
    }
 
-   return { chats, addListener, removeListener,
-            publicChats, getChat, getGroupChats, 
+   return { chats, init, publicChats, getChat, getGroupChats, 
             addChat, updateChat, updateChatContentModified, deleteChat }
 })

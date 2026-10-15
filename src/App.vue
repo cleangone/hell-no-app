@@ -145,14 +145,15 @@
          </v-bottom-navigation> -->
 
 <script setup>
-   import { computed, ref, onMounted, watch } from 'vue'
+   import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
    import { useRoute, useRouter } from 'vue-router'
    import { useIonRouter } from '@ionic/vue'
    import { Badge } from '@capawesome/capacitor-badge'
    import { Head } from '@unhead/vue/components'
    import { useDark, useToggle } from '@vueuse/core'
-   import { auth } from '@/firebase' 
-   import { onAuthStateChanged, signOut } from "firebase/auth"
+   // import { auth } from '@/firebase' 
+   // import { onAuthStateChanged, signOut } from "firebase/auth"
+   import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
    import { useUserStore }    from '@/stores/userStore'
    import { useItemStore }    from '@/stores/itemStore'
    import { useGalleryStore } from '@/stores/galleryStore'
@@ -190,28 +191,23 @@
    const viewStore    = useViewStore()
    const viewMgr      = useViewMgr()
    const localStore   = useLocalStore()
-   const windowSize = ref({})
+   const windowSize   = ref({})
+   const authListener = ref(null)
    
    onMounted(async() => {
       console.log("App.onMounted")
-      onAuthStateChanged(auth, (user) => {     
-         console.log("onAuthStateChanged") 
-         if (user) { userStore.userId = user.uid } 
-         else { 
-            userStore.userId = "" 
-            localStore.setSoloMode(false) // in case user had solo set
-         }
+      
+      // check current user 
+      try {
+         const result = await FirebaseAuthentication.getCurrentUser()
+         handleAuthState(result.user)
+      } 
+      catch (err) {
+         handleAuthState(null)
+      }
 
-         if (userStore.userId) {
-            setTimeout(() => {
-               if (userStore.user && (!userStore.user.dateVisited || daysOld(userStore.user.dateVisited))) {
-                  console.log("userStore.updateDateVisited bypassed")
-                  // userStore.updateDateVisited(userStore.userId)
-               }
-            }, 2000)
-         }
-         viewStore.resetView()
-      })
+      authListener.value = await FirebaseAuthentication
+         .addListener('authStateChange', (event) => { handleAuthState(event.user) })
 
       console.log("window.location.hostname", window.location.hostname)
 
@@ -220,8 +216,8 @@
          itemStore.addListener().catch(err  => console.error("itemStore init error",    err)),
          galleryStore.init().catch(err      => console.error("galleryStore init error", err)),
          groupStore.addListener().catch(err => console.error("groupStore init error",   err)),
-         chatStore.addListener().catch(err  => console.error("chatStore init error",    err)),
-         hitStore.addListener().catch(err   => console.error("hitStore init error",     err)),
+         chatStore.init().catch(err         => console.error("chatStore init error",    err)),
+         hitStore.init().catch(err          => console.error("hitStore init error",     err)),
          wallStore.init().catch(err         => console.error("wallStore init error",    err)),
          notificationStore.init().catch(err => console.error("notificationStore init error", err))
       ])
@@ -229,6 +225,34 @@
       setWindowSize()
       window.addEventListener('resize', setWindowSize)
    })
+
+   onUnmounted(async () => {
+   // Clean up the listener when App unmounts
+   if (authListener.value) {
+      await authListener.value.remove()
+      authListener.value = null
+   }
+})
+
+   const handleAuthState = (user) => {
+      console.log("authState update", user ? user.uid : "no user")
+      if (user) { userStore.userId = user.uid } 
+      else { 
+         userStore.userId = "" 
+         localStore.setSoloMode(false) // in case user had solo set
+      }
+
+      // todo - commented out during db update migrattion
+      if (userStore.userId) {
+         setTimeout(() => {
+            if (userStore.user && (!userStore.user.dateVisited || daysOld(userStore.user.dateVisited))) {
+               console.log("userStore.updateDateVisited bypassed")
+               // userStore.updateDateVisited(userStore.userId)
+            }
+         }, 2000)
+      }
+      viewStore.resetView()
+   }
 
    // placeholder for background set of icon badge
    const activeNotifications = computed(() => notificationStore.myActiveNotifications.length)
@@ -253,11 +277,11 @@
    const inRoutes    = (...routes) => { return routes.map(route => route.name).includes(currentRouteName.value) }  
    const toRoute     = (route)     => { 
       console.log("app toRoute", route.name)
-      ionRouter.push(route.url, 'forward') }
+      ionRouter.push(route.url) }
    const toRouteUrl  = (routeUrl)  => { 
       console.log("app toRouteUrl", routeUrl)
-      ionRouter.push(routeUrl, 'forward') }
-   const toSiteRoute = (route)     => { ionRouter.push(route.url + Defaults.SITE_ID, 'forward') }
+      ionRouter.push(routeUrl) }
+   const toSiteRoute = (route)     => { ionRouter.push(route.url + Defaults.SITE_ID) }
 
    const user = computed(() => { 
       const currUser = userStore.userExists ? userStore.user : null 
