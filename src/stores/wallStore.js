@@ -39,7 +39,7 @@ export const useWallStore = defineStore('wall', () => {
    // const wallCollection = collection(db, TABLE)
    function wallDoc(id) { return doc(db, TABLE, id) }
 
-   const init = async () => { wallAccess.addListener() } 
+   const addListener = async () => { wallAccess.addListener() } 
    const walls = computed(() => wallAccess.records)  
    
    const wallIdToWall = computed(() => { return walls.value ? new Map(walls.value.map((obj) => [obj.id, obj])) : new Map() })
@@ -147,7 +147,7 @@ export const useWallStore = defineStore('wall', () => {
    function updateWallDoc(id, wall) { updateDoc(wallDoc(id), { ...wall, dateModified: serverTimestamp() }) }
 
    return { 
-      walls, init, siteWall, userWallItems, myWall, myWallIncludesItem, myWallIncludesImage, 
+      walls, addListener, siteWall, userWallItems, myWall, myWallIncludesItem, myWallIncludesImage, 
       addWall, addUserWall, addMyWallItem, addWallItem, 
       getWall, getUserWall, createWallItem, updateWall, removeWallsImageId, removeWallItem
    }

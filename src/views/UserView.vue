@@ -164,22 +164,22 @@
       for (const gallery of galleryStore.getPublicGalleries(userId.value) ) {
          if (gallery.images.length && !gallery.parentGalleryId && viewMgr.galleryIsVisibleToUser(gallery)) { galleries.push(gallery) }
       }    
-      console.log("sorting visibleGalleries")
+      // console.log("sorting visibleGalleries")
       return toSortedDateContentModifiedDesc(galleries)
    })
 
    const recentItems = computed(() => {
-      console.log("user recentItems")
+      // console.log("user recentItems")
       return itemMgr.getRecentPublicItems(userId.value).filter(item => !itemMgr.isInvisible(item))
    })
 
    const userWall = computed(() => {
-      console.log("user userWall")
+      // console.log("user userWall")
       return wallStore.getUserWall(userId.value)
    })
    
    const displayWall = computed(() => {
-      console.log("user displayWall")
+      // console.log("user displayWall")
       const tempWall = userWall.value // No spread operator
       if (!tempWall) { return DefaultWall }
       
@@ -206,9 +206,9 @@
    })
 
    const recentUpdatedItems = computed(() => {
-      console.log("user recentUpdatedItems", props.id)
+      // console.log("user recentUpdatedItems", props.id)
       if (!isPageActive.value) {
-         console.log("page inactive", props.id)
+         // console.log("page inactive", props.id)
          return []
       }
 
@@ -234,9 +234,9 @@
 
 
    const recentViewedItems = computed(() => {
-      console.log("user recentViewedItems", props.id)
+      // console.log("user recentViewedItems", props.id)
       if (!isPageActive.value) {
-         console.log("page inactive", props.id)
+         // console.log("page inactive", props.id)
          return []
       }
 
@@ -253,7 +253,7 @@
    })  
 
    function toRoute(route) {
-      console.log("userView toRoute", route.name)
+      // console.log("userView toRoute", route.name)
       ionRouter.push(route.url)
    }
 

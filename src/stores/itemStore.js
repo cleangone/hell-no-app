@@ -68,9 +68,8 @@ export const useItemStore = defineStore('item', () => {
    const itemCollection = collection(db, TABLE)
    function itemDoc(id) { return doc(db, TABLE, id) }
 
-   const addListener    = async () => { itemAccess.addListener() } 
-   const removeListener = async () => { itemAccess.removeListener() }
-   const items = computed(() => itemAccess.items)
+   const addListener = async () => { itemAccess.addListener() } 
+   const items = computed(() => itemAccess.records)
 
    // const rawItems = useFirestore(itemCollection)   
    // const items = computed(() => { return rawItems.value ? rawItems.value : [] })
@@ -237,8 +236,7 @@ export const useItemStore = defineStore('item', () => {
    }
 
    return { 
-      items, addListener, removeListener,
-      publicItems, childItemIds, itemIdToItem, groupItems, groupIdToItems,
+      items, addListener, publicItems, childItemIds, itemIdToItem, groupItems, groupIdToItems,
       myItems, myItemIdToItem, myChildItemIds,
       getGalleryItems, getGroupItems, getArtistItems, getArtistPublicItems, getItem, getUserItems, getUserPubicItems,
       setItem, updateItem, 

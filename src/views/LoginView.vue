@@ -10,7 +10,6 @@
       </ion-toolbar>
    </div>
 
-   <span v-if="!viewMgr.isMobile" class="title">Login</span>
    <div class="my-5 login text-left">
       <v-form v-model="dataValid">  
          <v-text-field v-model="email" label="Email" :rules="emailRule"></v-text-field>
@@ -32,12 +31,12 @@
    import { ref } from 'vue'
    import { useIonRouter } from '@ionic/vue'
    import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
-   import { useViewMgr } from '@/stores/viewMgr'
+   import { useUserStore } from '@/stores/userStore'
    import { emailRule } from '@/utils/utils'
    import { Route } from '@/utils/constants'
    
    const ionRouter = useIonRouter()
-   const viewMgr   = useViewMgr()
+   const userStore = useUserStore()
    const email     = ref("")
    const password  = ref("")
    const showPassword = ref(false)
@@ -51,12 +50,15 @@
       infoMsg.value = ""
       
       try {
-         await FirebaseAuthentication.signInWithEmailAndPassword(
+         const result = await FirebaseAuthentication.signInWithEmailAndPassword(
             { email: email.value, password: password.value })
          email.value = ""
          password.value = ""
          errMsg.value = ""
-         ionRouter.push(Route.HOME.url)
+
+         // auth listener must be the one to update userStore.userId becasue it having a value means an auth'd user exists
+         if (result.user) { ionRouter.push(Route.HOME.url) }
+         else { throw new Error("User login succeeded but no user returned.") }
       }
       catch(error) {
          console.error("Firebase Auth Error Code:", error.code)
@@ -65,7 +67,7 @@
 
          if (error.code == "auth/invalid-email")       { errMsg.value = "Email invalid" }
          else if (error.code == "auth/user-not-found") { errMsg.value = "User not found" }
-         else if (error.code == "auth/wrong=password") { errMsg.value = "Password incorrect" }
+         else if (error.code == "auth/wrong-password") { errMsg.value = "Password incorrect" }
          else { errMsg.value = "Email/password incorrect" }
       }
    }

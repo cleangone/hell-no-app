@@ -29,7 +29,7 @@ export const useChatStore = defineStore('chatStore', () => {
    const chatCollection = collection(db, TABLE)
    function chatDoc(id) { return doc(db, TABLE, id) }
 
-   const init = async () => { chatAccess.addListener() } 
+   const addListener = async () => { chatAccess.addListener() } 
    const chats = computed(() => chatAccess.records)
 
    const publicChats = computed(() => { return chats.value.filter(chat => isPublic(chat)) })   
@@ -73,6 +73,6 @@ export const useChatStore = defineStore('chatStore', () => {
       deleteDoc(doc(chatCollection, id))
    }
 
-   return { chats, init, publicChats, getChat, getGroupChats, 
+   return { chats, addListener, publicChats, getChat, getGroupChats, 
             addChat, updateChat, updateChatContentModified, deleteChat }
 })

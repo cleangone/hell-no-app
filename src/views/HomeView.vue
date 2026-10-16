@@ -256,9 +256,9 @@
    // const clearBadge = async () => { Badge.clear() }
 
    const recentUpdatedItems = computed(() => {
-      console.log("home recentUpdatedItems")
+      // console.log("home recentUpdatedItems")
       if (!isPageActive.value) {
-         console.log("home inactive")
+         // console.log("home inactive")
          return []
       }
 
@@ -277,9 +277,9 @@
    })
 
    const recentViewedItems = computed(() => {
-      console.log("home recentViewedItems")
+      // console.log("home recentViewedItems")
       if (!isPageActive.value) {
-         console.log("home inactive")
+         // console.log("home inactive")
          return []
       }
 

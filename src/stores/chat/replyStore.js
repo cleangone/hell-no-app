@@ -2,8 +2,9 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/firebase'
 import { collection, doc, setDoc, updateDoc, deleteDoc, serverTimestamp, writeBatch } from "firebase/firestore"
-import { useFirestore } from '@vueuse/firebase/useFirestore'
+// import { useFirestore } from '@vueuse/firebase/useFirestore'
 import { useUserStore } from '../userStore'
+import { useReplyAccess } from '@/stores/access/chat/replyAccess'
 import { dateUuid } from '@/utils/utils'
 
 /* 
@@ -19,11 +20,16 @@ import { dateUuid } from '@/utils/utils'
 const TABLE = 'chat-replies'
 
 export const useReplyStore = defineStore('replyStore', () => {
+   const replyAccess = useReplyAccess() 
    const userStore = useUserStore()
    const replyCollection = collection(db, TABLE)
    function replyDoc(id) { return doc(db, TABLE, id) }
 
-   const replies = useFirestore(replyCollection, [])
+   const addListener    = async () => { return replyAccess.addListener() } 
+   const removeListener = async () => { return replyAccess.removeListener() } 
+   const replies = computed(() => replyAccess.records)
+
+   // const replies = useFirestore(replyCollection, [])
    const postIdToReplies = computed(() => {
       const map = new Map()
       for (const reply of replies.value) { 
@@ -60,5 +66,5 @@ export const useReplyStore = defineStore('replyStore', () => {
       batch.commit()
    }
 
-   return { getReplies, addReply, updateReply, deleteReply, deleteReplies }
+   return { addListener, removeListener, getReplies, addReply, updateReply, deleteReply, deleteReplies }
 })

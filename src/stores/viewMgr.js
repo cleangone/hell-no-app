@@ -6,10 +6,13 @@ import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 // import { auth } from '@/firebase' 
 // import { signOut } from "firebase/auth"
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
+import { useAuthMgr }      from '@/stores/authMgr'
 import { useUserStore }  from '@/stores/userStore'
 import { useItemMgr }    from '@/stores/itemMgr'
 import { useGalleryMgr } from '@/stores/galleryMgr'
 import { useWallStore }  from '@/stores/wallStore'
+import { usePostStore }  from '@/stores/chat/postStore'
+import { useReplyStore } from '@/stores/chat/replyStore'
 import { useHitStore }   from '@/stores/hitStore'
 import { useViewStore }  from '@/stores/viewStore'
 import { useLocalStore } from '@/stores/localStore'
@@ -21,10 +24,13 @@ export const useViewMgr = defineStore('viewMgr', () => {
    const ionRouter = useIonRouter()
    const breakpoints = useBreakpoints(breakpointsTailwind)
    const xs = breakpoints.smaller('sm')
+   const authMgr      = useAuthMgr()
    const userStore    = useUserStore()
    const itemMgr      = useItemMgr()
    const galleryMgr   = useGalleryMgr()
    const wallStore    = useWallStore()
+   const postStore    = usePostStore()
+   const replyStore   = useReplyStore()
    const hitStore     = useHitStore()
    const viewStore    = useViewStore()
    const localStore   = useLocalStore()
@@ -49,18 +55,13 @@ export const useViewMgr = defineStore('viewMgr', () => {
       }
    }
 
-   // function logout() {
-   //    console.log("viewMgr logout")
-   //    signOut(auth) 
-   //    ionRouter.push(Route.HOME.url, 'forward')
-   // }
-
    const logout = async () => {
       console.log("viewMgr logout")
       try {
-         await FirebaseAuthentication.signOut()
-         ionRouter.push(Route.HOME.url, 'forward')
-      } catch (err) {
+         await authMgr.logout()
+         ionRouter.push(Route.HOME.url)
+      } 
+      catch (err) {
          console.error("Logout failed", err)
       }
    }
@@ -133,7 +134,8 @@ export const useViewMgr = defineStore('viewMgr', () => {
       return widths.get(thumbSize) 
    }
       
-   return { init, logout, isMobile, isXs, isDeskTop, solo, addHit, itemIsVisibleToUser, itemThumbVisibleToUser, 
-      galleryIsVisibleToUser, galleryThumbVisibleToUser, galleryItemCount, 
-      getTargetThumbHeight, getItemMaxLandscapeWidth }
+   return { init, isMobile, isXs, isDeskTop, solo, addHit, itemIsVisibleToUser, itemThumbVisibleToUser, 
+            galleryIsVisibleToUser, galleryThumbVisibleToUser, galleryItemCount, 
+            getTargetThumbHeight, getItemMaxLandscapeWidth,
+            logout }
 })

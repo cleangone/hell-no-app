@@ -2,8 +2,9 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/firebase'
 import { collection, doc, setDoc, updateDoc, deleteDoc, serverTimestamp, writeBatch } from "firebase/firestore"
-import { useFirestore } from '@vueuse/firebase/useFirestore'
-import { useUserStore } from '../userStore'
+// import { useFirestore } from '@vueuse/firebase/useFirestore'
+import { useUserStore }  from '../userStore'
+import { usePostAccess } from '@/stores/access/chat/postAccess'
 import { dateUuid } from '@/utils/utils'
 
 /* 
@@ -20,11 +21,16 @@ import { dateUuid } from '@/utils/utils'
 const TABLE = 'chat-posts'
 
 export const usePostStore = defineStore('postStore', () => {
+   const postAccess = usePostAccess() 
    const userStore = useUserStore()
    const postCollection = collection(db, TABLE)
    function postDoc(id) { return doc(db, TABLE, id) }
 
-   const posts = useFirestore(postCollection, [])
+   const addListener    = async () => { return postAccess.addListener() } 
+   const removeListener = async () => { return postAccess.removeListener() }
+   const posts = computed(() => postAccess.records)
+
+   // const posts = useFirestore(postCollection, [])
    const chatIdToPosts = computed(() => {
       const map = new Map()
       for (const post of posts.value) { 
@@ -64,9 +70,12 @@ export const usePostStore = defineStore('postStore', () => {
       batch.commit()
    }
 
+   // transient - should probably be in a postMgr/viewStore
    const postItem = ref(null)
    function setPostItem(item) { postItem.value = item }
    function clearPostItem()   { postItem.value = null }
 
-   return { getPosts, addPost, updatePost, deletePost, deletePosts, postItem, setPostItem, clearPostItem }
+   return { addListener, removeListener, 
+            getPosts, addPost, updatePost, deletePost, deletePosts, 
+            postItem, setPostItem, clearPostItem }
 })

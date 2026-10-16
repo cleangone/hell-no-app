@@ -46,7 +46,7 @@ export const useGalleryStore = defineStore('gallery', () => {
    const galleryAccess = useGalleryAccess()
    const galleryCollection = collection(db, TABLE)
 
-   const init = async () => { galleryAccess.addListener() } 
+   const addListener = async () => { galleryAccess.addListener() } 
    const galleries = computed(() => galleryAccess.records)
 
    function galleryDoc(galleryId) { return doc(db, TABLE, galleryId) }
@@ -227,7 +227,7 @@ export const useGalleryStore = defineStore('gallery', () => {
    }
 
    return { 
-      galleries, init,
+      galleries, addListener,
       myGalleries, myGalleriesExist, myContributingGalleriesExist, myContributingGalleries, myGalleryIdToGalleryMap,
       getGallery, getGalleryByTag, getMyGallery, getUserGalleries,
       publicGalleries, getPublicGalleries, publicGalleryIdToChildGalleries, userIdToGalleries, 

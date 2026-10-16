@@ -37,17 +37,15 @@ export const useUserStore = defineStore('user', () => {
    const userCollection = collection(db, USER_TABLE)
    function userDoc(id)  { return doc(db, USER_TABLE, id) }
    
-   const addListener    = async () => { userAccess.addListener() } 
-   const removeListener = async () => { userAccess.removeListener() }
+   const userId = ref('')
+   function setUserId(id) { userId.value = id }
    
-   // const users = useFirestore(userCollection)   
-   const users = computed(() => userAccess.users)
+   const addListener = async () => { userAccess.addListener() } 
+   const users = computed(() => userAccess.records)
+
    const userIdToUser = computed(() => { return users.value ? new Map(users.value.map((obj) => [obj.id, obj])) : new Map() })
    const usernames    = computed(() => new Set(users.value.map(obj => obj.username)) )
    
-   const userId = ref('')
-   // const userQuery = computed(() => userId.value && userDoc(userId.value))
-   // const user = useFirestore(userQuery, null)
    const user       = computed(() => userId.value && getUser(userId.value))
    const userExists = computed(() => user.value ? true : false)
    
@@ -123,8 +121,7 @@ export const useUserStore = defineStore('user', () => {
    }
 
    return { 
-      users, addListener, removeListener,
-      userId, user, userIdToUser, usernames, userExists, getUser, getUsername, 
+      users, addListener, userId, setUserId, user, userIdToUser, usernames, userExists, getUser, getUsername, 
       setUser, addProfileUser, updateDateVisited, updateUser, deleteUser,
       myFullName, mySettings, soloMode, updateSettings, addImage, removeImage, updateImage, updateImages
    }

@@ -39,9 +39,8 @@ export const useGroupStore = defineStore('group', () => {
    const groupCollection = collection(db, TABLE)
    function groupDoc(id) { return doc(db, TABLE, id) }
    
-   const addListener    = async () => { groupAccess.addListener() } 
-   const removeListener = async () => { groupAccess.removeListener() }
-   const groups = computed(() => groupAccess.groups)
+   const addListener = async () => { groupAccess.addListener() } 
+   const groups = computed(() => groupAccess.records)
 
    // const groups = useFirestore(groupCollection)   
    const groupIdToGroup = computed(() => { return groups.value ? new Map(groups.value.map((obj) => [obj.id, obj])) : new Map() })
@@ -150,8 +149,7 @@ export const useGroupStore = defineStore('group', () => {
    }
 
    return { 
-      groups, addListener, removeListener,
-      groupIdToGroup, myGroups, myGroupIds, myGroupIdToGroup, myInvitedGroups,
+      groups, addListener, groupIdToGroup, myGroups, myGroupIds, myGroupIdToGroup, myInvitedGroups,
       getGroup, getMyGroup, getUserGroups, getUserGroupsMap, getGroup, getUserIds, 
       addGroup, updateGroup, deleteGroup,
       addUserId, addUserIds, addModeratorId, removeModeratorId, inviteUserIds, removeUserId, acceptInvite, declineInvite, removeInvitedId,

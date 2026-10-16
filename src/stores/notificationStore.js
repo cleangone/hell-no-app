@@ -28,7 +28,7 @@ export const useNotificationStore = defineStore('notification', () => {
    const notificationCollection = collection(db, TABLE)
    function notificationDoc(id) { return doc(db, TABLE, id) }
 
-   const init = async () => { notificationAccess.addListener() } 
+   const addListener = async () => { notificationAccess.addListener() } 
    const notifications = computed(() => notificationAccess.records)
     
    const userIdToNotifications = computed(() => {
@@ -76,6 +76,6 @@ export const useNotificationStore = defineStore('notification', () => {
       batch.commit()
    }
 
-   return { init, myNotifications, myActiveNotifications, addNotification, setInactive, deleteNotification, deleteNotifications }
+   return { addListener, myNotifications, myActiveNotifications, addNotification, setInactive, deleteNotification, deleteNotifications }
 })
 
