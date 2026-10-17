@@ -17,9 +17,7 @@
 
 <script setup>
    import { onMounted, ref } from 'vue'
-   // import { auth } from '@/firebase' 
-
-   // TODO - will have to be updated for ion/firebase 
+   import { auth } from '@/firebase' 
    import { updateEmail  } from "firebase/auth"
    import { useUserStore } from '@/stores/userStore'
    import { emailRule } from '@/utils/utils'

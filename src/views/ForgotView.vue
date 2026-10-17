@@ -14,10 +14,8 @@
 
 <script setup>
    import { ref } from 'vue'
-   // import { auth } from '@/firebase' 
-   // import { sendPasswordResetEmail } from "firebase/auth"
-   import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
-
+   import { auth } from '@/firebase' 
+   import { sendPasswordResetEmail } from "firebase/auth"
    import { useViewMgr } from '@/stores/viewMgr'
    import { emailRule } from '@/utils/utils'
    
@@ -27,31 +25,17 @@
    const infoMsg = ref("")
    const errMsg  = ref("")
 
-   // const resetPassword = () => {
-   //    infoMsg.value = ""
-   //    errMsg.value = ""
-   //    sendPasswordResetEmail(auth, email.value).then(() => {
-   //       infoMsg.value = "Reset email sent"
-   //    })
-   //    .catch((error) => {
-   //       console.error("sendPasswordResetEmail error", error.code, error.message)
-   //       if (error.code == "auth/user-not-found") { errMsg.value = "Email not found" }
-   //       else { errMsg.value = error.message }
-   //    })
-   // }
-
-   const resetPassword = async () => {
+   const resetPassword = () => {
       infoMsg.value = ""
       errMsg.value = ""
-      try {
-         await FirebaseAuthentication.sendPasswordResetEmail({ email: email.value })
+      sendPasswordResetEmail(auth, email.value).then(() => {
          infoMsg.value = "Reset email sent"
-      } 
-      catch (error) {
+      })
+      .catch((error) => {
          console.error("sendPasswordResetEmail error", error.code, error.message)
-         if (error.code === "auth/user-not-found") { errMsg.value = "Email not found" } 
-         else { errMsg.value = error.message || "Failed to send reset email" }
-      }
+         if (error.code == "auth/user-not-found") { errMsg.value = "Email not found" }
+         else { errMsg.value = error.message }
+      })
    }
 </script>
 

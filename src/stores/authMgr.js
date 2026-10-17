@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { useIonRouter } from '@ionic/vue'
-import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
+import { auth } from '@/firebase' 
 import { useUserStore }    from '@/stores/userStore'
 import { useItemStore }    from '@/stores/itemStore'
 import { useGalleryStore } from '@/stores/galleryStore'
@@ -15,11 +15,8 @@ import { useNotificationStore } from '@/stores/notificationStore'
 import { useViewStore }    from '@/stores/viewStore'
 import { useLocalStore }   from '@/stores/localStore'
 import { daysOld }         from '@/utils/dateUtils'
-import { dateUuid, isHidden, isOwned, isPublic } from '@/utils/utils'  
-import { Route } from '@/utils/constants'
    
 export const useAuthMgr = defineStore('authMgr', () => {
-   const ionRouter = useIonRouter()
    const userStore    = useUserStore()
    const itemStore    = useItemStore()
    const galleryStore = useGalleryStore()
@@ -33,55 +30,65 @@ export const useAuthMgr = defineStore('authMgr', () => {
    const viewStore    = useViewStore()
    const localStore   = useLocalStore()
    const authListener = ref(null)
+   const existingUid  = ref(null)
    
    const init = async () => {
       console.log("init")
-      await checkCurrentUser()
-
-      authListener.value = await FirebaseAuthentication
-         .addListener('authStateChange', (event) => { handleAuthStateChange(event.user) })
-
+      authListener.value = onAuthStateChanged(auth, (user) => { handleAuthStateChange(user) })
       startSiteListeners()
    }
    
    const cleanup = async () => {
       console.log("cleanup") 
       if (authListener.value) {
-         authMgr
-         await authListener.value.remove()
+         authListener.value() // unsubscribe auth listener
          authListener.value = null
       }
    }
 
-   const checkCurrentUser = async () => {
+   const login = async (email, password) => {
+      console.log("login")
       try {
-         const result = await FirebaseAuthentication.getCurrentUser()
-         handleAuthStateChange(result.user)
-      } 
+         const result = await signInWithEmailAndPassword(auth, email, password)
+         if (result.user) { return { success: true, user: result.user }}
+         else { return { success: false, error: { message: "Login succeeded but no user returned" } }} 
+      }
       catch (error) {
-         console.warn("FirebaseAuthentication.getCurrentUser error", error) 
-         handleAuthStateChange(null)
+         return { success: false, error: error}
       }
    }
 
    const logout = async () => {
-      console.log("authMgr logout")
+      console.log("logout")
       try {
-         await stopUserListeners()
-         await FirebaseAuthentication.signOut()
-         ionRouter.push(Route.HOME.url)
+         // stop listeneres first to avoid db read permissoin errors 
+         // they will be stopped again by handleAuthStateChange, which is handled
+         await stopUserListeners() 
+         await signOut(auth)
       } 
       catch (error) {
          console.error("Logout failed", error)
       }
    }
+   
+   const handleAuthStateChange = async (user) => {
+      const newUid = user ? user.uid : ""
+      console.log("handleAuthStateChange", newUid || "no user")
 
-   const handleAuthStateChange = (user) => {
-      console.log("handleAuthStateChange", user ? user.uid : "no user")
-      if (user) { userStore.setUserId(user.uid) } 
+      if (existingUid.value === newUid && userStore.userId === newUid) { 
+         console.log("Redundant uid")
+         return 
+      }
+      existingUid.value = newUid
+
+      if (user) { 
+         userStore.setUserId(user.uid) 
+         startUserListeners()
+      } 
       else { 
          userStore.setUserId("")
-         localStore.setSoloMode(false) // in case user had solo set
+         stopUserListeners()
+         localStore.setSoloMode(false)
       }
 
       // todo - commented out during db update migrattion
@@ -126,5 +133,5 @@ export const useAuthMgr = defineStore('authMgr', () => {
       ])
    }
 
-   return { init, cleanup, logout, handleAuthStateChange, startSiteListeners, startUserListeners, stopUserListeners }
+   return { init, cleanup, login, logout }
 })

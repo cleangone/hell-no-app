@@ -122,10 +122,6 @@
                <Icon icon="mdi-home"/>
                <span class="nav-text"></span>
             </v-btn>
-            <v-btn @click="toSiteRoute(Route.GALLERIES)">
-               <Icon icon="mdi-image-multiple"/>
-               <span class="nav-text">Galleries</span>
-            </v-btn>
             <v-btn @click="toRoute(Route.SEARCH)">
                <Icon icon="mdi-magnify"/>
                <span class="nav-text">&nbsp;</span>
@@ -134,14 +130,7 @@
                <Icon icon="mdi-history"/>
                <span class="nav-text">Updates</span>
             </v-btn>   
-            <v-btn v-if="userExists" @click="router.push(isRoute(Route.USER) ? Route.ACCOUNT.url : Route.USER.url + userId)"> 
-               <Icon :icon="isRoute(Route.USER) ? 'mdi-cog' : 'mdi-account'"/>
-               <span class="nav-text"></span>
-            </v-btn>
-            <v-btn v-else @click="toRoute(Route.LOGIN)">
-               <Icon icon="mdi-account"/>
-               <span class="nav-text">Login</span>
-            </v-btn>
+            
          </v-bottom-navigation> -->
 
 <script setup>
@@ -190,13 +179,6 @@
    onUnmounted(async () => {
       authMgr.cleanup()
    })
-
-   watch(() => userStore.userId, async (newUserId, oldUserId) => {
-         if (newUserId && newUserId.length) { authMgr.startUserListeners() }
-         else { authMgr.stopUserListeners() }
-      }, 
-      { immediate: false } // Let authMgr.init() handles innitial auth state
-   ) 
 
    // placeholder for background set of icon badge
    const activeNotifications = computed(() => notificationStore.myActiveNotifications.length)
