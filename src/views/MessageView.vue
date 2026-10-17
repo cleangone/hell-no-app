@@ -1,6 +1,6 @@
 <template>
 <ion-page>
-<ion-content :fullscreen="true">
+<ion-content ref="contentRef" :fullscreen="true">
    <!-- header -->
    <div class="scrolling-header-container">
       <ion-toolbar class="custom-scrolling-toolbar">
@@ -19,7 +19,7 @@
       <v-card-text>
          <v-window v-model="tab">
             <v-window-item :value="TABS.email"><Emails/></v-window-item>
-            <v-window-item :value="TABS.chat"><Chats :state="State.PUBLIC"/></v-window-item>
+            <v-window-item :value="TABS.chat"><Chats :state="State.PUBLIC" @select="onChatSelected"/></v-window-item>
             <v-window-item :value="TABS.notification"><Notifications/></v-window-item>
          </v-window>
       </v-card-text>
@@ -29,8 +29,9 @@
 </template>
 
 <script setup>
-   import { onMounted, ref } from 'vue'
+   import { onMounted, ref, nextTick } from 'vue'
    import { useNotificationStore } from '@/stores/notificationStore'
+   import { useViewMgr } from '@/stores/viewMgr'
    import Emails         from '@/components/email/Emails.vue'
    import Chats          from '@/components/chat/Chats.vue'
    import Notifications  from '@/components/notification/Notifications.vue'
@@ -40,11 +41,20 @@
    const TABS = { email: "email", chat: "chat", notification: "notification" }
    
    const notificationStore = useNotificationStore()
+   const viewMgr = useViewMgr()
    const tab = ref(TABS.email)
+   const contentRef = ref(null)
 
    onMounted(async() => {
       if (notificationStore.myActiveNotifications.length) { tab.value = TABS.notification }
    })
+
+   const onChatSelected = async () => { 
+      if (contentRef.value && viewMgr.isXs) {
+         await nextTick()
+         contentRef.value.$el.scrollToBottom(300) // 300 ms animation
+      }
+   }
 </script>
 
 <style>

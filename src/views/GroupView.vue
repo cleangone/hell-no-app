@@ -1,6 +1,6 @@
 <template>
 <ion-page>
-<ion-content :fullscreen="true">
+<ion-content ref="contentRef" :fullscreen="true">
    <!-- header -->
    <div class="scrolling-header-container">
       <ion-toolbar class="custom-scrolling-toolbar">
@@ -53,7 +53,7 @@
 </template>
 
 <script setup>
-   import { computed, ref } from 'vue'
+   import { computed, ref, nextTick } from 'vue'
    import { useRoute } from 'vue-router'
    import { useUserStore }  from '@/stores/userStore'
    import { useGroupStore } from '@/stores/groupStore'
@@ -82,9 +82,10 @@
    const itemStore  = useItemStore()
    const viewStore  = useViewStore()
    const viewMgr    = useViewMgr()
-   const userIdToNumItems  = ref(new Map())
-   const selectedUserId    = ref(null)
-   const selectedChatId    = ref(null)
+   const userIdToNumItems = ref(new Map())
+   const selectedUserId   = ref(null)
+   const selectedChatId   = ref(null)
+   const contentRef       = ref(null)
    const showEditGroupDialog = ref(false)
    
    const paramGroup = computed(() => {
@@ -133,7 +134,13 @@
 
    const selectUser     = (userId) => { selectedUserId.value = userId }
    const addPost        = (item) =>   { postStore.setPostItem(item) }
-   const onChatSelected = (chatId) => { selectedChatId.value = chatId }
+   const onChatSelected = async (chatId) => { 
+      selectedChatId.value = chatId 
+      if (contentRef.value && viewMgr.isXs) {
+         await nextTick()
+         contentRef.value.$el.scrollToBottom(300) // 300 ms animation
+      }
+   }
 </script>
 
 <style>
