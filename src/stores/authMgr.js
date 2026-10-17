@@ -70,7 +70,7 @@ export const useAuthMgr = defineStore('authMgr', () => {
          console.error("Logout failed", error)
       }
    }
-   
+
    const handleAuthStateChange = async (user) => {
       const newUid = user ? user.uid : ""
       console.log("handleAuthStateChange", newUid || "no user")
@@ -91,12 +91,10 @@ export const useAuthMgr = defineStore('authMgr', () => {
          localStore.setSoloMode(false)
       }
 
-      // todo - commented out during db update migrattion
       if (userStore.userId) {
          setTimeout(() => {
             if (userStore.user && (!userStore.user.dateVisited || daysOld(userStore.user.dateVisited))) {
-               console.log("userStore.updateDateVisited bypassed")
-               // userStore.updateDateVisited(userStore.userId)
+               userStore.updateDateVisited(userStore.userId)
             }
          }, 2000)
       }

@@ -14,9 +14,8 @@
 <script setup>
    import { computed, onMounted, ref } from 'vue'
    import { useRoute, useRouter } from 'vue-router'
-   import { auth } from '@/firebase' 
    import { createUserWithEmailAndPassword } from "firebase/auth"
-   // import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
+   import { auth }           from '@/firebase' 
    import { useUserStore }   from '@/stores/userStore'
    import { useActionStore } from '@/stores/actionStore'
    // import { useGroupStore }  from '@/stores/groupStore'
@@ -118,7 +117,7 @@
          .catch((error) => {
             if      (error.code == "auth/invalid-email")  { errMsg.value = "Email invalid" }
             else if (error.code == "auth/user-not-found") { errMsg.value = "User not found" }
-            else if (error.code == "auth/wrong=password") { errMsg.value = "Password incorrect" }
+            else if (error.code == "auth/wrong-password") { errMsg.value = "Password incorrect" }
             else { 
                console.log("unknown error", error)
                errMsg.value = "Email/password incorrect" 

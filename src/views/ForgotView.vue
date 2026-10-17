@@ -14,8 +14,8 @@
 
 <script setup>
    import { ref } from 'vue'
-   import { auth } from '@/firebase' 
    import { sendPasswordResetEmail } from "firebase/auth"
+   import { auth } from '@/firebase' 
    import { useViewMgr } from '@/stores/viewMgr'
    import { emailRule } from '@/utils/utils'
    

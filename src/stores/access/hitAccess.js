@@ -15,7 +15,8 @@ export const useHitAccess = defineStore('hitAccess', () => {
       try {
          await FirebaseFirestore.setDocument({ reference: docPath(id), data: dbData })
          console.log("hitAccess.create succeeded", id)
-      } catch (err) {
+      } 
+      catch (err) {
          console.error("hitAccess.create failed", err)
          throw err
       }
@@ -27,7 +28,8 @@ export const useHitAccess = defineStore('hitAccess', () => {
       try {
          await FirebaseFirestore.updateDocument({ reference: docPath(id), data: dbData })
          console.log("hitAccess.update succeeded", id)
-      } catch (err) {
+      } 
+      catch (err) {
          console.error("hitAccess.update failed", err)
          throw err
       }
