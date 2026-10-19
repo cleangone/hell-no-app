@@ -14,28 +14,29 @@
 
 <script setup>
    import { ref } from 'vue'
-   import { sendPasswordResetEmail } from "firebase/auth"
-   import { auth } from '@/firebase' 
    import { useViewMgr } from '@/stores/viewMgr'
+   import { useAuthMgr } from '@/stores/authMgr'
    import { emailRule } from '@/utils/utils'
    
+   const authMgr = useAuthMgr()
    const viewMgr = useViewMgr()
-   const email = ref("")
+   const email     = ref("")
    const dataValid = ref(true)
-   const infoMsg = ref("")
-   const errMsg  = ref("")
+   const infoMsg   = ref("")
+   const errMsg    = ref("")
 
    const resetPassword = () => {
       infoMsg.value = ""
       errMsg.value = ""
-      sendPasswordResetEmail(auth, email.value).then(() => {
+      try {
+         authMgr.sendPasswordResetEmail(email.value)
          infoMsg.value = "Reset email sent"
-      })
-      .catch((error) => {
+      }
+      catch (error) {
          console.error("sendPasswordResetEmail error", error.code, error.message)
          if (error.code == "auth/user-not-found") { errMsg.value = "Email not found" }
          else { errMsg.value = error.message }
-      })
+      }
    }
 </script>
 

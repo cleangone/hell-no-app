@@ -42,20 +42,18 @@
    const errMsg    = ref("")
 
    const login = async () => {
-      const result = await authMgr.login(email.value, password.value)
-      if (result.success) {
+      try {
+         const user = await authMgr.login(email.value, password.value)
          email.value = ""
          password.value = ""
          errMsg.value = ""
          ionRouter.push(Route.HOME.url)
       }
-      else {
-         console.error("Firebase Auth Error Code:", result.error.code)
-         console.error("Firebase Auth Error Message:", result.error.message)
-      
-         if (result.error.code == "auth/invalid-email")       { errMsg.value = "Email invalid" }
-         else if (result.error.code == "auth/user-not-found") { errMsg.value = "User not found" }
-         else if (result.error.code == "auth/wrong-password") { errMsg.value = "Password incorrect" }
+      catch(error) {
+         console.log("Firebase Auth Error Code:", error.code)
+         if (error.code == "auth/invalid-email")       { errMsg.value = "Email invalid" }
+         else if (error.code == "auth/user-not-found") { errMsg.value = "User not found" }
+         else if (error.code == "auth/wrong-password") { errMsg.value = "Password incorrect" }
          else { errMsg.value = "Email/password incorrect" }
       }
    }

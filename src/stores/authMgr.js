@@ -1,7 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth'
-import { auth } from '@/firebase' 
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
 import { useUserStore }    from '@/stores/userStore'
 import { useItemStore }    from '@/stores/itemStore'
 import { useGalleryStore } from '@/stores/galleryStore'
@@ -34,28 +33,25 @@ export const useAuthMgr = defineStore('authMgr', () => {
    
    const init = async () => {
       console.log("init")
-      authListener.value = onAuthStateChanged(auth, (user) => { handleAuthStateChange(user) })
+      await checkCurrentUser()
+      authListener.value = await FirebaseAuthentication
+         .addListener('authStateChange', (event) => { handleAuthStateChange(event.user) })
       startSiteListeners()
    }
    
    const cleanup = async () => {
       console.log("cleanup") 
       if (authListener.value) {
-         authListener.value() // unsubscribe auth listener
+         await authListener.value.remove()
          authListener.value = null
       }
    }
 
    const login = async (email, password) => {
-      console.log("login")
-      try {
-         const result = await signInWithEmailAndPassword(auth, email, password)
-         if (result.user) { return { success: true, user: result.user }}
-         else { return { success: false, error: { message: "Login succeeded but no user returned" } }} 
-      }
-      catch (error) {
-         return { success: false, error: error}
-      }
+      console.log("login", email, password)
+      const result = await FirebaseAuthentication.signInWithEmailAndPassword({ email, password })
+      if (result.user) { return result.user }
+      else { throw({ code: "user-unkown", message: "Login succeeded but no user returned" })}
    }
 
    const logout = async () => {
@@ -64,10 +60,33 @@ export const useAuthMgr = defineStore('authMgr', () => {
          // stop listeneres first to avoid db read permissoin errors 
          // they will be stopped again by handleAuthStateChange, which is handled
          await stopUserListeners() 
-         await signOut(auth)
+         await FirebaseAuthentication.signOut()
       } 
       catch (error) {
          console.error("Logout failed", error)
+      }
+   }
+
+   const createUser = async (email, password) => {
+      console.log("createUser", email)
+      const result = await FirebaseAuthentication.createUserWithEmailAndPassword({ email, password })
+      if (result.user) { return result.user }
+      else { throw({ code: "user-unkown", message: "CreateUser succeeded but no user returned" })}
+   }
+
+   const sendPasswordEmail = async (email) => {
+      console.log("resetPassword")
+      FirebaseAuthentication.sendPasswordResetEmail({ email })
+   }
+
+   const checkCurrentUser = async () => {
+      try {
+         const result = await FirebaseAuthentication.getCurrentUser()
+         handleAuthStateChange(result.user)
+      } 
+      catch (error) {
+         console.warn("FirebaseAuthentication.getCurrentUser error", error) 
+         handleAuthStateChange(null)
       }
    }
 
@@ -83,6 +102,7 @@ export const useAuthMgr = defineStore('authMgr', () => {
 
       if (user) { 
          userStore.setUserId(user.uid) 
+         await new Promise(resolve => setTimeout(resolve, 500)) // allow auth context to propagate
          startUserListeners()
       } 
       else { 
@@ -131,5 +151,5 @@ export const useAuthMgr = defineStore('authMgr', () => {
       ])
    }
 
-   return { init, cleanup, login, logout }
+   return { init, cleanup, login, logout, createUser, sendPasswordEmail }
 })
