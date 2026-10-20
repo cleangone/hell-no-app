@@ -7,10 +7,9 @@
          <ion-buttons slot="start"><BackButton/></ion-buttons>
          <ion-title class="text-center text-h6">{{ Route.GALLERIES.display }}</ion-title>
          <ion-buttons slot="end">
-            <nav>
-               <ThumbSizeButton :thumbType="ThumbType.GALLERY"/>
-               <GalleryThumbConfig/>
-            </nav>
+            <SortButton :sortByDate="sortByDate" @click="sortByDate=!sortByDate"/>
+            <ThumbSizeButton :thumbType="ThumbType.GALLERY"/>
+            <GalleryThumbConfig/>
          </ion-buttons>
       </ion-toolbar>
    </div>
@@ -234,5 +233,3 @@
    }
 </script>
 
-<style>
-</style>

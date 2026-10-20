@@ -7,7 +7,7 @@
          <ion-buttons slot="start"><BackButton/></ion-buttons>
          <ion-title class="text-center text-h6">My Invisible Items</ion-title>
          <ion-buttons slot="end">
-            <ThumbSizeButton class="mr-2"/>
+            <ThumbSizeButton/>
             <ItemThumbConfig/>
          </ion-buttons>
       </ion-toolbar>

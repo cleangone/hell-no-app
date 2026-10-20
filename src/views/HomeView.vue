@@ -236,24 +236,6 @@
       } 
       return true // gallery is a parent with dateContentModified different than all children
    }
-   
-   // const setBadge = async () => {
-   //    console.log("updateBadge")
-   //    try {
-   //       let status = await Badge.checkPermissions();
-   //       if (status.display !== 'granted') {
-   //          console.log("initial badge permission", status.display)
-   //          status = await Badge.requestPermissions();
-   //       }
-   //       console.log("badge permission", status.display)
-   //       if (status.display === 'granted') {
-   //          await Badge.set({ count: 5 });
-   //       }
-   //    } catch (error) {
-   //       console.error('Failed to set badge:', error);
-   //    }
-   // }
-   // const clearBadge = async () => { Badge.clear() }
 
    const recentUpdatedItems = computed(() => {
       // console.log("home recentUpdatedItems")
@@ -299,7 +281,6 @@
 </script>
 
 <style>
-
 ion-content {
   --padding-top: 0px !important;
   --padding-bottom: 0px !important;
@@ -318,6 +299,46 @@ ion-content {
 .custom-scrolling-toolbar {
   --background: transparent;
   position: relative !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.custom-scrolling-toolbar ion-buttons {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+}
+
+.custom-scrolling-toolbar ion-title {
+  flex: 1 1 auto !important;
+  white-space: nowrap !important;
+}
+.custom-scrolling-toolbar ion-buttons[slot="end"] {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+}
+.custom-scrolling-toolbar ion-buttons .v-btn {
+  min-width: unset !important;
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+.custom-scrolling-toolbar ion-buttons[slot="end"] .v-btn + .v-btn {
+  margin-left: -6px !important; 
+}
+.custom-scrolling-toolbar ion-buttons .v-icon {
+  font-size: 24px !important;
+  width: 24px !important;
+  height: 24px !important;
 }
 
 .center { 

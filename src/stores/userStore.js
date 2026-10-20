@@ -67,11 +67,7 @@ export const useUserStore = defineStore('user', () => {
       return newUser
    }
 
-   function updateDateVisited(userId) { 
-      console.log("updateDateVisited", userId) 
-      // updateUser({ id:userId, dateVisited:serverTimestamp() }) 
-      userAccess.update(userId, { dateVisited: FieldValue.serverTimestamp() })  
-   }
+   function updateDateVisited(userId) { userAccess.update(userId, { dateVisited: FieldValue.serverTimestamp() }) }
 
    function updateUser(updatedUser) {
       console.log("updateUser", updatedUser) 
@@ -83,12 +79,7 @@ export const useUserStore = defineStore('user', () => {
    const mySettings = computed(() => user.value && user.value.settings ? user.value.settings : {} )
    const soloMode   = computed(() => mySettings.value?.soloMode)
 
-   function updateSettings(settings) {
-      updateDoc(userDoc(userId.value), { 
-         settings: settings,
-         dateModified: serverTimestamp(),
-      })
-   }
+   function updateSettings(settings) { userAccess.update(userId.value, { settings: settings }) }
 
    function deleteUser(id) {
       // console.log("deleteUser", id) 

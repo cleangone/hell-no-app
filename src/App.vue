@@ -172,6 +172,9 @@
       await authMgr.init()
       
       console.log("window.location.hostname", window.location.hostname)
+
+      setBadge(notificationStore.myActiveNotifications.length)
+
       setWindowSize()
       window.addEventListener('resize', setWindowSize)
    })
@@ -184,8 +187,7 @@
    const activeNotifications = computed(() => notificationStore.myActiveNotifications.length)
    watch(activeNotifications, (newValue) => { 
       console.log("activeNotifications", newValue)
-      if (newValue > 0) { setBadge(newValue) }
-      else { clearBadge() }
+      setBadge(newValue)
    })
 
    router.beforeEach((to, from) => {
@@ -257,7 +259,7 @@
    }
 
    const setBadge = async (count) => {
-      console.log("updateBadge")
+      console.log("setBadge", count)
       try {
          let status = await Badge.checkPermissions()
          if (status.display !== 'granted') {
@@ -266,14 +268,14 @@
          }
          console.log("badge permission", status.display)
          if (status.display === 'granted') {
-            await Badge.set({ count: count })
+            if (count) { await Badge.set({ count: count }) }
+            else { await Badge.clear() }
          }
       } catch (error) {
          console.error('Failed to set badge:', error)
       }
    }
-   const clearBadge = async () => { Badge.clear() }
-
+   
    const logout = () => { viewMgr.logout() }
 </script>
 

@@ -1,10 +1,9 @@
 <template>
-   <Icon icon="mdi-chevron-left" @click="router.back()"/>
+   <IconButton icon="mdi-chevron-left" @click="ionRouter.back()" size="med"/> 
 </template>
 
 <script setup>
-   import Icon from './icon/Icon.vue'
-   import { useRouter } from 'vue-router'
-
-   const router = useRouter()
+   import { useIonRouter } from '@ionic/vue'
+   
+   const ionRouter = useIonRouter()
 </script>

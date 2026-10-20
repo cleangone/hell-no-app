@@ -7,7 +7,7 @@
          <ion-buttons slot="start"><BackButton/></ion-buttons>
          <ion-title class="text-center text-h6">{{ groupName }} Group</ion-title>
          <ion-buttons slot="end">
-            <ThumbSizeButton class="mr-2"/>
+            <ThumbSizeButton/>
             <ItemThumbConfig :origin="ItemOrigin.GROUP"/> 
          </ion-buttons>
       </ion-toolbar>
