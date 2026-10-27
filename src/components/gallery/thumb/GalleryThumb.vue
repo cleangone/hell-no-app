@@ -68,7 +68,7 @@
    const toGallery = () => { 
       const galleryUrl = Route.GALLERY.url + props.gallery.id
       console.log("toGallery", galleryUrl)
-      ionRouter.push(galleryUrl, 'forward')
+      ionRouter.push(galleryUrl)
    }
 
    const cardMargin  = computed(() => viewMgr.isXs ? "mb-2" : "mb-5")

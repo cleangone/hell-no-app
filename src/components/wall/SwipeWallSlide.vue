@@ -36,7 +36,7 @@
    const userId  = computed(() => props.wallItem.userId ?? null)
    const user    = computed(() => userId.value ? userStore.getUser(userId.value) : null)
 
-   const toItem = () => { ionRouter.push(itemURL.value, 'forward') }
+   const toItem = () => { ionRouter.push(itemURL.value) }
 </script>
 
 <style>

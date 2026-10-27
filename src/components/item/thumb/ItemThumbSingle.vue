@@ -42,7 +42,7 @@
                                        viewMgr.getTargetThumbHeight(thumbSize.value), 
                                        viewMgr.getItemMaxLandscapeWidth(thumbSize.value))) 
                                           
-   const toItem = () => { ionRouter.push(itemURL.value, 'forward') }
+   const toItem = () => { ionRouter.push(itemURL.value) }
 </script>
 
 <style>

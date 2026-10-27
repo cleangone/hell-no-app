@@ -35,5 +35,23 @@ export const useHitAccess = defineStore('hitAccess', () => {
       }
    }
 
-   return { records, addListener, removeListener, create, update }
+   async function batchUpdate(updates) {
+      console.log("hitAccess.batchUpdate count:", updates.length)
+      try {
+         const operations = updates.map(({ id, data }) => ({
+            type: 'update',
+            reference: docPath(id),
+            data: { ...data, dateModified: FieldValue.serverTimestamp() }
+         }))
+
+         await FirebaseFirestore.writeBatch({ operations })
+         console.log("hitAccess.batchUpdate succeeded")
+      } 
+      catch (err) {
+         console.error("hitAccess.batchUpdate failed", err)
+         throw err
+      }
+   }
+
+   return { records, addListener, removeListener, create, update, batchUpdate }
 })

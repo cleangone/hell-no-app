@@ -29,7 +29,8 @@
       </v-row>
    </div>
    <div style="position:relative" class="w-100 ml-1 mr-4" ref="imageDivRef">  
-      <div v-if="viewStore.isMobileSwipe"> <!-- swipe -->
+      <!-- swipe -->
+      <div v-if="viewStore.isMobileSwipe"> 
          <div ref="swipeElement" class="center d-flex justify-center">  
             <ItemSwipe v-for="item in swipeItems" :key="item.id" :item="item" v-on:done="onSwipeDone"
                :canSwipeLeft="navItems.next!=null" :canSwipeRight="navItems.prev!=null"
@@ -37,13 +38,14 @@
                class="itemSwipe" :style="itemSwipeWidthStyle"/>
          </div>
       </div>
-      <div v-else> <!-- infinite scroll -->
+      <!-- infinite scroll -->
+      <div v-else> 
          <CachedImg :src="imageUrl(props.item.primaryImage)" contain class="no-pointer-events"/>
          <div class="text-left mt-2">
             <ItemArtistYear :item="props.item" />
          </div>
          <template v-for="item in scrollItems" :key="item.id">
-            <div v-if="item.id != route.params.id" class="mt-5">
+            <div v-if="item.id != props.item.id" class="mt-5">
                <div class="text-center text-h6">{{ item.name }}</div>
                <div v-if="itemOtherGalleries(item).length" class="text-center"> 
                   <span v-for="(gallery, index) in itemOtherGalleries(item)" :key="gallery.id">
@@ -66,8 +68,7 @@
 </template>
 
 <script setup>
-   import { computed, onMounted, ref } from 'vue'
-   import { useRoute, useRouter } from 'vue-router'
+   import { computed, onMounted, ref, watch } from 'vue'
    import { useWindowSize } from '@vueuse/core'
    import { useItemStore }    from '@/stores/itemStore'
    import { useItemMgr }      from '@/stores/itemMgr'
@@ -80,22 +81,48 @@
    import { Emit, ItemNavAction, ItemOrigin, Route } from '@/utils/constants'
 
    const props = defineProps({ item: Object, origin: String, nav: String })
+   const emit  = defineEmits([ Emit.ITEM ])
   
-   const route  = useRoute()
-   const router = useRouter()
    const itemStore    = useItemStore()
    const itemMgr      = useItemMgr()
    const galleryStore = useGalleryStore()
    const viewStore    = useViewStore()
    const viewMgr      = useViewMgr()
    const showNav = ref(false)
+   const swipeItems = ref([])
    const swipeBotItem = ref(null)
+   const swipeDirection = ref(Emit.SWIPE_LEFT)
    const { width: windowWidth } = useWindowSize()
    
    onMounted(async() => {
       console.log("onMounted - origin", props.origin)
       if (viewStore.isInitialized && props.origin != ItemOrigin.EXTERNAL) { showNav.value = true }
       initializeScrollItems()
+   })
+
+   watch(() => props.item, (newValue) => {
+      // console.log("watch props.item", newValue)
+      if (newValue.id == swipeBotItem?.id) {
+         // swipeItems bottom is now the top
+         swipeItems.value.pop()
+         swipeItems.value[0].isTop = true 
+      }
+      else {
+         // new array
+         if (swipeItems.value.length) { swipeItems.value.length = 0 } 
+         swipeItems.value.push({ ...props.item, isTop: true })
+      }
+   }, { immediate: true })
+
+   watch(swipeBotItem, (newValue) => {
+      // console.log("watch swipeBotItem", newValue)
+      if (newValue) {
+         if (swipeItems.value.length == 1) { swipeItems.value.unshift({ ...newValue }) } // add new bottom at start of array
+         else { swipeItems.value[0] = { ...newValue } }
+      }
+      else {
+         if (swipeItems.value.length > 1) { swipeItems.value.shift() } // remove first item 
+      }
    })
 
    const originGalleryId = computed(() => {  
@@ -139,8 +166,8 @@
       return galleries
    }
 
-   // do not show prev/next for infinite scroll
-   const showPrevNext = computed(() => viewStore.isMobileSwipe ? showNav.value : false)
+   // do not show prev/next for infinite scroll or small screen
+   const showPrevNext = computed(() => viewStore.isMobileSwipe && !viewMgr.isXs ? showNav.value : false)
    
    const viewStoreVisibleItems = computed(() => showNav.value ? viewStore.getVisibleItems(props.origin) : null)
    // const viewStoreItems = computed(() => viewStoreVisibleItems.value ? viewStoreVisibleItems.value.items : [])
@@ -159,11 +186,11 @@
    const navItems = computed(() => { 
       for (let i=0; i<viewStoreItems.value.length; i++) {
          const viewStoreItem = viewStoreItems.value[i]
-         if (viewStoreItem.id == route.params.id)
+         if (viewStoreItem.id == props.item.id)
          {
             let prev = i > 0 ? viewStoreItems.value[i-1] : null
             let next = i < viewStoreItems.value.length - 1 ? viewStoreItems.value[i+1] : null
-         
+
             // preload next image (prev probably already been displayed)
             if (next) { viewStore.loadImage(next.primaryImage.url) } 
             
@@ -175,11 +202,11 @@
                if (prev || next) {
                   if (prev == null) {  swipeBotItem.value = next } 
                   else if (next == null) {  swipeBotItem.value = prev } 
-                  else if (props.nav == ItemNavAction.PREV) { swipeBotItem.value = prev } 
-                  else { swipeBotItem.value = next } 
+                  else if (swipeDirection.value == Emit.SWIPE_LEFT) { swipeBotItem.value = next } 
+                  else { swipeBotItem.value = prev } 
                }
-            }, 500)
-         
+            }, 200)
+
             return { prev: prev, next: next }
          } 
       }
@@ -198,7 +225,7 @@
       if (viewStoreItems.value) { 
          for (var i=0; i<viewStoreItems.value.length; i++) { 
             const viewItem = viewStoreItems.value[i]
-            if (route.params.id == viewItem.id) { return i + 1 } // scroll starts after props item
+            if (props.item.id == viewItem.id) { return i + 1 } // scroll starts after props item
          }
       }
       return 0
@@ -238,24 +265,20 @@
    }
 
    // --- Swipe ----------------------------------------------------------------- 
-   const swipeItems = computed(() => {
-      const swipeTop = { ...props.item, isTop: true }
-      const swipeBot = swipeBotItem.value ? { ...swipeBotItem.value } : null
-      return swipeBot ? [ swipeBot, swipeTop ] : [ swipeTop ]
-   })
-
    const imageWidth = computed(() => { return props.item.primaryImage?.dimensions?.width ?? 500 })
    const itemSwipeWidth = computed(() => Math.min(windowWidth.value, imageWidth.value))
    const itemSwipeWidthStyle = computed(() => "width:" + itemSwipeWidth.value +  "px")
    const onSwipeLeftStarted  = (itemName) => { swipeBotItem.value = navItems.value.next }
    const onSwipeRightStarted = (itemName) => { swipeBotItem.value = navItems.value.prev }
+   
    const onSwipeDone = (swipeEmit, itemName) => {
       setTimeout(() => { // delay actions so swipe finishes smoothly 
+         swipeDirection.value = swipeEmit
          if (swipeEmit == Emit.SWIPE_LEFT) {
-            if (navItems.value.next) { router.push(nextItemUrl.value) } 
+            if (navItems.value.next) { emit(Emit.ITEM, linkId(navItems.value.next)) } 
          }
          else if (swipeEmit == Emit.SWIPE_RIGHT) {
-            if (navItems.value.prev) { router.push(prevItemUrl.value) } 
+            if (navItems.value.prev) { emit(Emit.ITEM, linkId(navItems.value.prev)) } 
          }
       }, 300)
    }

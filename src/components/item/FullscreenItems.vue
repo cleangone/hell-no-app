@@ -24,7 +24,7 @@
             <div v-else class="text-center mx-4">{{ currItem?.name }}</div>
             <!-- image -->
             <v-container fluid class="pa-0 ma-0 fullscreen-slider">  
-               <div class="slider-wrapper" :class="transition">
+               <div class="slider-wrapper" ref="slideEle" :class="transition" >
                   <div @wheel="onWheel" class="swipe-box">
                      <transition name="slide">
                         <!-- div for smooth slide transition -->
@@ -42,6 +42,7 @@
 <script setup>
    import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
    import { onKeyStroke, useFullscreen } from '@vueuse/core'
+   import { createGesture } from '@ionic/vue'
    import { useItemMgr } from '@/stores/itemMgr'
    import { useViewMgr } from '@/stores/viewMgr'  
    import IconButton     from '@/components/util/IconButton.vue'
@@ -50,7 +51,6 @@
    const props = defineProps({ items:Object, item:Object, backgroundImage:Object, play:Boolean })
    const emit = defineEmits([Emit.DONE])
 
-   const TIMER_MAX_SECONDS = 15 
    const Slide = { LEFT: "slide-left", RIGHT: "slide-right" }
    
    const fullscreenEle = ref(null)
@@ -64,6 +64,8 @@
    const swipeLocked = ref(false)
    const timer       = ref(null)
    const timerCurrSeconds = ref(0) 
+   const slideEle    = ref(null)
+   const gesture     = ref(null)
 
     onMounted(() => { 
       items.value = itemMgr.ungroupAndExtractItems(props.items)
@@ -72,9 +74,29 @@
       if (props.play) { play() }
    })
 
-   onUnmounted(() => { clearTimer() })
+   onUnmounted(() => { 
+      clearTimer() 
+      if (gesture.value) { gesture.value.destroy() }
+   })
 
-   watch(isFullscreen, (newValue, oldValue) => { if (!newValue) { emit(Emit.DONE) } })
+   watch(isFullscreen, (newValue) => { if (!newValue) { emit(Emit.DONE) } })
+
+   watch(slideEle, (ele) => {
+      if (ele) {
+         if (gesture.value) { gesture.value.destroy() }
+
+         gesture.value = createGesture({
+            el: ele,
+            gestureName: 'horiz-swipe',
+            direction: 'x',
+            onEnd: (ev) => {
+               if (ev.deltaX > 50) { prev() } 
+               else if (ev.deltaX < -50) { next() }
+            }
+         })
+         gesture.value.enable(true)
+      }
+   }, { immediate: true })
 
    const multipleItems = computed(() => items.value.length > 1)
    const currItem = computed(() => {
@@ -92,7 +114,7 @@
       return 0
    }
 
-   const countdown = computed(() => timerCurrSeconds.value && timerCurrSeconds.value <= 10)
+   const countdown = computed(() => timerCurrSeconds.value && timerCurrSeconds.value <= 3)
    
    const prev = () => { 
       isPlaying.value = false
@@ -108,7 +130,7 @@
       itemIndex.value = itemIndex.value == items.value.length - 1 ? 0 : itemIndex.value + 1 
 
       const nextIndex = itemIndex.value == items.value.length - 1 ? 0 : itemIndex.value + 1 
-      if (nextIndex) { viewStore.loadImage(items.value[itemIndex.value].primaryImage.url) }  
+      // if (nextIndex) { viewStore.loadImage(items.value[itemIndex.value].primaryImage.url) }  
    }
 
    const clearTimer = () => { 
@@ -118,25 +140,25 @@
       }
    }
 
-   const continuePlay = (maxSeconds = TIMER_MAX_SECONDS) => { 
-      clearInterval(timer.value)
-      timerCurrSeconds.value = maxSeconds
+   const play = () => { 
+      isPlaying.value = true 
+      clearTimer() 
+      timerCurrSeconds.value = 10
+
       timer.value = setInterval(() => {
-         if (timerCurrSeconds.value > 0) { timerCurrSeconds.value -= 1 } 
+         if (!isPlaying.value) return
+         if (timerCurrSeconds.value > 1) { timerCurrSeconds.value -= 1 } 
          else {
-            if (isPlaying.value) { 
-               advance()
-               continuePlay()
-            } 
+            advance()
+            timerCurrSeconds.value = 10 
          }
       }, 1000)
    }
 
-   const play = () => { 
-      isPlaying.value = true 
-      continuePlay(10)
+   const pause = () => { 
+      isPlaying.value = false 
+      clearTimer() 
    }
-   const pause = () => { isPlaying.value = false }
 
    const onWheel = (event) => {
       event.preventDefault()
@@ -207,6 +229,7 @@
   position: relative;
   width: 100%;
   height: 100%;
+  touch-action: pan-y; 
 }
 
 /* sliding replacement for v-img */

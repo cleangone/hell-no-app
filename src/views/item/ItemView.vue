@@ -7,166 +7,22 @@
          <ion-buttons slot="start"><BackButton/></ion-buttons>
          <ion-title class="text-center text-h6">{{ paramItem.name }}</ion-title>
          <ion-buttons slot="end">
-            <ToggleIcon icon="mdi-gesture-swipe" :state="viewStore.isMobileSwipe" @click="viewStore.toggleMobileSwipe()"/>
+            <Icon :icon="viewStore.isMobileSwipe?'mdi-gesture-swipe-vertical':'mdi-gesture-swipe'" @click="viewStore.toggleMobileSwipe()"/>
          </ion-buttons>
       </ion-toolbar>
    </div>
 
-   <DefineTemplate> <!-- item info beside or below image -->
-      <div v-if="alternateName" class="mt-n2">
-         also <span class="text-h5">{{ alternateName }}</span>
-      </div>
-      <div v-if="primaryArtist" class="text-h6 mt-n2">
-         <RouterLink :to="Route.ARTIST.url + primaryArtist.id">
-            {{ artistName(primaryArtist) }}<span class="text-subtitle-1">{{ artistRole(primaryArtist) }}</span>
-         </RouterLink> 
-      </div>
-      <div v-if="otherArtists" class="text-h6">
-         <v-row no-gutters>
-            <span v-for="(artist, index) in otherArtists" :key="artist.id" class="mt-n2"> 
-               <RouterLink :to="Route.ARTIST.url + artist.id">
-                  {{ artistName(artist) }}<span class="text-subtitle-1">{{ artistRole(artist) }}</span>
-               </RouterLink>
-               <template v-if="index!=otherArtists.length-1">, </template>
-            </span>
-         </v-row>
-      </div>
-      <div v-if="paramItem.yearCreated" class="text-h6 mt-n2">{{ paramItem.yearCreated }}</div>
-      <div v-if="populated(paramItem.subtitle)" class="font-weight-medium mb-1">{{ paramItem.subtitle }}</div>
-      <div v-if="paramItem.size" class="mt-n2">{{ paramItem.size }}</div>
-      <div v-if="itemUser" class="mt-n1">
-         From <RouterLink :to="Route.USER.url + fromUser.id">{{ fromUser.username }}</RouterLink> 
-         <EmailButton v-if="!isOwnedByUser" :user="itemUser" :item="paramItem"/>
-      </div>
-      <div v-if="!isPublic(paramItem)">
-         <div v-if="isGroup(paramItem)">
-            <span v-if="groups.length">via <GroupNameLinks :groups="groups"/></span>
-         </div> 
-         <span v-else>{{ paramItem.state }}</span>
-      </div>
-      <div v-html="paramItem.desc" class="mt-3 mb-1"></div>
-   </DefineTemplate>
-
-   <div v-if="viewMgr.isMobile">
-      <ItemMobilePanel :item="paramItem" :origin="route.params.origin" :nav="route.params.nav"/>
-   </div>
-   <div v-else-if="paramItem">
-      <div class="content-wrapper mt-1">
-         <img v-if="backgroundImage" :src="backgroundImage.url" class="background" :style="backgroundStyle"/>
-         <div class="content">
-            <div style="clear:both"></div>
-            <div>
-               <v-row no-gutters class="d-flex align-center flex-nowrap">
-                  <v-col cols="2" class="d-flex justify-start flex-grow-0 flex-shrink-0">
-                     <UserLinkAvatar :user="itemUser"/>
-                  </v-col>
-                  <v-col cols="1" class="flex-grow-1 flex-shrink-0" style="min-width: 100px; max-width: 100%;">
-                     <div class="title">{{ paramItem.name }}</div>
-                     <!-- origin page and galleries -->
-                     <div v-if="showNav"> <!-- origin page and gallery if there is only one -->
-                        <RouterLink v-if="viewStoreVisibleItems" :to="viewStoreVisibleItems.linkUrl" :class="singleOtherGallery ? 'font-weight-bold' : ''">
-                           {{ viewStoreVisibleItems.linkName }}
-                        </RouterLink> 
-                        <span v-if="singleOtherGallery">
-                           | <RouterLink :to="galleryUrl(otherGalleries[0].id)">{{ otherGalleries[0].name }} Gallery</RouterLink>
-                        </span>
-                     </div>
-                     <div v-if="!showNav || multipleOtherGalleries"> <!-- row of galleries -->
-                        <span v-for="gallery,index in otherGalleries" :key="gallery.id">
-                           <span v-if="index"> | </span>
-                           <RouterLink :to="galleryUrl(gallery.id)">{{ gallery.name }} Gallery</RouterLink>
-                        </span>
-                     </div>
-                  </v-col>
-                  <v-col cols="2" class="d-flex flex-grow-0 flex-shrink-0 justify-end align-center">
-                     <PlayItems :items="viewStoreItems" :item="paramItem" :backgroundImage="backgroundImage"/>
-                     <CopyLink :route="Route.ITEM.name" :id="route.params.id"/>
-                     <EditButton v-if="isOwnedByUser" @click="editItem(paramItem)" class="mx-n2"/>
-                  </v-col>
-               </v-row>
-            </div>
-            <!-- nav row -->
-            <v-row v-if="showNav" class="smThumbRow align-center justify-center flex-nowrap my-5" >
-               <v-col cols="1" class="d-flex flex-shrink-0"/>
-               <v-col cols="5" class="d-flex flex-grow-1 flex-shrink-0 justify-end align-center">
-                  <div v-if="navItems.prev" class="align-self-center mr-2">{{ navItems.prev.name }}</div>
-                  <RouterLink v-if="navItems.prev" :to="prevItemUrl">
-                     <ItemGroupSmThumb v-if="isItemGroup(navItems.prev)" :item="navItems.prev" :height="75" class="ml-0"/>
-                     <v-img v-else :src="navItems.prev.primaryImage.thumbUrl" contain :width="navItemWidth(navItems.prev, 75)"/>
-                  </RouterLink>  
-               </v-col>
-               <v-col class="d-flex flex-grow-0 flex-shrink-0 justify-center text-no-wrap px-5">
-                  <ItemGroupSmThumb v-if="isItemGroup(paramItem)" :item="paramItem" :height="100" class="ml-0" />
-                  <v-img v-else :src="paramItem.primaryImage.thumbUrl" contain :width="navItemWidth(paramItem, 100)"/>
-               </v-col>
-               <v-col cols="5" class="d-flex flex-grow-1 flex-shrink-0 justify-start align-center">
-                  <RouterLink v-if="navItems.next" :to="nextItemUrl">
-                     <ItemGroupSmThumb v-if="isItemGroup(navItems.next)" :item="navItems.next" :height="75" class="mr-0"/>
-                     <v-img v-else :src="navItems.next.primaryImage.thumbUrl" contain :width="navItemWidth(navItems.next, 75)"/>
-                  </RouterLink> 
-                  <div v-if="navItems.next" class="align-self-center ml-2">{{ navItems.next.name }}</div>
-               </v-col>
-               <v-col cols="1" class="d-flex flex-shrink-0"/>
-            </v-row>
-            <!-- image with info beside or below-->
-            <div style="position:relative" class="text-left w-100">  
-               <IconButton :icon="descBeside?'mdi-image':'mdi-image-text'" @click="viewStore.toggleItemDescBesideImage()" class="mx-n2"/>
-               <ExpandItems :items="viewStoreItems" :item="paramItem" :backgroundImage="backgroundImage" :buttonClass="EXPAND_ITEMS_CLASS"/>
-               <IconButton v-if="userStore.userExists" :icon="isUserFavorite?'mdi-heart':'mdi-heart-plus-outline'" @click="toggleUserFavorite()" class="mx-n2"/>
-               <v-row class="w-100">
-                  <v-col :cols="descBeside ? 8 : 12">
-                     <div v-if="isItemGroup(paramItem)" @click="viewStore.toggleItemDescBesideImage()" class="center d-flex justify-center" style="width: 100%">
-                        <div class="d-flex align-center bg-black">
-                           <img v-if="paramItem.childItems.length" :src="paramItem.childItems[0].primaryImage.url" 
-                              :width="childItemTargetWidth(0)" class="first-image" :class="imageClass"/>
-                           <img v-if="paramItem.childItems.length > 1" :src="paramItem.childItems[1].primaryImage.url" 
-                              :width="childItemTargetWidth(1)" class="next-image" :class="imageClass"/> 
-                           <img v-if="paramItem.childItems.length > 2" :src="paramItem.childItems[2].primaryImage.url" 
-                              :width="childItemTargetWidth(2)" class="next-image" :class="imageClass"/>
-                        </div>
-                     </div>
-                     <v-img v-else :src="paramItem.primaryImage.url" contain :max-width="imageWidth" 
-                        @click="viewStore.toggleItemDescBesideImage()" :class="imageClass"/>
-                     <div v-if="!descBeside" class="mt-5">
-                        <div v-if="additionalImages.length" class="bg-shade mb-5">
-                           <v-row class="mx-3">
-                              <div v-for="additionalImage in additionalImages" :key="additionalImage.id" class="py-3 px-1">
-                                 <div class="text-center pointer">
-                                    <v-img :src="additionalImage.url" @click="showAdditionalImages(additionalImage)" contain :width="75"/>
-                                    {{ additionalImage.name }}
-                                 </div>
-                              </div>
-                           </v-row>
-                        </div>
-                        <div class="text-left">
-                           <ReuseTemplate/>
-                        </div>
-                     </div>
-                  </v-col> 
-                  <v-col v-if="descBeside && additionalImages.length" cols="1" class="bg-shade my-3">
-                     <div v-for="additionalImage in additionalImages" :key="additionalImage.id" class="pb-4 pointer text-center">      
-                        <v-img :src="additionalImage.url" @click="showAdditionalImages(additionalImage)" contain :width="100"/>
-                        {{ additionalImage.name }}
-                     </div>    
-                  </v-col>
-                  <v-col v-if="descBeside">
-                     <ReuseTemplate/>
-                  </v-col>
-               </v-row>
-            </div>
-         </div>
-      </div>
-   </div>
-                     
-   <v-dialog v-model="showItemImagesDialog" width="auto">
+   <ItemMobilePanel :item="paramItem" :origin="route.params.origin" :nav="route.params.nav" @item="onItemSwipe"/>
+           
+   <!-- <v-dialog v-model="showItemImagesDialog" width="auto">
       <ShowItemImages :initialImage="selectedImage" :item="selectedItem" @done="showItemImagesDialog=false"/>
    </v-dialog>   
    <v-dialog v-model="showItemGroupImagesDialog" width="auto">
       <ShowItemGroupImages :initialItem="selectedItem" :parentItem="paramItem" @done="showItemGroupImagesDialog=false"/>
-   </v-dialog>   
-   <v-dialog v-model="showEditDialog" width="auto" height="auto">
+   </v-dialog>    -->
+   <!-- <v-dialog v-model="showEditDialog" width="auto" height="auto">
       <EditItemDialog :item="selectedItem" @done="showEditDialog=false"/>
-   </v-dialog>
+   </v-dialog> -->
 </ion-content>
 </ion-page>
 </template>
@@ -201,6 +57,7 @@
    import EditButton          from '@/components/util/EditButton.vue'
    import IconButton          from '@/components/util/IconButton.vue'
    import ToggleIcon          from '@/components/util/icon/ToggleIcon.vue'
+   import Icon                from '@/components/util/icon/Icon.vue'
    import { isOwned, isGroup, isPublic, populated, toSortedNameAsc } from '@/utils/utils'
    import { ImageType, ItemNavAction, ItemOrigin, Route } from '@/utils/constants'
 
@@ -223,7 +80,8 @@
    const showItemImagesDialog      = ref(false)
    const showItemGroupImagesDialog = ref(false)
    const showEditDialog            = ref(false)
-   const isPageActive  = ref(false)
+   // const isPageActive  = ref(false)
+   const currItemId    = ref(null)
    const selectedItem  = ref(null)
    const selectedImage = ref(null)
    const meta = ref({})
@@ -238,24 +96,27 @@
       }
    })
 
-   onIonViewWillEnter(() => {
-      console.log("galleryView onIonViewWillEnter")
-      isPageActive.value = true
-   })
-   onIonViewWillLeave(() => {
-      console.log("galleryView onIonViewWillLeave")
-      isPageActive.value = false
-   })
+   // onIonViewWillEnter(() => {
+   //    console.log("galleryView onIonViewWillEnter")
+   //    isPageActive.value = true
+   // })
+   // onIonViewWillLeave(() => {
+   //    console.log("galleryView onIonViewWillLeave")
+   //    isPageActive.value = false
+   // })
 
    const props = defineProps({ origin: String, nav: String, id: String })
+
+
+   const itemId = computed(() => currItemId.value ?? props.id)
+   
 
    const paramItem = computed(() => { 
       // console.log("itemView id",     props.id)
       // console.log("itemView origin", props.origin)
       // console.log("itemView nav",    props.nav)
       
-      // let item = itemStore.getItem(route.params.id)
-      let item = itemStore.getItem(props.id)
+      let item = itemStore.getItem(itemId.value)
       if (!item) { return null }  // itemStore has not intiailized yet
 
       viewMgr.addHit(props.id)
@@ -429,6 +290,8 @@
          Math.round(totalTargetWidth * paramItem.value.childItems[index].primaryImage.dimensions.width / childItemsTotalWidth.value)
       return childTargetWidth
    }
+
+   const onItemSwipe = async (newitemId) => { currItemId.value = newitemId }
 
    // --- onKeyStroke, also active in fullscreen mode --------------------------
    // multiple listeners for same element/event are called in the order they were added
