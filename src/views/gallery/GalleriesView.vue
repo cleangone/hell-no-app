@@ -1,19 +1,15 @@
 <template>
 <ion-page>
 <ion-content :fullscreen="true">
-   <!-- header -->
-   <div class="scrolling-header-container">
-      <ion-toolbar class="custom-scrolling-toolbar">
-         <ion-buttons slot="start"><BackButton/></ion-buttons>
-         <ion-title class="text-center text-h6">{{ Route.GALLERIES.display }}</ion-title>
-         <ion-buttons slot="end">
-            <SortButton :sortByDate="sortByDate" @click="sortByDate=!sortByDate"/>
-            <ThumbSizeButton :thumbType="ThumbType.GALLERY"/>
-            <GalleryThumbConfig/>
-         </ion-buttons>
-      </ion-toolbar>
-   </div>
-   
+   <Header>
+      <template #left><BackButton class="mr-16"/></template>
+      <template #title>{{ Route.GALLERIES.display }}</template>
+      <template #right>
+         <SortButton :sortByDate="sortByDate" @click="sortByDate=!sortByDate" class="mr-1"/>
+         <ThumbSizeButton :thumbType="ThumbType.GALLERY" class="mr-1"/>
+         <GalleryThumbConfig/>
+      </template>
+   </Header>
    <div v-if="viewMgr.isMobile && username" class="mt-n2"
       style="text-align: center; display: block; width: 100%;">
       <RouterLink :to="Route.USER.url + route.params.id">{{ username }}</RouterLink>
@@ -81,6 +77,7 @@
    import ChildGalleriesButton from '@/components/gallery/thumb/ChildGalleriesButton.vue'
    import UserThumbSwiper     from '@/components/user/thumb/UserThumbSwiper.vue'
    import UserLinkAvatar      from '@/components/user/avatar/UserLinkAvatar.vue'
+   import Header              from '@/components/util/Header.vue'
    import BackButton          from '@/components/util/BackButton.vue'  
    import SortButton          from '@/components/util/SortButton.vue'
    import ThumbSizeButton     from '@/components/util/ThumbSizeButton.vue'

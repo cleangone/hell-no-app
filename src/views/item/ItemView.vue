@@ -1,16 +1,13 @@
 <template>
 <ion-page>
 <ion-content> 
-   <!-- header -->
-   <div class="scrolling-header-container">
-      <ion-toolbar class="custom-scrolling-toolbar">
-         <ion-buttons slot="start"><BackButton/></ion-buttons>
-         <ion-title class="text-center text-h6">{{ paramItem.name }}</ion-title>
-         <ion-buttons slot="end">
-            <Icon :icon="viewStore.isMobileSwipe?'mdi-gesture-swipe-vertical':'mdi-gesture-swipe'" @click="viewStore.toggleMobileSwipe()"/>
-         </ion-buttons>
-      </ion-toolbar>
-   </div>
+   <Header>
+      <template #left><BackButton/></template>
+      <template #title>{{ paramItem.name }}</template>
+      <template #right>
+         <Icon :icon="viewStore.isMobileSwipe?'mdi-gesture-swipe-vertical':'mdi-gesture-swipe'" @click="viewStore.toggleMobileSwipe()"/>
+      </template>
+   </Header>
 
    <ItemMobilePanel :item="paramItem" :origin="route.params.origin" :nav="route.params.nav" @item="onItemSwipe"/>
            
@@ -55,6 +52,7 @@
    import BackButton          from '@/components/util/BackButton.vue'  
    import CopyLink            from '@/components/util/CopyLink.vue'
    import EditButton          from '@/components/util/EditButton.vue'
+   import Header              from '@/components/util/Header.vue'
    import IconButton          from '@/components/util/IconButton.vue'
    import ToggleIcon          from '@/components/util/icon/ToggleIcon.vue'
    import Icon                from '@/components/util/icon/Icon.vue'

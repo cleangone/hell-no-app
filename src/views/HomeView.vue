@@ -304,18 +304,29 @@ ion-content {
   flex-wrap: nowrap !important;
   align-items: center !important;
   width: 100% !important;
+  --min-height: auto !important;
+  min-height: 44px !important;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
-
 .custom-scrolling-toolbar ion-buttons {
   display: flex !important;
   flex-direction: row !important;
   flex-wrap: nowrap !important;
   align-items: center !important;
+  flex: 0 0 auto !important; /* Prevents button containers from shrinking */
+  z-index: 2;
 }
-
-.custom-scrolling-toolbar ion-title {
+.custom-scrolling-toolbar ion-title.multiline-title {
   flex: 1 1 auto !important;
-  white-space: nowrap !important;
+  position: static !important; /* Removes Ionic's native absolute positioning */
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  text-align: center !important;
+  line-height: 1.25;
+  padding: 4px 12px !important;
+  margin: 0 auto !important;
 }
 .custom-scrolling-toolbar ion-buttons[slot="end"] {
   display: flex !important;

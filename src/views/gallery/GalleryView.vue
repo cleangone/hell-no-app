@@ -16,17 +16,14 @@
          </v-container>
       </DefineTemplate>
 
-      <!-- header -->
-      <div class="scrolling-header-container">
-         <ion-toolbar class="custom-scrolling-toolbar">
-            <ion-buttons slot="start"><BackButton/></ion-buttons>
-            <ion-title class="text-center text-h6">{{ galleryName }} Gallery</ion-title>
-            <ion-buttons slot="end">
-               <ThumbSizeButton/>
-               <ItemThumbConfig/>
-            </ion-buttons>
-         </ion-toolbar>
-      </div>
+      <Header>
+         <template #left><BackButton class="mr-8"/></template>
+         <template #title>{{ galleryName }} Gallery</template>
+         <template #right>
+            <ThumbSizeButton class="mr-1"/>
+            <ItemThumbConfig/> 
+         </template>
+      </Header>
       <div v-if="viewMgr.isMobile">
          <div class="content-wrapper mt-1" :style="contentStyle">
             <img v-if="backgroundImage" :src="backgroundImage.url" class="background" :style="backgroundStyle"/>
@@ -115,6 +112,7 @@
    import ItemThumb           from '@/components/item/thumb/ItemThumb.vue'
    import ItemThumbConfig     from '@/components/item/thumb/ItemThumbConfig.vue'
    import UserLinkAvatar      from '@/components/user/avatar/UserLinkAvatar.vue'
+   import Header              from '@/components/util/Header.vue'
    import EditButton          from '@/components/util/EditButton.vue'
    import CopyLink            from '@/components/util/CopyLink.vue'
    import ThumbSizeButton     from '@/components/util/ThumbSizeButton.vue'
