@@ -33,8 +33,17 @@ export const useHitStore = defineStore('hit', () => {
                   console.error(`Create failed`, createError)
                })
          })
-      console.log("addHit sync done")
+      console.log("addHit done")
    }
 
-   return { hits, addListener, getHit, addHit }
+   async function addHits(ids) {
+      console.log("addHits", ids.length)
+      const updates = []
+      for (const id of ids) {
+         updates.push({ id: id, data: { views: FieldValue.increment(1) }})
+      }
+      hitAccess.batchUpdate(updates)
+   }
+
+   return { hits, addListener, getHit, addHit, addHits }
 })

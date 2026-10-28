@@ -117,7 +117,7 @@
       let item = itemStore.getItem(itemId.value)
       if (!item) { return null }  // itemStore has not intiailized yet
 
-      viewMgr.addHit(props.id)
+      viewMgr.addHit(itemId.value)
       
       if (viewMgr.isMobile && isItemGroup(item)) { 
          item = { ...item, childNum: route.params.child ? route.params.child : "1" }

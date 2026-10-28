@@ -13,7 +13,7 @@ import { useGalleryMgr } from '@/stores/galleryMgr'
 import { useWallStore }  from '@/stores/wallStore'
 import { usePostStore }  from '@/stores/chat/postStore'
 import { useReplyStore } from '@/stores/chat/replyStore'
-import { useHitStore }   from '@/stores/hitStore'
+import { useHitMgr }     from '@/stores/hitMgr'
 import { useViewStore }  from '@/stores/viewStore'
 import { useLocalStore } from '@/stores/localStore'
 import { dateUuid, isHidden, isOwned, isPublic } from '@/utils/utils'  
@@ -31,7 +31,7 @@ export const useViewMgr = defineStore('viewMgr', () => {
    const wallStore    = useWallStore()
    const postStore    = usePostStore()
    const replyStore   = useReplyStore()
-   const hitStore     = useHitStore()
+   const hitMgr       = useHitMgr()
    const viewStore    = useViewStore()
    const localStore   = useLocalStore()
    
@@ -94,7 +94,7 @@ export const useViewMgr = defineStore('viewMgr', () => {
    function addHit(itemId) {
       if (!hitIds.value.includes(itemId)) {
          hitIds.value.push(itemId)
-         hitStore.addHit(itemId)
+         hitMgr.addHit(itemId)
       }
       if (hitIds.value.length == 1) {
          setTimeout(function() { 

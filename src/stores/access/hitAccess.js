@@ -36,7 +36,7 @@ export const useHitAccess = defineStore('hitAccess', () => {
    }
 
    async function batchUpdate(updates) {
-      console.log("hitAccess.batchUpdate count:", updates.length)
+      console.log("hitAccess.batchUpdate", updates.length)
       try {
          const operations = updates.map(({ id, data }) => ({
             type: 'update',
