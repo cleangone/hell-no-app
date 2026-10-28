@@ -1,18 +1,14 @@
 <template>
 <ion-page>
 <ion-content ref="contentRef" :fullscreen="true">
-   <!-- header -->
-   <div class="scrolling-header-container">
-      <ion-toolbar class="custom-scrolling-toolbar">
-         <ion-buttons slot="start"><BackButton/></ion-buttons>
-         <ion-title class="text-center text-h6">{{ groupName }} Group</ion-title>
-         <ion-buttons slot="end">
-            <ThumbSizeButton/>
-            <ItemThumbConfig :origin="ItemOrigin.GROUP"/> 
-         </ion-buttons>
-      </ion-toolbar>
-   </div>
-
+   <Header>
+      <template #left><BackButton class="mr-8"/></template>
+      <template #title>{{ groupName }} Group</template>
+      <template #right>
+         <ThumbSizeButton class="mr-1"/>
+         <ItemThumbConfig :origin="ItemOrigin.GROUP"/> 
+      </template>
+   </Header>
    <v-container class="mr-6">
    <v-row v-if="!viewMgr.isXs" no-gutters class="flex-nowrap">
       <v-col cols="2" class="d-flex justify-start flex-grow-0 flex-shrink-0">
@@ -68,6 +64,7 @@
    import ItemThumbConfig   from '@/components/item/thumb/ItemThumbConfig.vue'
    import UserThumbSwiper   from '@/components/user/thumb/UserThumbSwiper.vue'
    import Chats             from '@/components/chat/Chats.vue'
+   import Header            from '@/components/util/Header.vue'
    import BackButton        from '@/components/util/BackButton.vue'  
    import EditButton        from '@/components/util/EditButton.vue'
    import ThumbSizeButton   from '@/components/util/ThumbSizeButton.vue'

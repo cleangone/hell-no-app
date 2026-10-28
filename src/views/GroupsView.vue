@@ -2,14 +2,19 @@
 <ion-page>
 <ion-content :fullscreen="true">
    <!-- header -->
-   <div class="scrolling-header-container">
+   <!-- <div class="scrolling-header-container">
       <ion-toolbar class="custom-scrolling-toolbar">
          <ion-buttons slot="start"><BackButton/></ion-buttons>
          <ion-title class="text-center text-h6">{{ Route.GROUPS.display }}</ion-title>
          <ion-buttons slot="end"/>
       </ion-toolbar>
-   </div>
+   </div> -->
 
+   <Header>
+      <template #left><BackButton/></template>
+      <template #title>{{ Route.GROUPS.display }}</template>
+      <template #right><span class="mr-8"></span></template>
+   </Header>
    <v-container v-if="!viewMgr.isMobile" class="pa-0 mt-1 ml-1 mr-5 pb-3 w-100">
       <v-row no-gutters class="d-flex align-center flex-nowrap">
          <v-col cols="1" class="d-flex justify-start flex-grow-0 flex-shrink-0">
@@ -34,22 +39,20 @@
 
 <script setup>
    import { computed, onMounted, ref, watch } from 'vue'
-   import { useSeoMeta } from '@unhead/vue'
-   import { useUserStore }    from '@/stores/userStore'
-   import { useUserMgr }      from '@/stores/userMgr'
-   import { useGroupMgr }     from '@/stores/groupMgr'
-   import { useViewStore }    from '@/stores/viewStore'
-   import { useViewMgr }      from '@/stores/viewMgr'
-   import GroupThumb          from '@/components/group/thumb/GroupThumb.vue'
-   
-   import Avatar              from '@/components/user/avatar/Avatar.vue'
-   import UserLinkAvatar      from '@/components/user/avatar/UserLinkAvatar.vue'
+   import { useUserStore } from '@/stores/userStore'
+   import { useUserMgr }   from '@/stores/userMgr'
+   import { useGroupMgr }  from '@/stores/groupMgr'
+   import { useViewStore } from '@/stores/viewStore'
+   import { useViewMgr }   from '@/stores/viewMgr'
+   import GroupThumb       from '@/components/group/thumb/GroupThumb.vue'
+   import Avatar           from '@/components/user/avatar/Avatar.vue'
+   import UserLinkAvatar   from '@/components/user/avatar/UserLinkAvatar.vue'
+   import Header           from '@/components/util/Header.vue'
    import BackButton       from '@/components/util/BackButton.vue'  
-   
-   import HorizontalDiv       from '@/components/util/HorizontalDiv.vue'
-   import SortButton          from '@/components/util/SortButton.vue'
-   import ThumbSizeButton     from '@/components/util/ThumbSizeButton.vue'
-   import ToolTip             from '@/components/util/ToolTip.vue'
+   import HorizontalDiv    from '@/components/util/HorizontalDiv.vue'
+   import SortButton       from '@/components/util/SortButton.vue'
+   import ThumbSizeButton  from '@/components/util/ThumbSizeButton.vue'
+   import ToolTip          from '@/components/util/ToolTip.vue'
    import { handleError, isPrivate } from '@/utils/utils'
    import { Defaults, GalleryThumbOptions, Route } from '@/utils/constants'
   
@@ -63,7 +66,6 @@
    const expandedElderIds = ref(new Set()) // elder is the top level parent 
    const elderIdToFamilyGalleries = ref(new Map())
    
-   useSeoMeta({ title: "Hell-No Groups" })
    onMounted(async() => {
       if (!viewStore.isInitialized) { viewMgr.init() }
    })

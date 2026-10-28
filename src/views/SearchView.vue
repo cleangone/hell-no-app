@@ -1,19 +1,15 @@
 <template>
 <ion-page>
    <ion-content> 
-      <!-- header -->
-      <div class="scrolling-header-container">
-         <ion-toolbar class="custom-scrolling-toolbar">
-            <ion-buttons slot="start"><BackButton/></ion-buttons>
-            <ion-title class="text-center text-h6">{{ Route.SEARCH.display }}</ion-title>
-            <ion-buttons slot="end">
-               <SortButton :sortByDate="sortByDate" @click="sortByDate=!sortByDate" class="mr-1"/>
-               <ThumbSizeButton class="mr-1"/>
-               <ItemThumbConfig class="mr-2"/>
-            </ion-buttons>
-         </ion-toolbar>
-      </div>
-
+      <Header>
+         <template #left><BackButton class="mr-16"/></template>
+         <template #title>{{ Route.SEARCH.display }}</template>
+         <template #right>
+            <SortButton :sortByDate="sortByDate" @click="sortByDate=!sortByDate" class="mr-1"/>
+            <ThumbSizeButton class="mr-1"/>
+            <ItemThumbConfig class="mr-2"/>
+         </template>
+      </Header>
       <v-row class="d-flex justify-start align-center mt-2 mx-1">
          <v-text-field v-model="searchQuery" prepend-inner-icon="mdi-magnify" placeholder="Search" density="compact" @keyup.enter="search()" class="search"/>
          <BlueBtn text="Search" @click="search()" :disabled="!validQuery" class="ml-2 mb-4"/>
@@ -41,6 +37,7 @@
    import GalleryThumb        from '@/components/gallery/thumb/GalleryThumb.vue'
    import ItemThumb        from '@/components/item/thumb/ItemThumb.vue'
    import ItemThumbConfig  from '@/components/item/thumb/ItemThumbConfig.vue'
+   import Header           from '@/components/util/Header.vue'
    import BackButton       from '@/components/util/BackButton.vue'  
    import BlueBtn          from '@/components/util/BlueBtn.vue'
    import SortButton       from '@/components/util/SortButton.vue'
