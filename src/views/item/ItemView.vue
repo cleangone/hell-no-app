@@ -3,7 +3,7 @@
 <ion-content> 
    <Header>
       <template #left><BackButton/></template>
-      <template #title>{{ paramItem.name }}</template>
+      <template #title>{{ itemName }}</template>
       <template #right>
          <Icon :icon="viewStore.isMobileSwipe?'mdi-gesture-swipe-vertical':'mdi-gesture-swipe'" @click="viewStore.toggleMobileSwipe()"/>
       </template>
@@ -29,7 +29,6 @@
    import { useRoute, useRouter } from 'vue-router'
    import { onIonViewWillEnter, onIonViewWillLeave } from '@ionic/vue'
    import { createReusableTemplate, onKeyStroke, useWindowSize } from '@vueuse/core'
-   import { useSeoMeta }      from '@unhead/vue'
    import { useUserStore }    from '@/stores/userStore'
    import { useUserMgr }      from '@/stores/userMgr'
    import { useItemStore }    from '@/stores/itemStore'
@@ -78,11 +77,9 @@
    const showItemImagesDialog      = ref(false)
    const showItemGroupImagesDialog = ref(false)
    const showEditDialog            = ref(false)
-   // const isPageActive  = ref(false)
-   const currItemId    = ref(null)
+   const currItem      = ref(null)
    const selectedItem  = ref(null)
    const selectedImage = ref(null)
-   const meta = ref({})
    
    // onMounted not guar to be called before other methods/computed
    onMounted(async() => {
@@ -94,45 +91,25 @@
       }
    })
 
-   // onIonViewWillEnter(() => {
-   //    console.log("galleryView onIonViewWillEnter")
-   //    isPageActive.value = true
-   // })
-   // onIonViewWillLeave(() => {
-   //    console.log("galleryView onIonViewWillLeave")
-   //    isPageActive.value = false
-   // })
-
    const props = defineProps({ origin: String, nav: String, id: String })
 
-
-   const itemId = computed(() => currItemId.value ?? props.id)
-   
-
+   const itemName = computed(() => currItem.value?.name ?? paramItem.value?.name)
    const paramItem = computed(() => { 
-      // console.log("itemView id",     props.id)
-      // console.log("itemView origin", props.origin)
-      // console.log("itemView nav",    props.nav)
+      console.log("paramItem id",     props.id)
+      // console.log("paramItem origin", props.origin)
+      // console.log("paramItem nav",    props.nav)
       
-      let item = itemStore.getItem(itemId.value)
+      let item = itemStore.getItem(props.id)
       if (!item) { return null }  // itemStore has not intiailized yet
-
-      viewMgr.addHit(itemId.value)
       
+      viewMgr.addHit(item.id)
+
       if (viewMgr.isMobile && isItemGroup(item)) { 
          item = { ...item, childNum: route.params.child ? route.params.child : "1" }
          item = itemMgr.extractFromItemGroup(item) 
       }
 
-      viewStore.setPageName(item.name)
-      meta.value.title = item.name
       return item 
-   })
-
-   // changed back to hardcoded because was causing load issue for mobile
-   useSeoMeta({
-      // title: paramItem.value ? "Hell-No - " + paramItem.value.name : "Hell-No Gallery"
-      title: "Hell-No Gallery" 
    })
 
    const additionalImages = computed(() => {
@@ -289,7 +266,7 @@
       return childTargetWidth
    }
 
-   const onItemSwipe = async (newitemId) => { currItemId.value = newitemId }
+   const onItemSwipe = async (item) => { currItem.value = item }
 
    // --- onKeyStroke, also active in fullscreen mode --------------------------
    // multiple listeners for same element/event are called in the order they were added

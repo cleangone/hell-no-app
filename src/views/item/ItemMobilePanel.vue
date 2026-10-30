@@ -88,8 +88,9 @@
    const galleryStore = useGalleryStore()
    const viewStore    = useViewStore()
    const viewMgr      = useViewMgr()
-   const showNav = ref(false)
-   const swipeItems = ref([])
+   const showNav      = ref(false)
+   const currItem     = ref(null)
+   const swipeItems   = ref([])
    const swipeBotItem = ref(null)
    const swipeDirection = ref(Emit.SWIPE_LEFT)
    const { width: windowWidth } = useWindowSize()
@@ -97,11 +98,12 @@
    onMounted(async() => {
       console.log("onMounted - origin", props.origin)
       if (viewStore.isInitialized && props.origin != ItemOrigin.EXTERNAL) { showNav.value = true }
+      currItem.value = props.item
       initializeScrollItems()
    })
 
-   watch(() => props.item, (newValue) => {
-      // console.log("watch props.item", newValue)
+   watch(currItem, (newValue) => {
+      // console.log("watch currItem", newValue?.name)
       if (newValue.id == swipeBotItem?.id) {
          // swipeItems bottom is now the top
          swipeItems.value.pop()
@@ -110,12 +112,12 @@
       else {
          // new array
          if (swipeItems.value.length) { swipeItems.value.length = 0 } 
-         swipeItems.value.push({ ...props.item, isTop: true })
+         swipeItems.value.push({ ...newValue, isTop: true })
       }
-   }, { immediate: true })
+   })
 
    watch(swipeBotItem, (newValue) => {
-      // console.log("watch swipeBotItem", newValue)
+      console.log("watch swipeBotItem", newValue?.name)
       if (newValue) {
          if (swipeItems.value.length == 1) { swipeItems.value.unshift({ ...newValue }) } // add new bottom at start of array
          else { swipeItems.value[0] = { ...newValue } }
@@ -132,9 +134,10 @@
    const singleOtherGallery     = computed(() => otherGalleries.value.length == 1)
    const multipleOtherGalleries = computed(() => otherGalleries.value.length > 1)
    const otherGalleries = computed(() => {  
+      // console.log("otherGalleries", currItem.value)
       const galleries = []
-      if (props.item?.galleryIds) { 
-         for (const galleryId of props.item.galleryIds) {
+      if (currItem.value?.galleryIds) { 
+         for (const galleryId of currItem.value.galleryIds) {
             const gallery = galleryStore.getGallery(galleryId)
             if (gallery.id != originGalleryId.value && viewMgr.galleryThumbVisibleToUser(gallery)) { galleries.push(gallery) }
          }
@@ -148,13 +151,6 @@
       if (itemIdToOtherGalleries.has(item.id)) { return itemIdToOtherGalleries.get(item.id) }
  
       let galleryIds = item.galleryIds
-      if (!galleryIds) {
-         // workaround for wall items
-         // console.log("Retrieving " + item.name + " galleries")
-         const fullItem = itemStore.getItem(item.id)
-         galleryIds = fullItem ? fullItem.galleryIds : []
-      }
-
       const galleries = []
       for (const galleryId of galleryIds) {
          const gallery = galleryStore.getGallery(galleryId)
@@ -170,11 +166,15 @@
    const showPrevNext = computed(() => viewStore.isMobileSwipe && !viewMgr.isXs ? showNav.value : false)
    
    const viewStoreVisibleItems = computed(() => showNav.value ? viewStore.getVisibleItems(props.origin) : null)
-   // const viewStoreItems = computed(() => viewStoreVisibleItems.value ? viewStoreVisibleItems.value.items : [])
    
    const viewStoreItems = computed(() => {
-      console.log("viewStoreItems - viewStoreVisibleItems", viewStoreVisibleItems.value)
-      return viewStoreVisibleItems.value ? viewStoreVisibleItems.value.items : []
+      // console.log("viewStoreItems - viewStoreVisibleItems", viewStoreVisibleItems.value)
+      const items = viewStoreVisibleItems.value?.items ?? []
+      if (props.origin == ItemOrigin.WALL) {
+         // console.log("Getting fullItems for Wall", items)
+         return items.map(item => itemStore.getItem(item.id)) 
+      }   
+      else { return items }
    })
    
    const prevItemUrl = computed(() => itemMgr.itemNavURL(linkId(navItems.value.prev), props.origin, ItemNavAction.PREV, navItems.value.prev.childNum))
@@ -184,9 +184,10 @@
    const imageUrl    = (image)     => { return itemMgr.mobileImageUrl(image) }
 
    const navItems = computed(() => { 
+      // console.log("navItems")
       for (let i=0; i<viewStoreItems.value.length; i++) {
          const viewStoreItem = viewStoreItems.value[i]
-         if (viewStoreItem.id == props.item.id)
+         if (viewStoreItem.id == currItem.value?.id)
          {
             let prev = i > 0 ? viewStoreItems.value[i-1] : null
             let next = i < viewStoreItems.value.length - 1 ? viewStoreItems.value[i+1] : null
@@ -200,10 +201,8 @@
             // if prediction wrong, correct bottom will be set at beginning of swipe
             setTimeout(() => { // delay prevents flash of top image
                if (prev || next) {
-                  if (prev == null) {  swipeBotItem.value = next } 
-                  else if (next == null) {  swipeBotItem.value = prev } 
-                  else if (swipeDirection.value == Emit.SWIPE_LEFT) { swipeBotItem.value = next } 
-                  else { swipeBotItem.value = prev } 
+                  swipeBotItem.value = 
+                     (next && (prev == null || swipeDirection.value == Emit.SWIPE_LEFT)) ? next : prev     
                }
             }, 200)
 
@@ -241,6 +240,7 @@
          for (var i=startIndex; i<scrollEndIndex.value; i++) { 
             const newScrollItem = viewStoreItems.value[i]
             if (newScrollItem) {
+               viewMgr.addHit(linkId(newScrollItem))
                newScrollItems.push(newScrollItem)
                viewStore.loadImage(newScrollItem.primaryImage.url) 
             }
@@ -273,13 +273,17 @@
    
    const onSwipeDone = (swipeEmit, itemName) => {
       setTimeout(() => { // delay actions so swipe finishes smoothly 
+         // console.log("onSwipeDone")
          swipeDirection.value = swipeEmit
-         if (swipeEmit == Emit.SWIPE_LEFT) {
-            if (navItems.value.next) { emit(Emit.ITEM, linkId(navItems.value.next)) } 
-         }
-         else if (swipeEmit == Emit.SWIPE_RIGHT) {
-            if (navItems.value.prev) { emit(Emit.ITEM, linkId(navItems.value.prev)) } 
-         }
+         let newItem = null
+         if (swipeEmit == Emit.SWIPE_LEFT && navItems.value.next) { newItem = navItems.value.next } 
+         else if (swipeEmit == Emit.SWIPE_RIGHT && navItems.value.prev) { newItem = navItems.value.prev } 
+
+         if (newItem) { 
+            currItem.value = newItem
+            viewMgr.addHit(linkId(newItem))
+            emit(Emit.ITEM, newItem)
+         } 
       }, 300)
    }
 </script>
@@ -292,5 +296,4 @@
 .no-pointer-events {
    pointer-events: none;
 }
-
 </style>
