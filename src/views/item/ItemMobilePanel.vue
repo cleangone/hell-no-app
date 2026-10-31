@@ -117,7 +117,7 @@
    })
 
    watch(swipeBotItem, (newValue) => {
-      console.log("watch swipeBotItem", newValue?.name)
+      // console.log("watch swipeBotItem", newValue?.name)
       if (newValue) {
          if (swipeItems.value.length == 1) { swipeItems.value.unshift({ ...newValue }) } // add new bottom at start of array
          else { swipeItems.value[0] = { ...newValue } }

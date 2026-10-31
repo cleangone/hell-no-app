@@ -5,10 +5,12 @@
              <Icon icon="mdi-heart" />
          </div>
       </v-img>
-      <div v-if="showText" :style="slideStyle" class="mt-n2 pt-3 px-1 text-left swipe-container">
-         <div v-if="artist" class="text-h6">{{ artist }}</div>
+      <div v-if="showText" class="pb-16 mt-n2 pt-3 px-1 text-left swipe-container">
+         <ItemArtistYear :item="props.item" />
          <div v-if="populated(props.item.subtitle)" class="font-weight-medium">{{ props.item.subtitle }}</div>
-         <div v-html="props.item.desc"></div>
+         <div v-html="props.item.desc" class="pb-16"></div>
+         <!-- hack to ensure top slide covers bottom - issues w/ min-height -->
+         <div v-if="props.item.isTop" v-for="i in 5" :key="i" class="pb-16"></div>
       </div>
    </div>
  </template>
@@ -18,6 +20,7 @@
    import {useWindowSize } from '@vueuse/core'
    import interact from "interactjs"
    import { useItemMgr } from '@/stores/itemMgr'
+   import ItemArtistYear from '@/components/item/ItemArtistYear.vue'
    import Icon           from '@/components/util/icon/Icon.vue'
    import { populated } from '@/utils/utils'
    import { Emit } from '@/utils/constants'
@@ -31,17 +34,17 @@
    const props = defineProps({ item:Object, isFavorite:Boolean, canSwipeLeft:Boolean, canSwipeRight:Boolean, canSwipeUp:Boolean, canSwipeDown:Boolean })
    const emit  = defineEmits([ Emit.SWIPE_LEFT, Emit.SWIPE_RIGHT, Emit.SWIPE_UP, Emit.SWIPE_DOWN, Emit.DONE ])
    
-   const { height: windowHeight } = useWindowSize()
+   // const { height: windowHeight } = useWindowSize()
    const itemMgr = useItemMgr()
    const swipeEle = ref(null)
    const showImage = ref(false)
    const showText  = ref(false)
-   const slideStyle = ref("")
+   // const slideStyle = ref("")
    const prevEmit = ref(null)
    const isDragging = ref(true)
    const position = ref({ x: 0, y: 0 })
 
-   onMounted(() => { 
+   onMounted(async () => {
       // console.log(props.item.name + (props.item.isTop ? " top" : ""))
       if (props.item.isTop) { 
          // top slide displays the image first, and then the text 
@@ -49,15 +52,18 @@
          showImage.value = true 
          setTimeout(() => { showText.value  = true }, 500) 
 
+         
+         // console.log("min-height", props.item.name, windowHeight.value) 
          // top slide needs to fill the screen to keep the bot from showing behind a shorter top  
-         slideStyle.value = "min-height:" + windowHeight.value + "px;"
+         // slideStyle.value = "min-height:" + windowHeight.value + "px;"
+         // slideStyle.value = "padding-bottom: 200px;"
       }
       else {
          // bottom slide display delayed until after top
          setTimeout(() => { showImage.value = true }, 300) 
          
          // bottom text shows after image to prevent flashing during swipe
-         setTimeout(() => { showText.value  = true }, 1000) 
+         setTimeout(() => { showText.value  = true }, 500) 
       }    
 
       const element = swipeEle.value
