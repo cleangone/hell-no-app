@@ -1,21 +1,22 @@
 <template>
-   <v-container class="mt-4 pa-0 pb-3 width-100">
-      <v-row v-if="viewMgr.isDeskTop" no-gutters class="d-flex align-center flex-nowrap">
-         <v-col cols="2" class="flex-grow-0 flex-shrink-0"></v-col>
-         <v-col class="flex-grow-1 flex-shrink-0" style="min-width: 100px; max-width: 100%;">
-            <div v-if="viewMgr.isDeskTop" class="title">{{ artistFullName }}</div>
-         </v-col>
-         <v-col cols="2" class="d-flex flex-grow-0 flex-shrink-0 justify-end">
-            <PlayItems :items="searchItems" buttonClass="mr-1"/>
-            <ItemThumbConfig/>
-         </v-col>
-      </v-row>
-   </v-container>
+<ion-page>
+<ion-content ref="contentRef" :fullscreen="true">
+   <Header>
+      <template #left><BackButton class="mr-8"/></template>
+      <template #title>{{ artistFullName }}</template>
+      <template #right>
+         <!-- <PlayItems :items="searchItems" buttonClass="mr-1"/> -->
+         <ThumbSizeButton class="mr-1"/>
+         <ItemThumbConfig/> 
+      </template>
+   </Header>
    <v-container style="width: 100%">
       <v-row justify="space-around">
          <ItemThumb v-for="item in artistItems" :key="item.id" :item="item" :origin="ItemOrigin.ARTIST" :tight="viewMgr.isMobile"/>
       </v-row>
    </v-container>
+</ion-content>  
+</ion-page>
 </template>
 
 <script setup>
@@ -30,6 +31,8 @@
    import PlayItems          from '@/components/item/PlayItems.vue'
    import ItemThumb          from '@/components/item/thumb/ItemThumb.vue'
    import ItemThumbConfig    from '@/components/item/thumb/ItemThumbConfig.vue'
+   import Header             from '@/components/util/Header.vue'
+   import ThumbSizeButton    from '@/components/util/ThumbSizeButton.vue'
    import { isOwned }     from '@/utils/utils'  
    import { ItemOrigin, Route } from '@/utils/constants'
    

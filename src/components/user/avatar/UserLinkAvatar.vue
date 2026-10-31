@@ -13,8 +13,8 @@
    const ionRouter = useIonRouter()
 
    const toUser = () => { 
-      console.log("toUser", Route.USER.url + props.user.id)
-      ionRouter.push(Route.USER.url + props.user.id, 'forward')
+      // console.log("toUser", Route.USER.url + props.user.id)
+      ionRouter.push(Route.USER.url + props.user.id)
    }
 </script>
 
