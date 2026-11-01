@@ -9,7 +9,7 @@
          <ItemArtistYear :item="props.item" />
          <div v-if="populated(props.item.subtitle)" class="font-weight-medium">{{ props.item.subtitle }}</div>
          <div v-html="props.item.desc" class="pb-16"></div>
-         <!-- hack to ensure top slide covers bottom - issues w/ min-height -->
+         <!-- hack to ensure top slide covers bottom - issues w/ ion/min-height -->
          <div v-if="props.item.isTop" v-for="i in 5" :key="i" class="pb-16"></div>
       </div>
    </div>

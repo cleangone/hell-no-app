@@ -6,7 +6,7 @@
       </span>
    </div>
    <div v-if="currItem" ref="swipeElement" class="center d-flex justify-center">  
-      <ItemSwipe v-for="item in swipeItems" :key="item.id" :item="item" :isFavorite="isFavorite" 
+      <SwipeItem v-for="item in swipeItems" :key="item.id" :item="item" :isFavorite="isFavorite" 
          :canSwipeLeft="navItems.next!=null" :canSwipeRight="navItems.prev!=null" canSwipeUp canSwipeDown
          v-on:swipeLeft="onSwipeLeftStarted"  v-on:swipeRight="onSwipeRightStarted" 
          v-on:swipeUp="onSwipeVerticalStarted" v-on:swipeDown="onSwipeVerticalStarted" 
@@ -23,7 +23,7 @@
    import { useGalleryStore } from '@/stores/galleryStore'
    import { useViewStore }    from '@/stores/viewStore'
    import { useViewMgr }      from '@/stores/viewMgr'
-   import ItemSwipe from '@/components/item/ItemSwipe.vue'
+   import SwipeItem from '@/components/item/SwipeItem.vue'
    import { Emit } from '@/utils/constants'
    import { Route } from '@/utils/constants'
    

@@ -142,11 +142,11 @@
    })
 
    onIonViewWillEnter(() => {
-      console.log("galleryView onIonViewWillEnter")
+      // console.log("galleryView onIonViewWillEnter")
       isPageActive.value = true
    })
    onIonViewWillLeave(() => {
-      console.log("galleryView onIonViewWillLeave")
+      // console.log("galleryView onIonViewWillLeave")
       isPageActive.value = false
    })
 
@@ -196,9 +196,9 @@
    }
    
    const galleryItems = computed(() => { 
-      console.log("galleryItems", props.id)
+      // console.log("galleryItems", props.id)
       if (!isPageActive.value) {
-         console.log("page inactive", props.id)
+         // console.log("page inactive", props.id)
          return []
       }
 

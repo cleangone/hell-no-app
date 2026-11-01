@@ -32,7 +32,7 @@
       <!-- swipe -->
       <div v-if="viewStore.isMobileSwipe"> 
          <div ref="swipeElement" class="center d-flex justify-center">  
-            <ItemSwipe v-for="item in swipeItems" :key="item.id" :item="item" v-on:done="onSwipeDone"
+            <SwipeItem v-for="item in swipeItems" :key="item.id" :item="item" v-on:done="onSwipeDone"
                :canSwipeLeft="navItems.next!=null" :canSwipeRight="navItems.prev!=null"
                v-on:swipeLeft="onSwipeLeftStarted" v-on:swipeRight="onSwipeRightStarted" 
                class="itemSwipe" :style="itemSwipeWidthStyle"/>
@@ -40,10 +40,7 @@
       </div>
       <!-- infinite scroll -->
       <div v-else> 
-         <CachedImg :src="imageUrl(props.item.primaryImage)" contain class="no-pointer-events"/>
-         <div class="text-left mt-2">
-            <ItemArtistYear :item="props.item" />
-         </div>
+         <ScrollItem :item="props.item"/>
          <template v-for="item in scrollItems" :key="item.id">
             <div v-if="item.id != props.item.id" class="mt-5">
                <div class="text-center text-h6">{{ item.name }}</div>
@@ -54,10 +51,7 @@
                   </span>
                </div>
             </div>
-            <CachedImg :src="imageUrl(item.primaryImage)" contain class="no-pointer-events"/>
-            <div class="text-left mt-2">
-               <ItemArtistYear :item="item"/>
-            </div>
+            <ScrollItem :item="item"/>
          </template>
          <ion-infinite-scroll @ionInfinite="loadItems">
             <ion-infinite-scroll-content loading-spinner="bubbles" loading-text="Loading...">
@@ -75,9 +69,8 @@
    import { useGalleryStore } from '@/stores/galleryStore'
    import { useViewStore }    from '@/stores/viewStore'
    import { useViewMgr }      from '@/stores/viewMgr'
-   import ItemArtistYear from '@/components/item/ItemArtistYear.vue'
-   import ItemSwipe      from '@/components/item/ItemSwipe.vue'
-   import CachedImg      from '@/components/image/CachedImg.vue'
+   import ScrollItem          from './ScrollItem.vue'
+   import SwipeItem           from '@/components/item/SwipeItem.vue'
    import { Emit, ItemNavAction, ItemOrigin, Route } from '@/utils/constants'
 
    const props = defineProps({ item: Object, origin: String, nav: String })
@@ -181,7 +174,7 @@
    const nextItemUrl = computed(() => itemMgr.itemNavURL(linkId(navItems.value.next), props.origin, ItemNavAction.NEXT, navItems.value.next.childNum))
    const linkId      = (item)      => { return item.linkId ? item.linkId : item.id }
    const galleryUrl  = (galleryId) => { return Route.GALLERY.url + galleryId }
-   const imageUrl    = (image)     => { return itemMgr.mobileImageUrl(image) }
+   // const imageUrl    = (image)     => { return itemMgr.mobileImageUrl(image) }
 
    const navItems = computed(() => { 
       // console.log("navItems")
@@ -219,7 +212,9 @@
    const setScrollEndIndex = (startIndex) => { scrollEndIndex.value = viewStoreItems.value.length > startIndex + 2 ? startIndex + 2 : viewStoreItems.value.length } 
    const initializeScrollItems = () => { 
       console.log("initializeScrollItems")
-      scrollItems.value.push(...getNewScrollItems(getScrollStartIndex())) }
+      scrollItems.value.push(...getNewScrollItems(getScrollStartIndex())) 
+   }
+
    const getScrollStartIndex = () => { 
       if (viewStoreItems.value) { 
          for (var i=0; i<viewStoreItems.value.length; i++) { 
@@ -250,7 +245,7 @@
    }
    async function getNextScrollItems() {
       return new Promise(resolve => {
-         setTimeout(() => { resolve(getNewScrollItems(scrollEndIndex.value)) }, 1000)
+         setTimeout(() => { resolve(getNewScrollItems(scrollEndIndex.value)) }, 500)
       })
    }
    async function loadItems(event) {
@@ -292,8 +287,5 @@
 .itemSwipe {
    position: absolute;
    max-width: 95%;
-}
-.no-pointer-events {
-   pointer-events: none;
 }
 </style>
