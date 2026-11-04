@@ -39,7 +39,7 @@
          </div>
       </Transition>
       <!-- infinite scroll -->
-      <div class="mx-2"> 
+      <div v-if="scrollVisible" class="ml-1 mr-4"> 
          <ScrollItem :item="props.item" :items="viewStoreItems"/>
          <template v-for="item in scrollItems" :key="item.id">
             <div v-if="item.id != props.item.id" class="mt-5">
@@ -76,25 +76,27 @@
    const props = defineProps({ item: Object, origin: String, nav: String })
    const emit  = defineEmits([ Emit.ITEM ])
   
+   const { width: windowWidth } = useWindowSize()
    const itemStore    = useItemStore()
    const itemMgr      = useItemMgr()
    const galleryStore = useGalleryStore()
    const viewStore    = useViewStore()
    const viewMgr      = useViewMgr()
-   const swipeEleRef  = ref(null)
-   const swipeVisible = ref(true)
-   const showNav      = ref(false)
-   const currItem     = ref(null)
-   const swipeItems   = ref([])
-   const swipeBotItem = ref(null)
+   const swipeEleRef    = ref(null)
+   const swipeVisible   = ref(true)
+   const scrollVisible  = ref(false)
+   const showNav        = ref(false)
+   const currItem       = ref(null)
+   const swipeItems     = ref([])
+   const swipeBotItem   = ref(null)
    const swipeDirection = ref(Emit.SWIPE_LEFT)
-   const { width: windowWidth } = useWindowSize()
    
    onMounted(async() => {
       console.log("onMounted - origin", props.origin)
       if (viewStore.isInitialized && props.origin != ItemOrigin.EXTERNAL) { showNav.value = true }
       currItem.value = props.item
       initializeScrollItems()
+      setTimeout(() => { scrollVisible.value = true }, 500)
    })
 
    watch(swipeEleRef, (newValue) => {
@@ -134,23 +136,23 @@
          startX = event.clientX
          startY = event.clientY
 
-         console.log('handlePointerDown', startX, startY);
          window.addEventListener('pointermove', handlePointerMove)
+         window.addEventListener('pointerup', handlePointerUp, { once: true })
       }
    }
 
    const handlePointerMove = (event) => {
       const deltaX = event.clientX - startX
       const deltaY = event.clientY - startY
-      console.log('handlePointerMove', deltaX, deltaY)
-
       if (Math.abs(deltaY) > 10 && Math.abs(deltaY) > Math.abs(deltaX)) {
          console.log('deltaY', deltaY)
-
          swipeVisible.value = false
-         window.removeEventListener('pointerdown', handlePointerDown);
-         window.removeEventListener('pointermove', handlePointerMove);
+         window.removeEventListener('pointermove', handlePointerMove)
       }
+   }
+
+   const handlePointerUp = () => {
+      window.removeEventListener('pointermove', handlePointerMove)
    }
 
    const originGalleryId = computed(() => {  

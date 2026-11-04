@@ -27,24 +27,22 @@
 <script setup>
    import { computed, ref } from 'vue'
    import { createReusableTemplate } from '@vueuse/core'
-   import { useItemMgr }    from '@/stores/itemMgr'
-   import { useViewStore }  from '@/stores/viewStore'
-   import { useViewMgr }    from '@/stores/viewMgr'
-   import CachedImg         from '@/components/image/CachedImg.vue'
-   import ExpandItems       from '@/components/item/ExpandItems.vue'
-   import ItemArtistYear    from '@/components/item/ItemArtistYear.vue'
-   import IconButton        from '@/components/util/IconButton.vue'
+   import { useItemMgr } from '@/stores/itemMgr'
+   import { useViewMgr } from '@/stores/viewMgr'
+   import CachedImg      from '@/components/image/CachedImg.vue'
+   import ExpandItems    from '@/components/item/ExpandItems.vue'
+   import ItemArtistYear from '@/components/item/ItemArtistYear.vue'
+   import IconButton     from '@/components/util/IconButton.vue'
 
    const props = defineProps({ item: Object, items: Array })
 
    const [DefineTemplate, ReuseTemplate] = createReusableTemplate()
-   const itemMgr   = useItemMgr()
-   const viewStore = useViewStore()
-   const viewMgr   = useViewMgr()
-
-   const descBeside = computed(() => !viewMgr.isXs && viewStore.itemDescBesideImage)
+   const itemMgr    = useItemMgr()
+   const viewMgr    = useViewMgr()
+   const descBeside = ref(false) 
+   
    const imageUrl = (image) => { return itemMgr.mobileImageUrl(image) }
-   const toggleDescBeside = () => { if (!viewMgr.isXs) { viewStore.toggleItemDescBesideImage() }}
+   const toggleDescBeside = () => { descBeside.value = !descBeside.value }
 </script>
 
 <style>
