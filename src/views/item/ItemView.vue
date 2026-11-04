@@ -9,8 +9,50 @@
       </template>
    </Header>
 
-   <ItemMobilePanel :item="paramItem" :origin="route.params.origin" :nav="route.params.nav" @item="onItemSwipe"/>
-           
+   <div v-if="viewMgr.isWide">
+      <div class="content-wrapper mt-1">
+         <img v-if="backgroundImage" :src="backgroundImage.url" class="background" :style="backgroundStyle"/>
+         <div class="content">
+            <div style="clear:both"></div>
+            <div>
+               <v-row no-gutters class="d-flex align-center flex-nowrap">
+                  <v-col cols="2" class="d-flex justify-start flex-grow-0 flex-shrink-0">
+                     <UserLinkAvatar :user="itemUser"/>
+                  </v-col>
+                  <v-col cols="1" class="flex-grow-1 flex-shrink-0" style="min-width: 100px; max-width: 100%;">
+                     <div class="title">{{ paramItem.name }}</div>
+                     <!-- origin page and galleries -->
+                     <div v-if="showNav"> <!-- origin page and gallery if there is only one -->
+                        <RouterLink v-if="viewStoreVisibleItems" :to="viewStoreVisibleItems.linkUrl" :class="singleOtherGallery ? 'font-weight-bold' : ''">
+                           {{ viewStoreVisibleItems.linkName }}
+                        </RouterLink> 
+                        <span v-if="singleOtherGallery">
+                           | <RouterLink :to="galleryUrl(otherGalleries[0].id)">{{ otherGalleries[0].name }} Gallery</RouterLink>
+                        </span>
+                     </div>
+                     <div v-if="!showNav || multipleOtherGalleries"> <!-- row of galleries -->
+                        <span v-for="gallery,index in otherGalleries" :key="gallery.id">
+                           <span v-if="index"> | </span>
+                           <RouterLink :to="galleryUrl(gallery.id)">{{ gallery.name }} Gallery</RouterLink>
+                        </span>
+                     </div>
+                  </v-col>
+                  <v-col cols="2" class="d-flex flex-grow-0 flex-shrink-0 justify-end align-center">
+                     <PlayItems :items="viewStoreItems" :item="paramItem" :backgroundImage="backgroundImage"/>
+                     <CopyLink :route="Route.ITEM.name" :id="route.params.id"/>
+                     <EditButton v-if="isOwnedByUser" @click="editItem(paramItem)" class="mx-n2"/>
+                  </v-col>
+               </v-row>
+            </div>
+            <div style="position:relative" class="text-left w-100">
+               <ScrollItem :item="paramItem"/>
+            </div> 
+         </div>
+      </div>
+   </div>
+   <div v-else-if="paramItem">
+      <ItemMobilePanel :item="paramItem" :origin="route.params.origin" :nav="route.params.nav" @item="onItemSwipe"/>
+   </div>
    <!-- <v-dialog v-model="showItemImagesDialog" width="auto">
       <ShowItemImages :initialImage="selectedImage" :item="selectedItem" @done="showItemImagesDialog=false"/>
    </v-dialog>   
@@ -39,6 +81,7 @@
    import { useViewStore }    from '@/stores/viewStore'
    import { useViewMgr }      from '@/stores/viewMgr'
    import ItemMobilePanel     from './ItemMobilePanel.vue'
+   import ScrollItem          from './ScrollItem.vue'
    import ItemGroupSmThumb    from '@/components/item/ItemGroupSmThumb.vue'
    import ExpandItems         from '@/components/item/ExpandItems.vue'
    import PlayItems           from '@/components/item/PlayItems.vue'

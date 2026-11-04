@@ -1,5 +1,5 @@
 <template>
-   <div ref="swipeEle" :style="{transform:transform, transition:transition, touchAction:'none'}">
+   <div ref="swipeEle" :style="{transform:transform, transition:transition, touchAction:'pan-y'}">
       <v-img v-if="showImage" :src="imageUrl">
          <div v-if="isFavorite" class="pa-3 d-flex fill-height align-start justify-end">
              <Icon icon="mdi-heart" />
@@ -68,6 +68,7 @@
 
       const element = swipeEle.value
       interact(element).draggable({
+         axis: 'x',
          onstart: () => { 
             isDragging.value = true 
             prevEmit.value = null

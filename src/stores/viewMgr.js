@@ -2,9 +2,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useIonRouter } from '@ionic/vue'
-import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
-// import { auth } from '@/firebase' 
-// import { signOut } from "firebase/auth"
+import { breakpointsTailwind, useBreakpoints, useWindowSize } from '@vueuse/core'
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
 import { useAuthMgr }      from '@/stores/authMgr'
 import { useUserStore }  from '@/stores/userStore'
@@ -24,6 +22,13 @@ export const useViewMgr = defineStore('viewMgr', () => {
    const ionRouter = useIonRouter()
    const breakpoints = useBreakpoints(breakpointsTailwind)
    const xs = breakpoints.smaller('sm')
+      // xs: 0,
+      // sm: 680,
+      // md: 1024,
+      // lg: 1280,
+      // xl: 1920,
+      // xxl: 2560,
+   const { width: windowWidth } = useWindowSize()
    const authMgr      = useAuthMgr()
    const userStore    = useUserStore()
    const itemMgr      = useItemMgr()
@@ -68,6 +73,7 @@ export const useViewMgr = defineStore('viewMgr', () => {
 
    const isStandalone = computed(() => window.matchMedia('(display-mode: standalone)').matches)
    const isXs         = computed(() => xs.value)
+   const isWide       = computed(() => windowWidth.value > 1150)
    const isMobile     = computed(() => {
          const iosDevice = navigator.userAgent.match(/iPhone|iPod/) // ipad no longer matches
          if (xs.value || (isStandalone.value && iosDevice != null)) { return true }
@@ -134,7 +140,7 @@ export const useViewMgr = defineStore('viewMgr', () => {
       return widths.get(thumbSize) 
    }
       
-   return { init, isMobile, isXs, isDeskTop, solo, addHit, itemIsVisibleToUser, itemThumbVisibleToUser, 
+   return { init, isMobile, isXs, isWide, isDeskTop, solo, addHit, itemIsVisibleToUser, itemThumbVisibleToUser, 
             galleryIsVisibleToUser, galleryThumbVisibleToUser, galleryItemCount, 
             getTargetThumbHeight, getItemMaxLandscapeWidth,
             logout }

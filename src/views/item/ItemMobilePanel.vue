@@ -40,7 +40,7 @@
       </div>
       <!-- infinite scroll -->
       <div v-else> 
-         <ScrollItem :item="props.item"/>
+         <ScrollItem :item="props.item" :items="viewStoreItems" swipe/>
          <template v-for="item in scrollItems" :key="item.id">
             <div v-if="item.id != props.item.id" class="mt-5">
                <div class="text-center text-h6">{{ item.name }}</div>
@@ -51,7 +51,7 @@
                   </span>
                </div>
             </div>
-            <ScrollItem :item="item"/>
+            <ScrollItem :item="item" :items="viewStoreItems"/>
          </template>
          <ion-infinite-scroll @ionInfinite="loadItems">
             <ion-infinite-scroll-content loading-spinner="bubbles" loading-text="Loading...">
