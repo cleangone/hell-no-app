@@ -29,18 +29,18 @@
       </v-row>
    </div>
    <div style="position:relative" class="w-100 ml-1 mr-4" ref="imageDivRef">  
-      <!-- swipe -->
-      <div v-if="viewStore.isMobileSwipe"> 
-         <div ref="swipeElement" class="center d-flex justify-center">  
+      <!-- swipe/scroll top item - swipe x, fade out if scroll y -->
+      <Transition name="fade">
+         <div v-if="swipeVisible" ref="swipeEleRef" class="center d-flex justify-center">  
             <SwipeItem v-for="item in swipeItems" :key="item.id" :item="item" v-on:done="onSwipeDone"
                :canSwipeLeft="navItems.next!=null" :canSwipeRight="navItems.prev!=null"
                v-on:swipeLeft="onSwipeLeftStarted" v-on:swipeRight="onSwipeRightStarted" 
                class="itemSwipe" :style="itemSwipeWidthStyle"/>
          </div>
-      </div>
+      </Transition>
       <!-- infinite scroll -->
-      <div v-else> 
-         <ScrollItem :item="props.item" :items="viewStoreItems" swipe/>
+      <div class="mx-2"> 
+         <ScrollItem :item="props.item" :items="viewStoreItems"/>
          <template v-for="item in scrollItems" :key="item.id">
             <div v-if="item.id != props.item.id" class="mt-5">
                <div class="text-center text-h6">{{ item.name }}</div>
@@ -81,6 +81,8 @@
    const galleryStore = useGalleryStore()
    const viewStore    = useViewStore()
    const viewMgr      = useViewMgr()
+   const swipeEleRef  = ref(null)
+   const swipeVisible = ref(true)
    const showNav      = ref(false)
    const currItem     = ref(null)
    const swipeItems   = ref([])
@@ -93,6 +95,11 @@
       if (viewStore.isInitialized && props.origin != ItemOrigin.EXTERNAL) { showNav.value = true }
       currItem.value = props.item
       initializeScrollItems()
+   })
+
+   watch(swipeEleRef, (newValue) => {
+      // console.log("watch swipeEleRef")
+      if (newValue) { swipeEleRef.value.addEventListener('pointerdown', handlePointerDown) }
    })
 
    watch(currItem, (newValue) => {
@@ -119,6 +126,32 @@
          if (swipeItems.value.length > 1) { swipeItems.value.shift() } // remove first item 
       }
    })
+
+   let startX = 0;
+   let startY = 0;
+   const handlePointerDown = (event) => {
+      if (swipeVisible.value) {
+         startX = event.clientX
+         startY = event.clientY
+
+         console.log('handlePointerDown', startX, startY);
+         window.addEventListener('pointermove', handlePointerMove)
+      }
+   }
+
+   const handlePointerMove = (event) => {
+      const deltaX = event.clientX - startX
+      const deltaY = event.clientY - startY
+      console.log('handlePointerMove', deltaX, deltaY)
+
+      if (Math.abs(deltaY) > 10 && Math.abs(deltaY) > Math.abs(deltaX)) {
+         console.log('deltaY', deltaY)
+
+         swipeVisible.value = false
+         window.removeEventListener('pointerdown', handlePointerDown);
+         window.removeEventListener('pointermove', handlePointerMove);
+      }
+   }
 
    const originGalleryId = computed(() => {  
       return props.origin == ItemOrigin.GALLERY ? viewStoreVisibleItems.value?.linkId : null      
@@ -287,5 +320,15 @@
 .itemSwipe {
    position: absolute;
    max-width: 95%;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

@@ -5,7 +5,8 @@
       <template #left><BackButton/></template>
       <template #title>{{ itemName }}</template>
       <template #right>
-         <Icon :icon="viewStore.isMobileSwipe?'mdi-gesture-swipe-vertical':'mdi-gesture-swipe'" @click="viewStore.toggleMobileSwipe()"/>
+         <span class="mr-8"></span>
+         <!-- <Icon :icon="viewStore.isMobileSwipe?'mdi-gesture-swipe-vertical':'mdi-gesture-swipe'" @click="viewStore.toggleMobileSwipe()"/> -->
       </template>
    </Header>
 
