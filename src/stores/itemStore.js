@@ -192,13 +192,18 @@ export const useItemStore = defineStore('item', () => {
    function getItem(itemId) { return itemIdToItem.value ? itemIdToItem.value.get(itemId) : {} }
 
    function setItem(item) { 
-      const itemToSet = { ...item, versionTag: randomPlate(), 
-         dateCreated:serverTimestamp(), dateModified:serverTimestamp(), dateContentModified:serverTimestamp() }
+      // console.log("setItem", item)
+      const itemToSet = { ...item, versionTag: randomPlate() }
       if (!itemToSet.groupIds)    { itemToSet.groupIds = [] }
       if (!itemToSet.galleryIds)  { itemToSet.galleryIds = [] }
       if (!itemToSet.otherImages) { itemToSet.otherImages = [] }
 
-      setDoc(itemDoc(itemToSet.id), itemToSet) 
+      itemAccess.set(itemToSet.id, itemToSet)
+         .catch(error => {
+            console.error("setItem failed", error)
+            return null
+         })
+      // console.log("setItem done")
       return itemToSet
    }
 

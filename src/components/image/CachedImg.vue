@@ -1,21 +1,22 @@
 <template>
-   <img :src="localSrc" v-bind="$attrs"/>
+   <img :src="displaySrc" v-bind="$attrs"/>
 </template>
 
 <script setup>
-   import { ref, watchEffect } from 'vue'
+   import { ref, watch } from 'vue'
    import { useCacheStore } from '@/stores/cacheStore'
+   import { Defaults } from '@/utils/constants'   
 
    const props = defineProps({ src: String })
 
    const cacheStore = useCacheStore()
-   const localSrc = ref('')
+   const displaySrc = ref("")
 
-   watchEffect(async () => {
-      if (props.src) {
-         localSrc.value = await cacheStore.getCachedUrl(props.src)
-      }
-   })
+   watch(() => props.src, async (newVal) => {
+      // Await the cache disk lookup
+      const cachedSrc = await cacheStore.getCachedUrl(newVal)
+      displaySrc.value = cachedSrc ?? Defaults.IMAGE_FALLBACK
+   }, { immediate: true })
 </script>
 
 <style>

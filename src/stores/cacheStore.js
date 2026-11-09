@@ -61,19 +61,14 @@ export const useCacheStore = defineStore('cache', () => {
       if (imageCacheMap.has(remoteUrl)) { return imageCacheMap.get(remoteUrl) }
 
       try {
-         // ion disk cache - either return cache hit, or make remote call and populates cache 
-         const localSrc = await AssetCache.src(remoteUrl)
-         
-         // const resolved = await AssetCache.resolve(remoteUrl)
-         // console.log("cache status:", resolved.status) 
-         // const localSrc = resolved.url
-
-         imageCacheMap.set(remoteUrl, localSrc)
-         return localSrc
+         // ion disk cache - either return cache hit, or make remote call and populate cache 
+         const cachedSrc = await AssetCache.src(remoteUrl)
+         imageCacheMap.set(remoteUrl, cachedSrc)
+         return cachedSrc
       } 
       catch (error) {
         console.log('Image cache error', remoteUrl, error)
-        return remoteUrl
+        return null
       }
    }
 

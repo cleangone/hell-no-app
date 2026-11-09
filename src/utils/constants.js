@@ -48,6 +48,7 @@ export const Defaults = {
    MAX_WALL_ITEMS:  20,
    SITE_ID:         "0",
    MAX_THUMB_SIDE:  300, // thumb was resized to a 300x300 box
+   IMAGE_FALLBACK:  "/images/user-hell-no.png"
 }
 
 export const DefaultWall = { wallRows:0, wallItems:[] }    
@@ -190,6 +191,7 @@ export const Route = {
    ADD_ITEM:  { name: 'add-item',  url: '/add-item',  display: 'Add Item' },
    ARTIST:    { name: 'artist',    url: '/artist/'    },
    BROADCAST: { name: 'broadcast', url: '/broadcast'  },
+   CAMERA:    { name: 'camera',    url: '/camera',    display: 'Camera' },
    EDIT_ITEM: { name: 'edit-item', url: '/edit-item/',display: 'Edit Item' },
    GALLERY:   { name: 'gallery',   url: '/gallery/'   },
    GALLERIES: { name: 'galleries', url: '/galleries/',display: 'Galleries' },

@@ -48,15 +48,8 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 // import 'swiper/css/pagination'
 
-
-// setLogLevel("debug") 
-
-// global caching rules 
 AssetCache.configure({
-  revalidate: {
-    strategy: 'ttl',
-    maxAgeSeconds: 86400 * 7, // 7 days
-  },
+   revalidate: { strategy: 'never' } // never check the network if disk present
 })
 
 const app = createApp(App)

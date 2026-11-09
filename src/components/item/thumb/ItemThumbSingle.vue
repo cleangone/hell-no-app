@@ -61,7 +61,7 @@
                   const imageRect = imageEleRef.value.getBoundingClientRect()
                   infoRect.value = { 
                      top: imageRect.top + 20, 
-                     left: imageRect.left<windowWidth.value/2 ? imageRect.left + 20 : imageRect.right - 220
+                     left: imageRect.right<windowWidth.value/2 ? imageRect.right + 20 : imageRect.left - 220
                   }
                }
                showInfoBox.value = true

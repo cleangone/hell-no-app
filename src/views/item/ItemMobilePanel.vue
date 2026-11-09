@@ -31,7 +31,7 @@
    <div style="position:relative" class="w-100 ml-1 mr-4" ref="imageDivRef">  
       <!-- swipe/scroll top item - swipe x, fade out if scroll y -->
       <Transition name="fade">
-         <div v-if="swipeVisible" ref="swipeEleRef" class="center d-flex justify-center">  
+         <div v-if="swipeVisible" ref="swipeEleRef" :style="{zIndex: 10}" class="center d-flex justify-center position-relative">  
             <SwipeItem v-for="item in swipeItems" :key="item.id" :item="item" v-on:done="onSwipeDone"
                :canSwipeLeft="navItems.next!=null" :canSwipeRight="navItems.prev!=null"
                v-on:swipeLeft="onSwipeLeftStarted" v-on:swipeRight="onSwipeRightStarted" 
@@ -39,8 +39,8 @@
          </div>
       </Transition>
       <!-- infinite scroll -->
-      <div v-if="scrollVisible" class="ml-1 mr-4"> 
-         <ScrollItem :item="props.item" :items="viewStoreItems"/>
+      <div v-if="scrollVisible" class="ml-2 mr-4"> 
+        <ScrollItem :item="props.item" :items="viewStoreItems"/>
          <template v-for="item in scrollItems" :key="item.id">
             <div v-if="item.id != props.item.id" class="mt-5">
                <div class="text-center text-h6">{{ item.name }}</div>
@@ -96,7 +96,7 @@
       if (viewStore.isInitialized && props.origin != ItemOrigin.EXTERNAL) { showNav.value = true }
       currItem.value = props.item
       initializeScrollItems()
-      setTimeout(() => { scrollVisible.value = true }, 500)
+      setTimeout(() => { scrollVisible.value = true }, 1000)
    })
 
    watch(swipeEleRef, (newValue) => {

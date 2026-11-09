@@ -36,9 +36,8 @@
             <ion-title class="text-center text-h6">{{ title }}</ion-title>
             <ion-buttons slot="end">
                <nav>
-                  <!-- <Icon icon="mdi-dice-multiple" @click="toRoute(Route.RANDOM)"/> -->
                   <ShakeIcon v-if="activeNotificationsExist" icon="mdi-bell-ring" size="small" @click="toRoute(Route.MESSAGE)" class="mr-1"/>
-                  <!-- <DarkButton class="mr-n2"/> -->
+                  <Icon v-else-if="user" icon="mdi-camera" @click="toRoute(Route.CAMERA)"/>
                </nav>
             </ion-buttons>
          </ion-toolbar>
