@@ -11,7 +11,6 @@
       <ion-img v-if="photoUrl" :src="photoUrl" alt="Captured photo"></ion-img>
       <p v-else>No photo selected.</p>
    </div>
-      
    <div class="mt-5 d-flex justify-center">
       <BlueBtn text="Take Photo" @click="takePhoto" class="mr-5"/>
       <BlueBtn v-if="isRecording" text="Stop Recording" @click="stopAudioRecording"/>
@@ -29,7 +28,7 @@
 </template>
 
 <script setup>
-   import { computed, ref } from 'vue'
+   import { computed, onMounted, ref } from 'vue'
    import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
    import { storage } from '@/firebase'
    import { ref as storageRef } from 'firebase/storage'
@@ -53,17 +52,24 @@
    const imageMgr     = useImageMgr()
    const audioMgr     = useAudioMgr()
    const imageHandler = useAddItemImageHandler()
+   const photoGallery = ref(null)
    const photoUrl     = ref(null)
    const base64Image  = ref(null)
    const canUpload    = ref(true)  
    const uploadStatus = ref("")  
    const isRecording  = ref(false)
 
-   // todo - every user needs one
-   const photoGallery = computed(() => galleryStore.getGalleryByTag("photo"))
+   onMounted(() => {
+      for (const gallery of galleryStore.myGalleries) {
+         if (gallery.isPhotoGallery) {
+            photoGallery.value = gallery
+         }
+      }
+   })
 
    const takePhoto = async () => {
-      // checkConnection()
+      console.log("PhotoGallery", photoGallery.value.name)
+      checkConnection()
       try {
          const image = await Camera.getPhoto({
             quality: 90,
@@ -190,20 +196,21 @@
 
    async function checkConnection() {
       try {
-         // Attempt to fetch metadata with a short timeout or just test the connection
-         console.log("checkConnection")
-         await getMetadata(storageRef)
-         canUpload.value = true // Connected (even if file doesn't exist, server responded)
+         // attempt to fetch metadata to test the connection
+         const testRef = storageRef(storage, "connection-test/ping")
+         await getMetadata(testRef)
+         canUpload.value = true // won't happen - file doesn't exist
       } 
       catch (error) {
-         // 'object-not-found' means we reached the server, but the file isn't there (which is fine for an upload!)
-         if (error.code === 'storage/object-not-found') {
+         if (error.code == 'storage/object-not-found') { 
+            // file doesn't exist, but server responded
             canUpload.value = true 
+         } 
+         else {
+            // other error - most likely offline
+            console.log("checkConnection error", error)
+            canUpload.value = false
          }
-         
-         // Any network or timeout error means we are offline or blocked
-         console.error("checkConnection - storage unreachable:", error.code)
-         canUpload.value = false
       }
    }
 </script>
