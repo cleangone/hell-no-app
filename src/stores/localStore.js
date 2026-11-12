@@ -9,7 +9,6 @@ import { DefaultWall } from '@/utils/constants'
       site-wall - {}
       my-wall - {}
       device-id
-      solo-mode - boolean
 */
 
 export const useLocalStore = defineStore('local', () => {
@@ -23,9 +22,6 @@ export const useLocalStore = defineStore('local', () => {
    
    const deviceId = useLocalStorage('device-id', null)
    function setDeviceId(id) { deviceId.value = id }
-
-   const soloMode = useLocalStorage('solo-mode', false)
-   function setSoloMode(solo) { soloMode.value = solo }
 
    function fixObjs(localObjs) {
       const objs = []
@@ -46,5 +42,5 @@ export const useLocalStore = defineStore('local', () => {
 
    function getTimestamp(dateObj) { return new Timestamp(dateObj.seconds, dateObj.nanoseconds) }
    
-   return { siteWall, setSiteWall, myWall, setMyWall, deviceId, setDeviceId, soloMode, setSoloMode }
+   return { siteWall, setSiteWall, myWall, setMyWall, deviceId, setDeviceId }
 })

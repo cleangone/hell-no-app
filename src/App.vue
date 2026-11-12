@@ -1,78 +1,3 @@
-<!-- <template>
-   <ion-app> -->
-   <!-- <div class="app">   -->
-   <!-- <ion-header  class="ion-no-border" :translucent="false">
-      <ion-toolbar>
-         <ion-buttons slot="start"> -->
-            <!-- top left icon for mobile -->
-            <!-- <nav>
-               <v-menu v-if="isRoute(Route.HOME)">
-                  <template v-slot:activator="{ props }">
-                     <v-btn v-bind="props" icon="mdi-menu" class="icon-btn" size="medium" variant="text"></v-btn>
-                  </template>
-                  <v-list> -->
-                     <!-- <v-list-item @click="toggleSoloMode()">
-                        <template v-slot:prepend>
-                           <v-icon :icon="viewMgr.solo?'mdi-account-multiple': 'mdi-account'" class="menu-icon"></v-icon>
-                        </template>
-                        <v-list-item-title>{{ viewMgr.solo ? "Exit " : "" }}Solo Mode</v-list-item-title>
-                     </v-list-item>
-                     <v-list-item v-if="user" @click="toRoute(Route.ADD_ITEM)">
-                        <template v-slot:prepend>
-                           <v-icon icon="mdi-plus" class="menu-icon"></v-icon>
-                        </template>
-                        <v-list-item-title>Add Item</v-list-item-title>
-                     </v-list-item>
-                     <v-list-item v-if="user" @click="toRoute(Route.MESSAGE)">
-                        <template v-slot:prepend>
-                           <v-icon icon="mdi-message" class="menu-icon"></v-icon>
-                        </template>
-                        <v-list-item-title>Messages</v-list-item-title>
-                     </v-list-item> -->
-                  <!-- </v-list>
-               </v-menu>
-            </nav>
-         </ion-buttons> -->
-         <!-- top center title for mobile -->
-         <!-- <ion-title class="text-center">
-            <div class="text-h6"> 
-               <span v-else-if="inRoutes(Route.GROUP, Route.ITEM_CHILD, Route.RANDOM, Route.ARTIST)">{{ pageName }}</span>
-               <span v-else-if="isRoute(Route.GROUPS)">{{ Route.GROUPS.display }}</span>
-               <span v-else-if="isRoute(Route.SEARCH)">{{ Route.SEARCH.display }}</span>
-               <span v-else-if="isRoute(Route.FAVORITES)">{{ Route.FAVORITES.display }}</span>
-               <span v-else-if="isRoute(Route.ABOUT)">{{ Route.ABOUT.display }}</span>
-               <span v-else-if="isRoute(Route.ACCOUNT)" class="text-subtitle-1">{{ pageName }}</span>
-               <span v-else-if="isRoute(Route.ADD_ITEM)">Add Item</span>
-               <span v-else-if="isRoute(Route.EDIT_ITEM)">Edit Item</span>
-            </div>
-         </ion-title> -->
-         <!-- top right icons -->
-         <!-- <ion-buttons slot="end"> -->
-            <!-- top right icon for mobile -->
-            <!-- <div>
-               <span v-if="inRoutes(Route.HOME, Route.USER)" style="white-space: nowrap"> -->
-                  <!-- <Icon icon="mdi-dice-multiple" @click="toRoute(Route.RANDOM)"/> -->
-                  <!-- <ShakeIcon v-if="activeNotificationsExist" icon="mdi-bell-ring" size="small" @click="toRoute(Route.MESSAGE)" class="mr-n1"/> -->
-                  <!-- <DarkButton class="mr-n2"/>
-               </span>
-               
-               <span v-else-if="inRoutes(Route.GROUP, Route.SEARCH, Route.FAVORITES)" class="text-no-wrap"> 
-                  <ThumbSizeButton/>
-                  <ItemThumbConfig/>
-               </span>
-               
-               <span v-else-if="inRoutes(Route.ITEM, Route.ITEM_CHILD)">
-                  <ToggleIcon icon="mdi-gesture-swipe" :state="viewStore.isMobileSwipe" @click="viewStore.toggleMobileSwipe()"/>
-               </span>
-               <span v-else-if="isRoute(Route.ADD_ITEM)">
-                  <Icon icon="mdi-close" @click="router.back()"/>
-               </span>
-            </div>
-         </ion-buttons>
-      </ion-toolbar>
-   </ion-header> -->
-
-   
 
    <!-- <ion-content class="app">  -->
       <!-- <ion-router-outlet /> -->
@@ -115,23 +40,6 @@
    </ion-footer>
 </ion-app>
 </template>
-
- <!-- <v-bottom-navigation v-model="navIndex" color="primary" grow> -->
-         <!-- <v-bottom-navigation v-model="navIndex" color="primary" style="min-height:60px" grow> -->
-            <!-- <v-btn @click="toRoute(Route.HOME)">
-               <Icon icon="mdi-home"/>
-               <span class="nav-text"></span>
-            </v-btn>
-            <v-btn @click="toRoute(Route.SEARCH)">
-               <Icon icon="mdi-magnify"/>
-               <span class="nav-text">&nbsp;</span>
-            </v-btn>
-            <v-btn @click="toSiteRoute(Route.RECENT)">
-               <Icon icon="mdi-history"/>
-               <span class="nav-text">Updates</span>
-            </v-btn>   
-            
-         </v-bottom-navigation> -->
 
 <script setup>
    import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
@@ -225,10 +133,10 @@
 
    // const userOwnerId = computed(() => userStore.user.ownerId) 
    
-   const displayName = computed(() => {
-      const currUser = user.value // ugly - check user, which drives update of localStore.soloMode
-      return localStore.soloMode ? "Solo" : (currUser ? currUser.firstName : "")
-   })
+   // const displayName = computed(() => {
+   //    const currUser = user.value // ugly - check user, which drives update of localStore.soloMode
+   //    return localStore.soloMode ? "Solo" : (currUser ? currUser.firstName : "")
+   // })
 
    const homeTitle = computed(() => 
       viewMgr.solo && user.value ? (user.value.displayName ?? user.value.username) : "Hell-No Gallery")

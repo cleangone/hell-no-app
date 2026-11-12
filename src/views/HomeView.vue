@@ -1,91 +1,84 @@
 <template>
 <ion-page>
-   <ion-content :fullscreen="true">
-      <!-- header -->
-      <div class="scrolling-header-container">
-         <ion-toolbar class="custom-scrolling-toolbar">
-            <ion-buttons slot="start">
-               <nav>
-                  <v-menu>
-                     <template v-slot:activator="{ props }">
-                        <v-btn v-bind="props" icon="mdi-menu" class="icon-btn" size="medium" variant="text"></v-btn>
-                     </template>
-                     <v-list>
-                        <!-- <v-list-item @click="toggleSoloMode()">
-                           <template v-slot:prepend>
-                              <v-icon :icon="viewMgr.solo?'mdi-account-multiple': 'mdi-account'" class="menu-icon"></v-icon>
-                           </template>
-                           <v-list-item-title>{{ viewMgr.solo ? "Exit " : "" }}Solo Mode</v-list-item-title>
-                        </v-list-item>
-                        <v-list-item v-if="user" @click="toRoute(Route.ADD_ITEM)">
-                           <template v-slot:prepend>
-                              <v-icon icon="mdi-plus" class="menu-icon"></v-icon>
-                           </template>
-                           <v-list-item-title>Add Item</v-list-item-title>
-                        </v-list-item> -->
-                        <v-list-item v-if="user" @click="toRoute(Route.MESSAGE)">
-                           <template v-slot:prepend>
-                              <v-icon icon="mdi-message" class="menu-icon"></v-icon>
-                           </template>
-                           <v-list-item-title>Messages</v-list-item-title>
-                        </v-list-item>
-                     </v-list>
-                  </v-menu>
-               </nav>
-            </ion-buttons>
-            <ion-title class="text-center text-h6">{{ title }}</ion-title>
-            <ion-buttons slot="end">
-               <nav>
-                  <ShakeIcon v-if="activeNotificationsExist" icon="mdi-bell-ring" size="small" @click="toRoute(Route.MESSAGE)" class="mr-1"/>
-                  <Icon v-else-if="user" icon="mdi-camera" @click="toRoute(Route.CAMERA)"/>
-               </nav>
-            </ion-buttons>
-         </ion-toolbar>
+<ion-content :fullscreen="true">
+   <Header>
+      <template #left>
+         <v-menu v-if="user">
+            <template v-slot:activator="{ props }">
+               <v-btn v-bind="props" icon="mdi-menu" class="icon-btn" size="medium" variant="text"></v-btn>
+            </template>
+            <v-list>
+               <v-list-item @click="toggleSoloMode()">
+                  <template v-slot:prepend>
+                     <v-icon :icon="viewMgr.solo?'mdi-account-multiple': 'mdi-account'" class="menu-icon"></v-icon>
+                  </template>
+                  <v-list-item-title>{{ viewMgr.solo ? "Exit " : "" }}Solo Mode</v-list-item-title>
+               </v-list-item>
+               <v-list-item @click="toRoute(Route.MESSAGE)">
+                  <template v-slot:prepend><v-icon icon="mdi-message" class="menu-icon"></v-icon></template>
+                  <v-list-item-title>Messages</v-list-item-title>
+               </v-list-item>
+               <!-- <v-list-item v-if="user" @click="toRoute(Route.ADD_ITEM)">
+                  <template v-slot:prepend>
+                     <v-icon icon="mdi-plus" class="menu-icon"></v-icon>
+                  </template>
+                  <v-list-item-title>Add Item</v-list-item-title>
+               </v-list-item> -->
+            </v-list>
+         </v-menu>
+         <span v-else class="mr-8"></span>
+      </template>
+      <template #title>{{ title }}</template>
+      <template #right>
+         <ShakeIcon v-if="activeNotificationsExist" icon="mdi-bell-ring" size="small" @click="toRoute(Route.MESSAGE)" class="mr-1"/>
+         <Icon v-else-if="user" icon="mdi-camera" @click="toRoute(Route.CAMERA)"/>      
+      </template>
+   </Header>
+
+   <!-- content -->
+   <v-container class="pa-0 mb-2 width-100">
+      <!-- <div v-if="viewMgr.solo" class="text-subtitle-1 mt-n2 mb-2">Solo Mode</div> -->
+      <!-- <ShowNotifications v-if="invites.length" :notifications="invites" class="mb-3"/> -->
+      <div class="walldiv" :style="wallDivStyle">
+         <v-img :src="wallImage" cover :style="wallBackgroundStyle" class="wall-background"/>
+         <div class="wall-content">
+            <SplitWall v-if="showWall" :wall="displayWall" :rowHeight="slideRowHeight"/>
+         </div> 
       </div>
-      <!-- content -->
-       <v-container class="pa-0 mb-2 width-100">
-         <!-- <div v-if="viewMgr.solo" class="text-subtitle-1 mt-n2 mb-2">Solo Mode</div> -->
-         <!-- <ShowNotifications v-if="invites.length" :notifications="invites" class="mb-3"/> -->
-         <div class="walldiv" :style="wallDivStyle">
-            <v-img :src="wallImage" cover :style="wallBackgroundStyle" class="wall-background"/>
-            <div class="wall-content">
-               <SplitWall v-if="showWall" :wall="displayWall" :rowHeight="slideRowHeight"/>
-            </div> 
+   </v-container>
+
+   <div class="center">
+      <!-- galleries -->
+      <RecentGalleryThumbs v-if="recentGalleries.length" :galleries="recentGalleries" 
+         :maxRows="recentRows" bypassShowUser class="mb-5"/>
+
+      <!-- groups if user logged in and not solo -->
+      <MyGroupThumbs v-if="user && !viewMgr.solo"/>
+
+      <!-- recent updated, viewed -->
+      <div v-if="viewMgr.isXs">
+         <div class="mx-2 mb-10 bg-shade">
+            <ItemThumbsPanel title="Recent Updates" :items="recentUpdatedItems" 
+               :linkTo="Route.RECENT.url + Defaults.SITE_ID"/>
          </div>
-      </v-container>
-
-      <div class="center">
-         <!-- galleries -->
-         <RecentGalleryThumbs v-if="recentGalleries.length" :galleries="recentGalleries" 
-            :maxRows="recentRows" bypassShowUser class="mb-5"/>
-
-         <!-- groups if user logged in and not solo -->
-         <MyGroupThumbs v-if="user && !viewMgr.solo"/>
-
-         <!-- recent updated, viewed -->
-         <div v-if="viewMgr.isXs">
-            <div class="mx-2 mb-10 bg-shade">
-               <ItemThumbsPanel title="Recent Updates" :items="recentUpdatedItems" 
-                  :linkTo="Route.RECENT.url + Defaults.SITE_ID"/>
-            </div>
-            <div class="mx-2 bg-shade">
-               <ItemThumbsPanel title="Recent Viewed" :items="recentViewedItems" 
-                  :linkTo="Route.VIEWED.url + Defaults.SITE_ID" showDateViewed/>
-            </div>
+         <div class="mx-2 bg-shade">
+            <ItemThumbsPanel title="Recent Viewed" :items="recentViewedItems" 
+               :linkTo="Route.VIEWED.url + Defaults.SITE_ID" showDateViewed/>
          </div>
-         <v-row v-else class="mr-5">
-            <v-col cols="6">
-               <ItemThumbsPanel title="Recent Updates" :items="recentUpdatedItems" 
-                  :linkTo="Route.RECENT.url + Defaults.SITE_ID" class="bg-shade border-md "/>
-                  <!-- fill-height -->
-            </v-col>
-            <v-col cols="6" class="">
-               <ItemThumbsPanel title="Recent Viewed" :items="recentViewedItems" 
-                  :linkTo="Route.VIEWED.url + Defaults.SITE_ID" showDateViewed class="bg-shade border-md"/>
-            </v-col>
-         </v-row>
       </div>
-   </ion-content>  
+      <v-row v-else class="mr-5">
+         <v-col cols="6">
+            <ItemThumbsPanel title="Recent Updates" :items="recentUpdatedItems" 
+               :linkTo="Route.RECENT.url + Defaults.SITE_ID" class="bg-shade border-md "/>
+               <!-- fill-height -->
+         </v-col>
+         <v-col cols="6" class="">
+            <ItemThumbsPanel title="Recent Viewed" :items="recentViewedItems" 
+               :linkTo="Route.VIEWED.url + Defaults.SITE_ID" showDateViewed class="bg-shade border-md"/>
+         </v-col>
+      </v-row>
+   </div>
+</ion-content>  
 </ion-page>
 </template>
 
@@ -217,6 +210,12 @@
    const wallDivStyle   = computed(() => "height:" + (((slideRowHeight.value + 10) * wallRows.value)) + "px;")
    const wallBackgroundStyle = computed(() => wallDivStyle.value + " opacity:" + wallBackgroundOpacity.value + ";")
    
+   const toggleSoloMode = () => {   
+      const settings = { ...user.value.settings }
+      settings.soloMode = settings.soloMode ? false : true 
+      userStore.updateSettings(settings)
+   }
+
    const recentGalleries = computed(() => { 
       const galleries = []     
       const allGalleries = viewMgr.solo ? galleryStore.myGalleries : galleryStore.publicGalleries
@@ -238,11 +237,7 @@
 
    const recentUpdatedItems = computed(() => {
       // console.log("home recentUpdatedItems")
-      if (!isPageActive.value) {
-         // console.log("home inactive")
-         return []
-      }
-
+      if (!isPageActive.value) { return [] }
       let items = viewMgr.solo ? [ ...itemMgr.myRecentItems ] : [ ...cacheStore.recentPublicItems ]
       items = items.filter(item => !itemMgr.isInvisible(item))
 
@@ -259,11 +254,7 @@
 
    const recentViewedItems = computed(() => {
       // console.log("home recentViewedItems")
-      if (!isPageActive.value) {
-         // console.log("home inactive")
-         return []
-      }
-
+      if (!isPageActive.value) { return [] }
       let items = [ ...cacheStore.recentViewedPublicItems ]   
       if (viewMgr.solo) { items = items.filter(item => isOwned(item, userStore.userId)) }
             

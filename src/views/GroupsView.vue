@@ -1,15 +1,6 @@
 <template>
 <ion-page>
 <ion-content :fullscreen="true">
-   <!-- header -->
-   <!-- <div class="scrolling-header-container">
-      <ion-toolbar class="custom-scrolling-toolbar">
-         <ion-buttons slot="start"><BackButton/></ion-buttons>
-         <ion-title class="text-center text-h6">{{ Route.GROUPS.display }}</ion-title>
-         <ion-buttons slot="end"/>
-      </ion-toolbar>
-   </div> -->
-
    <Header>
       <template #left><BackButton/></template>
       <template #title>{{ Route.GROUPS.display }}</template>

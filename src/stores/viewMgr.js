@@ -1,6 +1,5 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { useRouter } from 'vue-router'
 import { useIonRouter } from '@ionic/vue'
 import { breakpointsTailwind, useBreakpoints, useWindowSize } from '@vueuse/core'
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
@@ -18,7 +17,6 @@ import { dateUuid, isHidden, isOwned, isPublic } from '@/utils/utils'
 import { ItemMaxLandscapeWidths, Route, ThumbHeights, ThumbSize } from '@/utils/constants'
    
 export const useViewMgr = defineStore('viewMgr', () => {   
-   const router    = useRouter()
    const ionRouter = useIonRouter()
    const breakpoints = useBreakpoints(breakpointsTailwind)
    const xs = breakpoints.smaller('sm')
@@ -84,7 +82,7 @@ export const useViewMgr = defineStore('viewMgr', () => {
          return false
    })
    const isDeskTop = computed(() => !isMobile.value)
-   const solo      = computed(() => localStore.soloMode)
+   const solo      = computed(() => userStore.user?.settings?.soloMode ?? false)
 
    // can nav directly to INVISIBLE item even though thumb/link not visible, but HIDDEN items never visible
    function itemIsVisibleToUser(item)    { return itemThumbVisibleToUser(item) }

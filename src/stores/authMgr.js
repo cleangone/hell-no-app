@@ -12,7 +12,6 @@ import { useHitStore }     from '@/stores/hitStore'
 import { useWallStore }    from '@/stores/wallStore'
 import { useNotificationStore } from '@/stores/notificationStore'
 import { useViewStore }    from '@/stores/viewStore'
-import { useLocalStore }   from '@/stores/localStore'
 import { daysOld }         from '@/utils/dateUtils'
    
 export const useAuthMgr = defineStore('authMgr', () => {
@@ -27,7 +26,6 @@ export const useAuthMgr = defineStore('authMgr', () => {
    const wallStore    = useWallStore()
    const notificationStore = useNotificationStore()
    const viewStore    = useViewStore()
-   const localStore   = useLocalStore()
    const authListener = ref(null)
    const existingUid  = ref(null)
    
@@ -108,7 +106,6 @@ export const useAuthMgr = defineStore('authMgr', () => {
       else { 
          userStore.setUserId("")
          stopUserListeners()
-         localStore.setSoloMode(false)
       }
 
       if (userStore.userId) {

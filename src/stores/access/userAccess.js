@@ -10,7 +10,7 @@ export const useUserAccess = defineStore('userAccess', () => {
    const { records, addListener, removeListener } = useFirestoreListener(Table)
 
    async function update(id, data) {
-      // console.log("userAccess.update", id)
+      // console.log("userAccess.update", id, data)
       const dbData = { ...data, dateModified: FieldValue.serverTimestamp() }
       try {
          await FirebaseFirestore.updateDocument({ reference: docPath(id), data: dbData })
