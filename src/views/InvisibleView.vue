@@ -1,29 +1,14 @@
 <template>
 <ion-page>
 <ion-content :fullscreen="true">
-   <!-- header -->
-   <div class="scrolling-header-container">
-      <ion-toolbar class="custom-scrolling-toolbar">
-         <ion-buttons slot="start"><BackButton/></ion-buttons>
-         <ion-title class="text-center text-h6">My Invisible Items</ion-title>
-         <ion-buttons slot="end">
-            <ThumbSizeButton/>
-            <ItemThumbConfig/>
-         </ion-buttons>
-      </ion-toolbar>
-   </div>
-   <!-- <v-container class="mt-4 pa-0 pb-3 width-100">
-      <v-row no-gutters class="d-flex align-center flex-nowrap">
-         <v-col v-if="viewMgr.isDeskTop" cols="2" class="flex-grow-0 flex-shrink-0"></v-col>
-         <v-col cols="1" class="flex-grow-1 flex-shrink-0" style="min-width: 100px; max-width: 100%;">
-            <div v-if="viewMgr.isDeskTop" class="title">My Invisible Items</div>
-         </v-col>
-         <v-col v-if="viewMgr.isDeskTop" cols="2" class="d-flex flex-grow-0 flex-shrink-0 justify-end">
-            <ThumbSizeButton class="mr-2"/>
-            <ItemThumbConfig/>
-         </v-col>
-      </v-row>
-   </v-container> -->
+   <Header>
+      <template #left><BackButton class="mr-8"/></template>
+      <template #title>My Invisible Items</template>
+      <template #right>
+         <ThumbSizeButton class="mr-1"/>
+         <ItemThumbConfig/> 
+      </template>
+   </Header>
    <v-container class="mt-3 ml-1 mr-5 w-100">
       <v-row justify="space-around">
          <ItemThumb v-for="item in invisibleItems" :key="item.id" :item="item" :origin="ItemOrigin.INVISIBLE" bypassShowUser :tight="viewMgr.isMobile"/>
@@ -41,6 +26,7 @@
    import ItemThumb        from '@/components/item/thumb/ItemThumb.vue'
    import ItemThumbConfig  from '@/components/item/thumb/ItemThumbConfig.vue'
    import BackButton       from '@/components/util/BackButton.vue'  
+   import Header           from '@/components/util/Header.vue'
    import ThumbSizeButton  from '@/components/util/ThumbSizeButton.vue'
    import { ItemOrigin, Route } from '@/utils/constants'
    

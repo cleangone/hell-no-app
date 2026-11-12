@@ -1,15 +1,11 @@
 <template>
 <ion-page>
 <ion-content :fullscreen="true">
-   <!-- header -->
-   <div class="scrolling-header-container">
-      <ion-toolbar class="custom-scrolling-toolbar">
-         <ion-buttons slot="start"><BackButton/></ion-buttons>
-         <ion-title class="text-center text-h6">{{ Route.LOGIN.display }}</ion-title>
-         <ion-buttons slot="end"/>
-      </ion-toolbar>
-   </div>
-
+   <Header>
+      <template #left><BackButton class="mr-8"/></template>
+      <template #title>{{ Route.LOGIN.display }}</template>
+      <template #right><span class="mr-8"></span></template>
+   </Header>
    <div class="my-5 login text-left">
       <v-form v-model="dataValid">  
          <v-text-field v-model="email" label="Email" :rules="emailRule"></v-text-field>
@@ -30,6 +26,7 @@
    import { ref } from 'vue'
    import { useIonRouter } from '@ionic/vue'
    import { useAuthMgr }   from '@/stores/authMgr'
+   import Header           from '@/components/util/Header.vue'
    import { emailRule } from '@/utils/utils'
    import { Route } from '@/utils/constants'
    

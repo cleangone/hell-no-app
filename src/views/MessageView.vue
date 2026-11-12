@@ -1,15 +1,11 @@
 <template>
 <ion-page>
 <ion-content ref="contentRef" :fullscreen="true">
-   <!-- header -->
-   <div class="scrolling-header-container">
-      <ion-toolbar class="custom-scrolling-toolbar">
-         <ion-buttons slot="start"><BackButton/></ion-buttons>
-         <ion-title class="text-center text-h6">{{ Route.MESSAGE.display }}</ion-title>
-         <ion-buttons slot="end"/>
-      </ion-toolbar>
-   </div>
-
+   <Header>
+      <template #left><BackButton class="mr-8"/></template>
+      <template #title>{{ Route.MESSAGE.display }}</template>
+      <template #right><span class="mr-8"></span></template>
+   </Header>
    <v-card>
       <v-tabs v-model="tab" bg-color="primary">
          <v-tab :value="TABS.email">Emails</v-tab>
@@ -36,6 +32,7 @@
    import Chats          from '@/components/chat/Chats.vue'
    import Notifications  from '@/components/notification/Notifications.vue'
    import BackButton     from '@/components/util/BackButton.vue'    
+   import Header         from '@/components/util/Header.vue'
    import { Route, State }  from '@/utils/constants'
 
    const TABS = { email: "email", chat: "chat", notification: "notification" }

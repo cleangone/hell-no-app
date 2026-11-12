@@ -102,6 +102,7 @@
    import MyGroupThumbs       from '@/components/group/thumb/MyGroupThumbs.vue'
    import SplitWall           from '@/components/wall/SplitWall.vue'
    import DarkButton          from '@/components/util/DarkButton.vue'
+   import Header              from '@/components/util/Header.vue'
    import ShowNotifications   from '@/components/notification/ShowNotifications.vue'
    import { timestampsEqual } from '@/utils/dateUtils'
    import { isOwned, randomizeArray, toSortedDateContentModifiedDesc } from '@/utils/utils'
