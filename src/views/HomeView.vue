@@ -3,7 +3,7 @@
 <ion-content :fullscreen="true">
    <Header>
       <template #left>
-         <v-menu v-if="user">
+         <v-menu>
             <template v-slot:activator="{ props }">
                <v-btn v-bind="props" icon="mdi-menu" class="icon-btn" size="medium" variant="text"></v-btn>
             </template>
@@ -18,6 +18,10 @@
                   <template v-slot:prepend><v-icon icon="mdi-message" class="menu-icon"></v-icon></template>
                   <v-list-item-title>Messages</v-list-item-title>
                </v-list-item>
+               <v-list-item @click="toRoute(Route.ABOUT)">
+                  <template v-slot:prepend><v-icon icon="mdi-information" class="menu-icon"></v-icon></template>
+                  <v-list-item-title>About</v-list-item-title>
+               </v-list-item>
                <!-- <v-list-item v-if="user" @click="toRoute(Route.ADD_ITEM)">
                   <template v-slot:prepend>
                      <v-icon icon="mdi-plus" class="menu-icon"></v-icon>
@@ -26,7 +30,6 @@
                </v-list-item> -->
             </v-list>
          </v-menu>
-         <span v-else class="mr-8"></span>
       </template>
       <template #title>{{ title }}</template>
       <template #right>
@@ -78,6 +81,7 @@
          </v-col>
       </v-row>
    </div>
+   <div class="center small">{{ viewMgr.version }}</div>
 </ion-content>  
 </ion-page>
 </template>
@@ -141,8 +145,8 @@
    const isPageActive = computed(() => route.name == Route.HOME.name)
    const user  = computed(() => userStore.user ?? null)
    const title = computed(() => viewMgr.solo && user.value ? 
-                                 (user.value.displayName ?? user.value.username) : "Hell-No Gallery")
-
+                                (user.value.displayName ?? user.value.username) : "Hell-No Gallery")
+                        
    // const seconds = () => { return " (" + viewStore.getSeconds() + " seconds)" }
    const showWall = computed(() => viewStore.showSiteWall) // allows for image fade out
    const fadeWallBackground = () => {

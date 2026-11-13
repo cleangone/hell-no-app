@@ -4,10 +4,15 @@
    componenets/libraries
 
    Future:
-   - update date sorts efficiency
    - add gallery.shortName
+   - listen to audio
 */
 export const versions = [   
+   ["v1.4.0",  "11/12/26"],// Add AboutView
+   ["v1.3.0",  "11/12/26"],// Add version to Home
+   ["v1.2.0",  "11/10/26"],// Add Audio, backend speech to text for photo name
+   ["v1.1.0",  "11/7/26"], // Add Camera
+   ["v1.0.0",  "11/1/26"], // Bump to 1.x per stable functionality
    ["v0.1.0",  "10/18/26"],// Revert Auth back to Capacitor/FB bridge because it's needed for Capacitor FB DB.  Had it
                            // previously but moved back to FB Auth SDK because bridge had a timing issue on login that
                            // caused permission errors on intial post/reply reads, which require auth. SDK Auth and Bridge

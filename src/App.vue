@@ -1,17 +1,4 @@
 
-   <!-- <ion-content class="app">  -->
-      <!-- <ion-router-outlet /> -->
-      <!-- <div v-if="isRoute(Route.HOME)" class="small">
-         {{ version }}<span v-if="appEnv.length"> - {{ appEnv }}</span>
-      </div>
-      <div v-else-if="isRoute(Route.ABOUT)" class="small">
-         <div>{{ version }} ({{ windowSize.width }} x {{ windowSize.height }})</div>
-         <div>User Agent: {{ userAgent }}</div>
-         <div>Max Touch Points: {{ maxTouchPoints }}</div>
-         <div v-if="isStandalone">Standalone</div>
-      </div> -->
-   <!-- </ion-content> -->
-
 <template>
 <ion-app class="app-root-container">
    <ion-router-outlet class="router-outlet-container" />

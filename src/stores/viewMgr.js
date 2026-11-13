@@ -15,6 +15,7 @@ import { useViewStore }  from '@/stores/viewStore'
 import { useLocalStore } from '@/stores/localStore'
 import { dateUuid, isHidden, isOwned, isPublic } from '@/utils/utils'  
 import { ItemMaxLandscapeWidths, Route, ThumbHeights, ThumbSize } from '@/utils/constants'
+import { versions } from '@/version'
    
 export const useViewMgr = defineStore('viewMgr', () => {   
    const ionRouter = useIonRouter()
@@ -83,7 +84,8 @@ export const useViewMgr = defineStore('viewMgr', () => {
    })
    const isDeskTop = computed(() => !isMobile.value)
    const solo      = computed(() => userStore.user?.settings?.soloMode ?? false)
-
+   const version   = computed(() => versions[0][0] + " - " + versions[0][1])
+   
    // can nav directly to INVISIBLE item even though thumb/link not visible, but HIDDEN items never visible
    function itemIsVisibleToUser(item)    { return itemThumbVisibleToUser(item) }
    function itemThumbVisibleToUser(item) { return isPublic(item) || item.onUserWall || (isOwned(item, userStore.userId) && !isHidden(item)) }
@@ -138,7 +140,8 @@ export const useViewMgr = defineStore('viewMgr', () => {
       return widths.get(thumbSize) 
    }
       
-   return { init, isMobile, isXs, isWide, isDeskTop, solo, addHit, itemIsVisibleToUser, itemThumbVisibleToUser, 
+   return { init, isMobile, isXs, isWide, isDeskTop, solo, version,
+            addHit, itemIsVisibleToUser, itemThumbVisibleToUser, 
             galleryIsVisibleToUser, galleryThumbVisibleToUser, galleryItemCount, 
             getTargetThumbHeight, getItemMaxLandscapeWidth,
             logout }
