@@ -1,9 +1,15 @@
 <template>
-   <div v-if="primaryArtist || year">
-      <span v-if="primaryArtist" @click.stop="toArtist(primaryArtist)" class="admin-link">{{ artistName(primaryArtist) }}</span>
-      <span v-if="primaryArtist && year"> &bull; </span>
-      <span v-if="year">{{ year }}</span>
-   </div>
+   <HorizontalDiv class="w-100">
+      <div v-if="primaryArtist || year">
+         <span v-if="primaryArtist" @click.stop="toArtist(primaryArtist)" class="admin-link">{{ artistName(primaryArtist) }}</span>
+         <span v-if="primaryArtist && year"> &bull; </span>
+         <span v-if="year">{{ year }}</span>
+      </div>
+      <div v-if="audioUrl" class="ml-auto">
+         <IconButton icon="mdi-volume-high" @click="playAudio" size="med" class="admin-link"/>  
+      </div>
+   </HorizontalDiv>
+   
    <div v-if="otherArtist">
       <span @click.stop="toArtist(otherArtist)" class="admin-link">{{ artistName(otherArtist) }}</span>
       <template v-if="otherArtists.length>1">...</template> <!-- template does not add white space -->
@@ -13,6 +19,9 @@
 <script setup>
    import { computed } from 'vue'
    import { useIonRouter } from '@ionic/vue'
+   import { useAudioMgr }  from '@/stores/audioMgr'
+   import HorizontalDiv    from '../util/HorizontalDiv.vue'
+   import IconButton       from '../util/IconButton.vue'
    import { Route } from '@/utils/constants'
    
    const props = defineProps({
@@ -23,14 +32,17 @@
    })
 
    const ionRouter = useIonRouter()
+   const audioMgr  = useAudioMgr()
 
    const primaryArtist = computed(() => props.showArtist && props.item.primaryArtist ? props.item.primaryArtist : null)
    const year          = computed(() => props.showYear   && props.item.yearCreated   ? props.item.yearCreated : null)
    const otherArtist   = computed(() => otherArtists.value.length ? otherArtists.value[0] : null)
    const otherArtists  = computed(() => 
       props.showArtist && !props.isSmThumb && props.item.otherArtists ? props.item.otherArtists : [])
+   const audioUrl      = computed(() => props.item.primaryAudio?.url ?? null )
    
    const artistName = (artist) => { return props.isSmThumb && artist.shortName ? artist.shortName : artist.fullName }
    const toArtist   = (artist) => { ionRouter.push(Route.ARTIST.url + artist.id) }
+   const playAudio  = () => { audioMgr.playAudioUrl(audioUrl.value) } 
 </script>
 

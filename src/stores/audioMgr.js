@@ -51,6 +51,13 @@ export const useAudioMgr = defineStore('audioMgr', () => {
       })
    }
 
+   function playAudioUrl(audioUrl) {
+      const audioElement = new Audio(audioUrl)
+      audioElement.play().catch((error) => {
+         console.error("Error playing audio:", error)
+      })
+   }
+
    function deleteAudio() { audioBlob.value = null }
 
    async function uploadAudio() {
@@ -82,5 +89,5 @@ export const useAudioMgr = defineStore('audioMgr', () => {
       }
    }
 
-   return { startRecording, stopRecording, hasAudio, playAudio, deleteAudio, uploadAudio }
+   return { startRecording, stopRecording, hasAudio, playAudio, playAudioUrl, deleteAudio, uploadAudio }
 })

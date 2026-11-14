@@ -63,16 +63,18 @@
          </div>
       </div>
       <div class="mt-4">
+         <div class="text-h5">Art Walls</div>
+         <div class="mt-1 ml-4">
+            The site and individual users each have an Art Wall.  Any item added to a user's wall is visible to all users and 
+            non-logged-in browsers.
+            <br><br>
+            Once added to a user's Art Wall, an item is a candidate to be included in the Site Art Wall.
+         </div>
+      </div>
+      <div class="mt-4">
          <div class="text-h5">Groups</div>
          <div class="mt-1 ml-4">
-            <div>A user can be a member of a Group.  Group members may invite other users to be a member.
-            </div>
-            <div class="text-h6 mt-2">Visibility</div> 
-            <ul class="ml-3">
-               <li><b>Group</b>: the group can be seen by its owner and all members</li>
-               <li><b>Private</b>: the group can only be seen by its owner</li>
-               <li><b>Public <i>(Future)</i></b>: the group can be seen and discovered by anyone.  Non-members can request membership</li>
-            </ul>
+            A user can be a member of a Group.  Group members may invite other users to be a member.
          </div>
       </div>
       <div class="mt-4">
@@ -83,24 +85,19 @@
                items depending on what groups they are a part of.  Viewers that are not logged in will only see the 
                gallery's pulic items.
             </div>
-            <div class="text-h6 mt-2">Visibility</div> 
-            <ul class="ml-3">
-               <li><b>Public</b>: the gallery can be seen and discovered by anyone as long as it contains at
-                  least one Item that is visible to the user.</li>
-               <li><b>Private</b>: the gallery can only be seen by its owner</li>
-            </ul>
-            <div class="text-h6 mt-2">Navigation</div> 
-            <ul class="ml-3">
-               <li>When viewing on a computer browser, the left/right arrow keys can be used for navigation in 
-                    addition to the links.</li>
-               <li>On a mobile device, the user can navigate to the previous/next Item by swiping left or right.</li>
-            </ul>
          </div>
       </div>
       <div class="mt-4">
          <div class="text-h5">User Page</div>
          <div class="mt-1 ml-4">
             A user's page displays their individual Art Wall, Galleries, Recent Updated and Recent Viewed items 
+         </div>
+      </div>
+      <div class="mt-4">
+         <div class="text-h5">Recent Updated/Viewed</div>
+         <div class="mt-1 ml-4">
+            Recent Updates shows the most recently updated public Items, and Recent Viewed shows the most
+            recently viewed.  
          </div>
       </div>
       <div class="mt-4">
@@ -111,23 +108,7 @@
             Art Wall and Artists, can be accessed when logged in on the <a src="https://hell-no.gallery">hell-no.gallery</a> 
             website.
          </div>
-      </div>
-      <div class="mt-4">
-         <div class="text-h5">Art Walls</div>
-         <div class="mt-1 ml-4">
-            The site and individual users each have an Art Wall.  Any item added to a user's wall is visible to all users and 
-            non-logged-in browsers.
-            <br><br>
-            Once added to a user's Art Wall, an item is a candidate to be included in the Site Art Wall.
-         </div>
-      </div>
-      <div class="mt-4">
-         <div class="text-h5">Recent Updated/Viewed</div>
-         <div class="mt-1 ml-4">
-            Recent Updates shows the most recently updated public Items, and Recent Viewed shows the most
-            recently viewed.  
-         </div>
-      </div>
+      </div>  
    </div>
    <div class="center small">
       {{ viewMgr.version }} ({{ windowSize }})     
