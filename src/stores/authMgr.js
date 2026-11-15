@@ -11,6 +11,7 @@ import { useReplyStore }   from '@/stores/chat/replyStore'
 import { useHitStore }     from '@/stores/hitStore'
 import { useWallStore }    from '@/stores/wallStore'
 import { useNotificationStore } from '@/stores/notificationStore'
+import { usePushMessageMgr }    from '@/stores/pushMessageMgr'
 import { useViewStore }    from '@/stores/viewStore'
 import { daysOld }         from '@/utils/dateUtils'
    
@@ -25,6 +26,7 @@ export const useAuthMgr = defineStore('authMgr', () => {
    const hitStore     = useHitStore()
    const wallStore    = useWallStore()
    const notificationStore = useNotificationStore()
+   const pushMessageMgr    = usePushMessageMgr()
    const viewStore    = useViewStore()
    const authListener = ref(null)
    const existingUid  = ref(null)
@@ -110,10 +112,13 @@ export const useAuthMgr = defineStore('authMgr', () => {
 
       if (userStore.userId) {
          setTimeout(() => {
-            if (userStore.user && (!userStore.user.dateVisited || daysOld(userStore.user.dateVisited))) {
-               userStore.updateDateVisited(userStore.userId)
+            if (userStore.user) {
+               pushMessageMgr.initPushMessages()
+               if ((!userStore.user.dateVisited || daysOld(userStore.user.dateVisited))) {
+                  userStore.updateDateVisited(userStore.userId)
+               }
             }
-         }, 2000)
+         }, 10000)
       }
       viewStore.resetView()
    }

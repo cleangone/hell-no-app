@@ -1,6 +1,7 @@
 import { computed } from 'vue'
 import { defineStore } from 'pinia'
 import { arrayUnion, arrayRemove } from "firebase/firestore"
+import { FieldValue } from '@capacitor-firebase/firestore'
 import { useUserStore }  from './userStore'
 import { useGroupStore } from './groupStore'
 import { useWallStore }  from '@/stores/wallStore'
@@ -149,21 +150,27 @@ export const useUserMgr = defineStore('userMgr', () => {
    function addFavoriteItem(itemId)    { userStore.updateUser({ id: userStore.userId, favoriteItems: arrayUnion(itemId) })}
    function removeFavoriteItem(itemId) { userStore.updateUser({ id: userStore.userId, favoriteItems: arrayRemove(itemId) })}
 
-   function addMessagingToken(device, token) {
+   function addPushMessageToken(deviceId, token, deviceType) {
       const user = userStore.user 
       if (user) {
-         let messagingTokenFound = false
-         const messagingTokens = user.messagingTokens ? user.messagingTokens : []
-         for (const messagingToken of messagingTokens) {
-            if (messagingToken.device == device) {
-               messagingToken.token = token
-               messagingTokenFound = true
-            }
+         let existingToken = null
+         const messageTokens = user.pushMessageTokens ? [...user.pushMessageTokens] : []
+         for (const messageToken of messageTokens) {
+            if (messageToken.deviceId == deviceId) { existingToken = messageToken }
          }
 
-         if (!messagingTokenFound) { messagingTokens.push ({ device: device, token: token }) }   
-
-         userStore.updateUser({id: user.id, messagingTokens: messagingTokens})
+         if (existingToken) { 
+            existingToken.token = token
+            existingToken.deviceType = deviceType
+            console.log("Updaing messaage token", existingToken)
+         }
+         else { 
+            const newToken = { deviceId: deviceId, token: token, deviceType: deviceType }
+            console.log("Adding messaage token", newToken)
+            messageTokens.push(newToken) 
+         }  
+         console.log("Updating messaage tokens", messageTokens.length)
+         userStore.updatePushMessageTokens(messageTokens)
       }
       else {
          console.log("Cannot find user")
@@ -174,5 +181,5 @@ export const useUserMgr = defineStore('userMgr', () => {
       otherUsers, avatarUsers, getUsers, getFullName, getUserIdByEmail, getUserContactByEmail,
       setItemHeaders, setGalleryThumbOptions, setItemThumbOptions, setThumbSize, setShowHiddenItems, 
       myProfiles, myUserContacts, myAvatar, getAvatar, getUserContactsNotInGroup, 
-      addProfileUser, addFavoriteItem, removeFavoriteItem, addMessagingToken }
+      addProfileUser, addFavoriteItem, removeFavoriteItem, addPushMessageToken }
 })

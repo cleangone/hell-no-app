@@ -23,9 +23,14 @@ import { useUserAccess } from './access/userAccess'
          notifyViaEmail
          notifyViaMessage
          soloMode - boolean, initially false
-      messagingTokens[]
+      messagingTokens[] (deprecated)
          device
          token
+      cloudMessagingTokens[]
+         deviceId
+         token
+         platform: MessagingPlatform: ios
+         dateModified
       dateVisited
       dateCreated
       dateModified
@@ -79,6 +84,7 @@ export const useUserStore = defineStore('user', () => {
    const mySettings = computed(() => user.value && user.value.settings ? user.value.settings : {} )
    const soloMode   = computed(() => mySettings.value?.soloMode)
 
+   function updatePushMessageTokens(messageTokens) { userAccess.update(userId.value, { pushMessageTokens: messageTokens }) }
    function updateSettings(settings) { userAccess.update(userId.value, { settings: settings }) }
 
    function deleteUser(id) {
@@ -116,6 +122,7 @@ export const useUserStore = defineStore('user', () => {
    return { 
       users, addListener, userId, setUserId, user, userIdToUser, usernames, userExists, getUser, getUsername, 
       setUser, addProfileUser, updateDateVisited, updateUser, deleteUser,
-      myFullName, mySettings, soloMode, updateSettings, addImage, removeImage, updateImage, updateImages
+      myFullName, mySettings, soloMode, updatePushMessageTokens, updateSettings, 
+      addImage, removeImage, updateImage, updateImages
    }
 })
