@@ -8,6 +8,7 @@
    - listen to audio
 */
 export const versions = [   
+   ["v1.5.1",  "11/14/26"],// Update Info.plist per appstoreconnect upload issue
    ["v1.5.0",  "11/13/26"],// Add icon to ItemArtistYear to play audio if present 
    ["v1.4.0",  "11/12/26"],// Add AboutView
    ["v1.3.0",  "11/12/26"],// Add version to Home

@@ -9,7 +9,6 @@
          <IconButton icon="mdi-volume-high" @click="playAudio" size="med" class="admin-link"/>  
       </div>
    </HorizontalDiv>
-   
    <div v-if="otherArtist">
       <span @click.stop="toArtist(otherArtist)" class="admin-link">{{ artistName(otherArtist) }}</span>
       <template v-if="otherArtists.length>1">...</template> <!-- template does not add white space -->
