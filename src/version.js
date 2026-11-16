@@ -7,7 +7,8 @@
    - add gallery.shortName
 */
 export const versions = [   
-   ["v1.6.0",  "11/xx/26"], // Initial add of push notifications via firestore cloud messaging
+   ["v1.6.1",  "11/15/26"], // Working push notifications - updated appDelegate/google app info
+   ["v1.6.0",  "11/15/26"], // Initial add of push notifications via firestore cloud messaging
    ["v1.5.1",  "11/14/26"], // Update Info.plist per appstoreconnect upload issue
    ["v1.5.0",  "11/13/26"], // Add icon to ItemArtistYear to play audio if present 
    ["v1.4.0",  "11/12/26"], // Add AboutView

@@ -160,6 +160,7 @@ export const useUserMgr = defineStore('userMgr', () => {
          }
 
          if (existingToken) { 
+            console.log("Existing token has" + (existingToken.token == token ? " not" : "") + " changed")
             existingToken.token = token
             existingToken.deviceType = deviceType
             console.log("Updaing messaage token", existingToken)

@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { PushNotifications } from '@capacitor/push-notifications'
+import { FirebaseMessaging } from '@capacitor-firebase/messaging'
 import { Device }            from '@capacitor/device'
 import { useUserStore } from './userStore'
 import { useUserMgr }   from './userMgr'
@@ -14,64 +14,50 @@ export const usePushMessageMgr = defineStore('pushMessageMgr', () => {
 
    async function initPushMessages() {
       if (!userStore.userExists) { 
-         console.log("No user - bypassing initPushMessages")
+         console.log("Bypassing pushMessages - user not set")
          return 
       }
-      console.log("initPushMessages")
+
+      const deviceInfo = await Device.getInfo()
+      if (deviceInfo.isVirtual) { 
+         console.log("Bypassing pushMessages - virtual device")
+         return 
+      }
+ 
+      const deviceType = deviceInfo.model.toLowerCase().includes('ipad') ? "ipad" : "iphone"
+      console.log("initPushMessages", deviceType)
       
-      let permStatus = await PushNotifications.checkPermissions()
-      if (permStatus.receive === 'prompt') {
-        permStatus = await PushNotifications.requestPermissions()
+      const result = await FirebaseMessaging.requestPermissions()
+      if (result.receive !== 'granted') {
+         console.warn('User denied push notification permissions')
+         return
       }
 
-      if (permStatus.receive !== 'granted') {
-        console.warn('User denied push notification permissions')
-        return
-      }
+      await FirebaseMessaging.deleteToken()
+      const tokenResult = await FirebaseMessaging.getToken()
+      fcmToken.value = tokenResult.token
+      isRegistered.value = true
+      await saveToken(fcmToken.value, deviceType)
 
-      await PushNotifications.register()
-      registerListener()
-    }
+      // Listen for token refreshes
+      FirebaseMessaging.addListener('tokenRefresh', async (event) => {
+         fcmToken.value = event.token;
+         await saveToken(event.token, deviceType)
+      });
 
-   function registerListener() {
-      console.log("registerListener")
-      
-      // Registration Success
-      PushNotifications.addListener('registration', async (token) => {
-         fcmToken.value = token.value
-         isRegistered.value = true
-         console.log("Registering FCM Token", fcmToken.value)
-         await saveToken(token.value)
-      })
-
-      // Registration Error
-      PushNotifications.addListener('registrationError', (error) => {
-         console.error('Error on push registration:', error);
-      })
-
-      // Foreground Notification Received
-      PushNotifications.addListener('pushNotificationReceived', (notification) => {
-         lastNotification.value = notification
-         console.log('Notification received while app open:', lastNotification.value);
-      })
-
-      // User Tapped Notification
-      PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-         console.log('Notification action performed:', notification);
-         // Handle deep-linking / routing here if needed
+      // Listen for foreground notifications
+      FirebaseMessaging.addListener('notificationReceived', (notification) => {
+         lastNotification.value = notification;
+         console.log('Notification received:', notification)
       })
     }
 
-   async function saveToken(token) {
+   async function saveToken(token, deviceType) {
       console.log("saveToken", token)
       try {
          const deviceIdInfo = await Device.getId() 
          const deviceId = deviceIdInfo.identifier // Unique per device/app install
          
-         const info = await Device.getInfo()
-         let deviceType = info.model.toLowerCase().includes('ipad') ? "ipad" : "iphone"
-         if (info.isVirtual) { deviceType += " simulator" }
-
          userMgr.addPushMessageToken(deviceId, token, deviceType)
          console.log('Device FCM token saved to Firestore')
       } 
