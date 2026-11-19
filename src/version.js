@@ -7,7 +7,8 @@
    - add gallery.shortName
 */
 export const versions = [   
-   ["v1.8.0",  "11/17/26"], // Update authMgr, item/userAccess as part of Firebase auth/storage reversion from 
+   ["v1.8.1",  "11/19/26"], // Update hit/notificationAccess per Firebase auth/storage reversion
+   ["v1.8.0",  "11/19/26"], // Update authMgr, item/userAccess as part of Firebase auth/storage reversion from 
                             // @capacitor-firebase back to @/firebase.  Issue exposed by CameraView unable to validate
                             // storage after the Firebase IOS app had to be deleted and recreated to change the bundleID
                             // for appStore upload.

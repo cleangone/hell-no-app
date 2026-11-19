@@ -1,6 +1,6 @@
 import { computed } from 'vue'
 import { defineStore } from 'pinia'
-import { FieldValue } from '@capacitor-firebase/firestore'
+import { increment } from "firebase/firestore";
 import { useHitAccess } from './access/hitAccess'
 import { toSortedDateModifiedDesc } from '@/utils/utils'
 
@@ -24,8 +24,7 @@ export const useHitStore = defineStore('hit', () => {
 
    async function addHit(id) {
       console.log("addHit", id)
-
-      hitAccess.update(id, { views: FieldValue.increment(1) })
+      hitAccess.update(id, { views: increment(1) })
          .catch(err => {
             console.log(`Update failed, attempting create`, err)
             hitAccess.create(id, { id: id, views: 1 })
@@ -40,7 +39,7 @@ export const useHitStore = defineStore('hit', () => {
       console.log("addHits", ids.length)
       const updates = []
       for (const id of ids) {
-         updates.push({ id: id, data: { views: FieldValue.increment(1) }})
+         updates.push({ id: id, data: { views: increment(1) }})
       }
       hitAccess.batchUpdate(updates)
    }
