@@ -41,6 +41,7 @@
    const login = async () => {
       try {
          const user = await authMgr.login(email.value, password.value)
+         console.log("Logged in successfully", user.uid)
          email.value = ""
          password.value = ""
          errMsg.value = ""

@@ -2,7 +2,6 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { db } from '@/firebase'
 import { arrayRemove, arrayUnion, collection, deleteDoc, doc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore"
-import { FieldValue } from '@capacitor-firebase/firestore'
 import { useUserAccess } from './access/userAccess'
 
 /*
@@ -72,7 +71,7 @@ export const useUserStore = defineStore('user', () => {
       return newUser
    }
 
-   function updateDateVisited(userId) { userAccess.update(userId, { dateVisited: FieldValue.serverTimestamp() }) }
+   function updateDateVisited(userId) { userAccess.update(userId, { dateVisited: serverTimestamp() }) }
 
    function updateUser(updatedUser) {
       console.log("updateUser", updatedUser) 

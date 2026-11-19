@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
+import { onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signOut } from "firebase/auth"
+import { auth } from '@/firebase' 
 import { useUserStore }    from '@/stores/userStore'
 import { useItemStore }    from '@/stores/itemStore'
 import { useGalleryStore } from '@/stores/galleryStore'
@@ -34,8 +35,9 @@ export const useAuthMgr = defineStore('authMgr', () => {
    const init = async () => {
       console.log("init")
       await checkCurrentUser()
-      authListener.value = await FirebaseAuthentication
-         .addListener('authStateChange', (event) => { handleAuthStateChange(event.user) })
+      // authListener.value = await FxxirebaseAuthentication
+      //    .addListener('authStateChange', (event) => { handleAuthStateChange(event.user) })
+      authListener.value = onAuthStateChanged(auth, (user) => { handleAuthStateChange(user); });
       startSiteListeners()
    }
    
@@ -48,8 +50,9 @@ export const useAuthMgr = defineStore('authMgr', () => {
    }
 
    const login = async (email, password) => {
-      console.log("login", email, password)
-      const result = await FirebaseAuthentication.signInWithEmailAndPassword({ email, password })
+      console.log("login", email)
+      const result = await signInWithEmailAndPassword(auth, email, password)
+      // const result = await FxxxirebaseAuthentication.signInWithEmailAndPassword({ email, password })
       if (result.user) { return result.user }
       else { throw({ code: "user-unkown", message: "Login succeeded but no user returned" })}
    }
@@ -60,38 +63,45 @@ export const useAuthMgr = defineStore('authMgr', () => {
          // stop listeneres first to avoid db read permissoin errors 
          // they will be stopped again by handleAuthStateChange, which is handled
          await stopUserListeners() 
-         await FirebaseAuthentication.signOut()
+         // await FxxxirebaseAuthentication.signOut()
+         await signOut(auth) 
       } 
       catch (error) {
          console.error("Logout failed", error)
       }
    }
 
-   const createUser = async (email, password) => {
-      console.log("createUser", email)
-      const result = await FirebaseAuthentication.createUserWithEmailAndPassword({ email, password })
-      if (result.user) { return result.user }
-      else { throw({ code: "user-unkown", message: "CreateUser succeeded but no user returned" })}
-   }
+   // const createUser = async (email, password) => {
+   //    console.log("createUser", email)
+   //    const result = await FxxirebaseAuthentication.createUserWithEmailAndPassword({ email, password })
+   //    if (result.user) { return result.user }
+   //    else { throw({ code: "user-unkown", message: "CreateUser succeeded but no user returned" })}
+   // }
 
    const sendPasswordEmail = async (email) => {
-      console.log("resetPassword")
-      FirebaseAuthentication.sendPasswordResetEmail({ email })
+      console.log("sendPasswordEmail")
+      // FxxirebaseAuthentication.sendPasswordResetEmail({ email })
+      await sendPasswordResetEmail(auth, email)
    }
 
    const checkCurrentUser = async () => {
       try {
-         const result = await FirebaseAuthentication.getCurrentUser()
-         handleAuthStateChange(result.user)
+         // const result = await FxxxirebaseAuthentication.getCurrentUser()
+         // handleAuthStateChange(result.user)
+
+         const user = auth.currentUser // user or null
+         handleAuthStateChange(user)
       } 
       catch (error) {
-         console.warn("FirebaseAuthentication.getCurrentUser error", error) 
+         console.warn("auth.currentUser error", error) 
          handleAuthStateChange(null)
       }
    }
 
    const handleAuthStateChange = async (user) => {
       const newUid = user ? user.uid : ""
+      // await new Promise(resolve => setTimeout(resolve, 10000))
+
       console.log("handleAuthStateChange", newUid || "no user")
 
       if (existingUid.value === newUid && userStore.userId === newUid) { 
@@ -101,8 +111,10 @@ export const useAuthMgr = defineStore('authMgr', () => {
       existingUid.value = newUid
 
       if (user) { 
+         console.log("handling user")
+
          userStore.setUserId(user.uid) 
-         await new Promise(resolve => setTimeout(resolve, 500)) // allow auth context to propagate
+         await new Promise(resolve => setTimeout(resolve, 500)) // wait - allow auth context to propagate
          startUserListeners()
       } 
       else { 
@@ -118,7 +130,7 @@ export const useAuthMgr = defineStore('authMgr', () => {
                   userStore.updateDateVisited(userStore.userId)
                }
             }
-         }, 10000)
+         }, 2000)
       }
       viewStore.resetView()
    }
@@ -153,5 +165,5 @@ export const useAuthMgr = defineStore('authMgr', () => {
       ])
    }
 
-   return { init, cleanup, login, logout, createUser, sendPasswordEmail }
+   return { init, cleanup, login, logout, sendPasswordEmail } // createUser
 })

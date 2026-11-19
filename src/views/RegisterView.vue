@@ -124,6 +124,10 @@
          }
       }
 
+      //
+      // not currenlty used in App
+      //
+
       // createUserWithEmailAndPassword(auth, email.value, password.value)
       //    .then((userCredential) => {
       //       console.log("register/setUser")

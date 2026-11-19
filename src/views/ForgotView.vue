@@ -29,7 +29,7 @@
       infoMsg.value = ""
       errMsg.value = ""
       try {
-         authMgr.sendPasswordResetEmail(email.value)
+         authMgr.sendPasswordEmail(email.value)
          infoMsg.value = "Reset email sent"
       }
       catch (error) {

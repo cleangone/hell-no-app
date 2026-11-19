@@ -6,7 +6,6 @@
       <template #title>{{ Route.CAMERA.display }}</template>
       <template #right><span class="mr-8"></span></template>
    </Header>
-   
    <div class="photo-container ion-margin-bottom mx-5">
       <ion-img v-if="photoUrl" :src="photoUrl" alt="Captured photo"></ion-img>
       <p v-else>No photo selected.</p>
@@ -16,60 +15,56 @@
       <BlueBtn v-if="isRecording" text="Stop Recording" @click="stopAudioRecording"/>
       <BlueBtn v-else text="Record Audio" @click="startAudioRecording"/>
    </div>
+   <HorizontalDiv class="mt-5 mx-10 d-flex justify-center align-center">
+      <v-select v-model="selectedGalleryId" label="Gallery" :items="galleryOptions" clearable density="compact" hide-details class="mr-5"/>
+      <BlueBtn :text="isPublic ? State.PUBLIC : State.PRIVATE" @click="toggleState" class="my-4"/>
+   </HorizontalDiv>
    <div class="mt-5 d-flex justify-center">
-      <BlueBtn v-if="base64Image" text="Add Item" @click="addItem" :disabled="!canUpload" class="mr-5"/>
+      <BlueBtn v-if="base64Image" text="Upload" @click="addItem" :disabled="!canUpload" class="mr-5"/>
       <IconButton v-if="hasAudio" icon="mdi-volume-high" @click="playAudio" size="med" class="mr-2 admin-link"/>  
       <IconButton v-if="hasAudio" icon="mdi-volume-mute" @click="deleteAudio" size="med" class="admin-link"/>  
    </div>
    <div v-if="uploadStatus" class="mt-5 d-flex justify-center">{{ uploadStatus }}</div>
-   
 </ion-content>  
 </ion-page>
 </template>
 
 <script setup>
-   import { computed, onMounted, ref } from 'vue'
+   import { computed, ref } from 'vue'
    import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
-   import { storage } from '@/firebase'
+   import { auth, storage } from '@/firebase'
    import { ref as storageRef } from 'firebase/storage'
    import { getDownloadURL, getMetadata, uploadBytesResumable } from 'firebase/storage'
-   import { useUserStore }    from '@/stores/userStore'
-   import { useItemStore }    from '@/stores/itemStore'
-   import { useGalleryStore } from '@/stores/galleryStore'
-   import { useImageMgr }     from '@/stores/image/imageMgr'
-   import { useAudioMgr }     from '@/stores/audioMgr'
+   import { useUserStore }  from '@/stores/userStore'
+   import { useItemStore }  from '@/stores/itemStore'
+   import { useGalleryMgr } from '@/stores/galleryMgr'
+   import { useImageMgr }   from '@/stores/image/imageMgr'
+   import { useAudioMgr }   from '@/stores/audioMgr'
+   import { useLocalStore } from '@/stores/localStore'
    import { useAddItemImageHandler } from '@/stores/image/addItemImageHandler'
-   import BlueBtn    from '@/components/util/BlueBtn.vue'
-   import BackButton from '@/components/util/BackButton.vue'
-   import Header     from '@/components/util/Header.vue'
-   import IconButton from '@/components/util/IconButton.vue'
+   import BlueBtn       from '@/components/util/BlueBtn.vue'
+   import BackButton    from '@/components/util/BackButton.vue'
+   import Header        from '@/components/util/Header.vue'
+   import HorizontalDiv from '@/components/util/HorizontalDiv.vue'
+   import IconButton    from '@/components/util/IconButton.vue'
    import { dateUuid } from '@/utils/utils'
    import { ImageType, ItemType, Route, State } from '@/utils/constants'
   
    const userStore    = useUserStore()
    const itemStore    = useItemStore()   
-   const galleryStore = useGalleryStore() 
+   const galleryMgr   = useGalleryMgr()
    const imageMgr     = useImageMgr()
    const audioMgr     = useAudioMgr()
+   const localStore   = useLocalStore()
    const imageHandler = useAddItemImageHandler()
-   const photoGallery = ref(null)
    const photoUrl     = ref(null)
    const base64Image  = ref(null)
    const canUpload    = ref(true)  
    const uploadStatus = ref("")  
    const isRecording  = ref(false)
 
-   onMounted(() => {
-      for (const gallery of galleryStore.myGalleries) {
-         if (gallery.isPhotoGallery) {
-            photoGallery.value = gallery
-         }
-      }
-   })
-
    const takePhoto = async () => {
-      console.log("PhotoGallery", photoGallery.value.name)
-      checkConnection()
+      await checkConnection()
       try {
          const image = await Camera.getPhoto({
             quality: 90,
@@ -106,6 +101,16 @@
    const hasAudio = computed(() => audioMgr.hasAudio)
    const playAudio   = () => { audioMgr.playAudio() } 
    const deleteAudio = () => { audioMgr.deleteAudio() }
+
+   const galleryOptions = computed(() => galleryMgr.myGalleryOptions)
+   const selectedGalleryId = computed({ 
+      get() { return localStore.cameraGalleryId },
+      set(galleryId) { localStore.setCameraGalleryId(galleryId) }
+   })
+
+   const itemState = computed(() => localStore.cameraItemState)
+   const isPublic = computed(() => itemState.value == State.PUBLIC)
+   const toggleState = () => { localStore.setCameraItemState(isPublic.value ? State.PRIVATE : State.PUBLIC) }
 
    const addItem = async () => {
       if (!base64Image.value || !userStore.userId) {
@@ -157,19 +162,17 @@
                const item = {
                   id:     dateUuid(),
                   name:   "photo",
-                  state:  State.PUBLIC,
+                  state:  itemState.value,
                   type:   ItemType.SINGLE,
                   userId: userStore.userId,
                   primaryImage: imageSet,
                }
 
-               // todo - audioSet should prob be null 
                if (audioSet?.url) { item.primaryAudio = audioSet }
-               if (photoGallery.value) { item.galleryIds = [ photoGallery.value.id ] }
-               // console.log("uploading item", item)
+               if (selectedGalleryId.value) { item.galleryIds = [ selectedGalleryId.value ] }
                itemStore.setItem(item)
 
-               uploadStatus.value = "Item added"
+               uploadStatus.value = "Photo uploaded"
                photoUrl.value = null
                console.log("waitForThumbUrls")
                imageMgr.waitForThumbUrls(imageSet, imageHandler,  { itemId:item.id })        
@@ -195,20 +198,21 @@
    }
 
    async function checkConnection() {
+      console.log("checkConnection")
       try {
          // attempt to fetch metadata to test the connection
-         const testRef = storageRef(storage, "connection-test/ping")
+         const testRef = storageRef(storage, "speakeasy-login.png") // known file
          await getMetadata(testRef)
-         canUpload.value = true // won't happen - file doesn't exist
+         canUpload.value = true 
       } 
       catch (error) {
-         if (error.code == 'storage/object-not-found') { 
-            // file doesn't exist, but server responded
+         if (error.code == 'storage/object-not-found') {  
+            // should not happen, but still indicates connection exists
+            console.log("checkConnection - online error", error.code)
             canUpload.value = true 
          } 
          else {
-            // other error - most likely offline
-            console.log("checkConnection error", error)
+            console.log("checkConnection offline error", error.code)
             canUpload.value = false
          }
       }

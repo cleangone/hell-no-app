@@ -20,7 +20,7 @@ import LoginView     from '../views/LoginView.vue'
 import MessageView   from '../views/MessageView.vue'
 import RandomView    from '../views/RandomView.vue'
 import RecentView    from '../views/RecentView.vue'
-import RegisterView  from '../views/RegisterView.vue'
+// import RegisterView  from '../views/RegisterView.vue'
 import SearchView    from '../views/SearchView.vue'
 import UserView      from '../views/UserView.vue'
 import ViewedView    from '../views/viewed/ViewedView.vue'
@@ -50,7 +50,7 @@ const router = createRouter({
       createRoute(Route.MESSAGE,    MessageView),
       createRoute(Route.RANDOM,     RandomView),
       createRoute(Route.RECENT,     RecentView,    ':id'),
-      createRoute(Route.REGISTER,   RegisterView,  ':registerId'),
+      // createRoute(Route.REGISTER,   RegisterView,  ':registerId'),
       createRoute(Route.SEARCH,     SearchView),
       createRoute(Route.USER,       UserView,      ':id'),
       createRoute(Route.VIEWED,     ViewedView,    ':id'),

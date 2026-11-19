@@ -1,21 +1,19 @@
 import { defineStore } from 'pinia'
-import { FirebaseFirestore, FieldValue } from '@capacitor-firebase/firestore'
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore"
+import { db } from "@/firebase" 
 import { useFirestoreListener } from './firestoreListener'
   
 const Table = 'users'
 
 export const useUserAccess = defineStore('userAccess', () => {
-   function docPath(id) { return `${Table}/${id}` }
+   function userDoc(id) { return doc(db, Table, id) }
 
    const { records, addListener, removeListener } = useFirestoreListener(Table)
 
    async function update(id, data) {
-      console.log("userAccess.update", id, data)
-      const dbData = { ...data, dateModified: FieldValue.serverTimestamp() }
       try {
-         await FirebaseFirestore.updateDocument({ reference: docPath(id), data: dbData })
-         console.log("userAccess.update succeeded", id)
-      } 
+         await updateDoc(userDoc(id), { ...data, dateModified:serverTimestamp() })
+      }
       catch (error) {
          console.error("userAccess.update failed", error)
          throw error

@@ -7,7 +7,15 @@
    - add gallery.shortName
 */
 export const versions = [   
-   ["v1.6.1",  "11/15/26"], // Working push notifications - updated appDelegate/google app info
+   ["v1.8.0",  "11/17/26"], // Update authMgr, item/userAccess as part of Firebase auth/storage reversion from 
+                            // @capacitor-firebase back to @/firebase.  Issue exposed by CameraView unable to validate
+                            // storage after the Firebase IOS app had to be deleted and recreated to change the bundleID
+                            // for appStore upload.
+                            // Add item galleryId, public/private selection to CameraView
+                            // Display gallery.shortName for small thumbs
+   ["v1.7.0",  "11/17/26"], // Add gallery select to CameraView
+   ["v1.6.2",  "11/16/26"], // Add Camera keys to Info.plist
+   ["v1.6.1",  "11/16/26"], // Working push notifications - updated appDelegate/google app info
    ["v1.6.0",  "11/15/26"], // Initial add of push notifications via firestore cloud messaging
    ["v1.5.1",  "11/14/26"], // Update Info.plist per appstoreconnect upload issue
    ["v1.5.0",  "11/13/26"], // Add icon to ItemArtistYear to play audio if present 

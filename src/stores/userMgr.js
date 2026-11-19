@@ -1,7 +1,6 @@
 import { computed } from 'vue'
 import { defineStore } from 'pinia'
 import { arrayUnion, arrayRemove } from "firebase/firestore"
-import { FieldValue } from '@capacitor-firebase/firestore'
 import { useUserStore }  from './userStore'
 import { useGroupStore } from './groupStore'
 import { useWallStore }  from '@/stores/wallStore'
