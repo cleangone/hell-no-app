@@ -7,6 +7,7 @@
    - add gallery.shortName
 */
 export const versions = [   
+   ["v1.10.0", "11/21/26"], // Initial CameraView saving images locally
    ["v1.9.0",  "11/20/26"], // Show CameraView in footer when user logged in
                             // Open CameraView to taking a photo if one isn't waiting for upload
    ["v1.8.1",  "11/19/26"], // Update hit/notificationAccess per Firebase auth/storage reversion

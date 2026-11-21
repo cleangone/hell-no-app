@@ -7,9 +7,9 @@
       <template #right><span class="mr-8"></span></template>
    </Header>
    <div class="position-relative photo-container ion-margin-bottom mx-5">
-      <ion-img v-if="photoUrl" :src="photoUrl" alt="Captured photo"></ion-img>
+      <ion-img v-if="currImage" :src="currImage.photoUrl" alt="Captured photo"></ion-img>
       <p v-else>No photo selected.</p>
-      <div v-if="photoUrl" class="position-absolute bottom-0 right-0">
+      <div v-if="currImage" class="position-absolute bottom-0 right-0">
         <IconButton icon="mdi-close-circle" @click.stop="deletePhoto" size="med" style="background-color:white" class="admin-link mr-2 mb-2"/>  
       </div>
    </div>
@@ -23,11 +23,21 @@
       <BlueBtn :text="isPublic ? State.PUBLIC : State.PRIVATE" @click="toggleState" class="my-4"/>
    </HorizontalDiv>
    <div class="mt-5 d-flex justify-center">
-      <BlueBtn v-if="base64Image" text="Upload" @click="addItem" :disabled="!canUpload" class="mr-5"/>
+      <BlueBtn v-if="currImage" text="Upload" @click="addItem" :disabled="!canUpload" class="mr-5"/>
+      <BlueBtn v-if="currImage" text="Save" @click="saveImage" :disabled="imageSaved" class="mr-5"/>
       <IconButton v-if="hasAudio" icon="mdi-volume-high" @click="playAudio" size="med" class="mr-2 admin-link"/>  
       <IconButton v-if="hasAudio" icon="mdi-volume-mute" @click="deleteAudio" size="med" class="admin-link"/>  
    </div>
    <div v-if="uploadStatus" class="mt-5 d-flex justify-center">{{ uploadStatus }}</div>
+   
+   <v-row align-content="start" justify="space-around" density="compact" class="mt-5 mb-2">
+      <div v-for="image in savedImages" class="position-relative">
+         <ion-img :src="image.photoUrl" @click.stop="showImage(image)" :style="{ width:'100px' }"/>
+         <div class="position-absolute bottom-0 right-0">
+         <IconButton icon="mdi-close-circle" @click.stop="deleteSavedImage(image.id)" size="med" style="background-color:white" class="admin-link mr-2 mb-2"/>  
+         </div>
+      </div>
+   </v-row>
 </ion-content>  
 </ion-page>
 </template>
@@ -36,7 +46,8 @@
    import { computed, ref } from 'vue'
    import { onIonViewWillEnter } from '@ionic/vue'
    import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
-   import { auth, storage } from '@/firebase'
+   import { Filesystem, Directory } from '@capacitor/filesystem'
+   import { storage } from '@/firebase'
    import { ref as storageRef } from 'firebase/storage'
    import { getDownloadURL, getMetadata, uploadBytesResumable } from 'firebase/storage'
    import { useUserStore }  from '@/stores/userStore'
@@ -61,15 +72,17 @@
    const audioMgr     = useAudioMgr()
    const localStore   = useLocalStore()
    const imageHandler = useAddItemImageHandler()
-   const photoUrl     = ref(null)
-   const base64Image  = ref(null)
+   const currImage    = ref(null) // { id, photoUrl, base64Image }
    const canUpload    = ref(true)  
    const uploadStatus = ref("")  
    const isRecording  = ref(false)
+   const savedImages  = ref([])  
+   const savedIds     = ref(new Set())  
 
    onIonViewWillEnter(() => {
       // console.log("CameraView onIonViewWillEnter")
-      if (!photoUrl.value) { takePhoto() }
+      checkConnection()
+      if (!currImage.value) { takePhoto() }
    })
 
    const takePhoto = async () => {
@@ -81,8 +94,10 @@
             source: CameraSource.Camera  //Camera, Photos, Prompt
          })
 
-         photoUrl.value = `data:image/${image.format};base64,${image.base64String}`
-         base64Image.value = image.base64String;
+         currImage.value = { id: dateUuid(), 
+            photoUrl: `data:image/${image.format};base64,${image.base64String}`, 
+            base64Image: image.base64String 
+         }
          uploadStatus.value = ""
       } 
       catch (error) {
@@ -90,7 +105,7 @@
       }
    }
 
-   const deletePhoto = () => { photoUrl.value = null }
+   const deletePhoto = () => { currImage.value = null }
 
    const startAudioRecording = async () => {
       try {
@@ -122,15 +137,35 @@
    const isPublic = computed(() => itemState.value == State.PUBLIC)
    const toggleState = () => { localStore.setCameraItemState(isPublic.value ? State.PRIVATE : State.PUBLIC) }
 
+   const imageSaved = computed(() => savedIds.value.has(currImage.value.id) )
+   
+   const saveImage = () => { 
+      if (!savedIds.value.has(currImage.value.id)) {
+         savedImages.value.push(currImage.value)
+         savedIds.value.add(currImage.value.id)
+      }
+      currImage.value = null
+   }
+   
+   const showImage = (image) => { currImage.value = image }
+
+   const deleteSavedImage = (id) => { 
+      const index = savedImages.value.findIndex((image) => image.id === id)
+      if (index !== -1) { 
+         savedImages.value.splice(index, 1) 
+         savedIds.value.delete(id) 
+      }
+   }
+
    const addItem = async () => {
-      if (!base64Image.value || !userStore.userId) {
+      if (!currImage.value || !userStore.userId) {
          uploadStatus.value = "Upload failed - no image"
          return
       }
 
       const imageSet = imageMgr.createImageSet(ImageType.PRIMARY, userStore.userId)
       const imageRef = storageRef(storage, imageSet.filePath)
-      const dimensions = await getImageDimensions(photoUrl.value)
+      const dimensions = await getImageDimensions(currImage.value.photoUrl)
       imageSet.dimensions = dimensions;
 
       let audioSet = null
@@ -142,8 +177,8 @@
       }
 
       // convert base64
-      const byteCharacters = atob(base64Image.value);
-      const byteNumbers = new Array(byteCharacters.length);
+      const byteCharacters = atob(currImage.value.base64Image)
+      const byteNumbers = new Array(byteCharacters.length)
       for (let i = 0; i < byteCharacters.length; i++) {
          byteNumbers[i] = byteCharacters.charCodeAt(i);
       }
@@ -170,7 +205,7 @@
                imageSet.largeThumbUrl = downloadURL
 
                const item = {
-                  id:     dateUuid(),
+                  id:     currImage.value.id,
                   name:   "photo",
                   state:  itemState.value,
                   type:   ItemType.SINGLE,
@@ -183,7 +218,8 @@
                itemStore.setItem(item)
 
                uploadStatus.value = "Photo uploaded"
-               photoUrl.value = null
+               if (imageSaved.value) { deleteSavedImage(currImage.value.id) }
+               currImage.value = null
                console.log("waitForThumbUrls")
                imageMgr.waitForThumbUrls(imageSet, imageHandler,  { itemId:item.id })        
             })
