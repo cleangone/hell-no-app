@@ -5,6 +5,7 @@ import { useUserStore }  from './userStore'
 import { useGroupStore } from './groupStore'
 import { useWallStore }  from '@/stores/wallStore'
 import { useImageMgr }   from '@/stores/image/imageMgr'
+import { useLocalStore } from '@/stores/localStore'
 import { toSortedUsernameAsc } from '@/utils/utils'
 
 export const useUserMgr = defineStore('userMgr', () => {
@@ -12,6 +13,7 @@ export const useUserMgr = defineStore('userMgr', () => {
    const groupStore = useGroupStore()
    const wallStore  = useWallStore()
    const imageMgr   = useImageMgr()
+   const localStore = useLocalStore()
    
    const otherUsers = computed(() => { 
       const users = []
@@ -152,25 +154,67 @@ export const useUserMgr = defineStore('userMgr', () => {
    function addPushMessageToken(deviceId, token, deviceType) {
       const user = userStore.user 
       if (user) {
-         let existingToken = null
-         const messageTokens = user.pushMessageTokens ? [...user.pushMessageTokens] : []
-         for (const messageToken of messageTokens) {
-            if (messageToken.deviceId == deviceId) { existingToken = messageToken }
+         const appId = localStore.appId
+         const existingMessageTokens = user.pushMessageTokens ?? []
+         const updatedMessageTokens = []
+         let existingAppIdToken = null
+         let existingDeviceIdToken = null
+         for (const messageToken of existingMessageTokens) {
+            const existingMessageToken = { ...messageToken }
+            updatedMessageTokens.push(existingMessageToken)
+            if (existingMessageToken.appId == appId) { existingAppIdToken = existingMessageToken }
+            if (existingMessageToken.deviceId == deviceId) { existingDeviceIdToken = existingMessageToken }
          }
 
-         if (existingToken) { 
-            console.log("Existing token has" + (existingToken.token == token ? " not" : "") + " changed")
-            existingToken.token = token
-            existingToken.deviceType = deviceType
+         let tokenUpdated = true
+         if (existingAppIdToken) { 
+            if (existingAppIdToken == existingDeviceIdToken) {
+               const oldToken = { ...existingAppIdToken }
+               console.log("Found existing token by appId/deviceId", oldToken )
+               if (existingAppIdToken.token == token && existingAppIdToken.deviceType == deviceType) {
+                  console.log("Token unchanged")
+                  tokenUpdated = false
+               }
+               else {
+                  if (existingAppIdToken.token != token) { console.log("token changed") }
+                  if (existingAppIdToken.deviceType != deviceType) { console.log("deviceType changed") }
+                  existingAppIdToken.token = token
+                  existingAppIdToken.deviceType = deviceType
+                  console.log("Updating messsage token", existingAppIdToken)
+               }
+            }
+            else {
+               console.log("Found existing token by appId", existingAppIdToken)
+               existingAppIdToken.deviceId = deviceId
+               existingAppIdToken.token = token
+               existingAppIdToken.deviceType = deviceType
+               console.log("Updating messsage token", existingAppIdToken)
+               
+               if (existingDeviceIdToken) {
+                  console.warn("Found additional token with deviceId", deviceId)
+               }
+            }
+         }
+         else if (existingDeviceIdToken) { 
+            // did not find any token by appId - don't think this should happen
+            console.log("Found existing token by deviceId, but different appId", existingDeviceIdToken)
+            
+            existingDeviceIdToken.appId = appId
+            existingDeviceIdToken.token = token
+            existingDeviceIdToken.deviceType = deviceType
             console.log("Updaing messaage token", existingToken)
          }
          else { 
-            const newToken = { deviceId: deviceId, token: token, deviceType: deviceType }
+            const newToken = { appId: appId, deviceId: deviceId, token: token, deviceType: deviceType }
+            //  dateCreated: Timestamp.now() }
             console.log("Adding messaage token", newToken)
-            messageTokens.push(newToken) 
+            updatedMessageTokens.push(newToken) 
          }  
-         console.log("Updating messaage tokens", messageTokens.length)
-         userStore.updatePushMessageTokens(messageTokens)
+
+         if (tokenUpdated) {
+            console.log("Updating messaage tokens", updatedMessageTokens)
+            userStore.updatePushMessageTokens(updatedMessageTokens)
+         }
       }
       else {
          console.log("Cannot find user")

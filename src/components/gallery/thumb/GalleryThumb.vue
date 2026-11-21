@@ -1,14 +1,13 @@
 <template>
    <v-card :width="cardWidth" @click="toGallery" class="position-relative d-flex flex-column text-center thumb-link" 
          :class="cardMargin" :style="backgroundStyle" style="z-index: 1">
-         <v-carousel v-if="galleryImages.length>1" cycle :interval="carouselInterval" :height="carouselHeight"
+      <v-carousel v-if="galleryImages.length>1" cycle :interval="carouselInterval" :height="carouselHeight"
             hide-delimiters :show-arrows="false" v-on:update:modelValue="setGalleryImageIndex">
-            <v-carousel-item v-for="image in galleryImages" :key="image.id">
-               <!-- <v-img :src="image.thumbUrl" class="pointer"/> -->
-               <CachedImg :src="image.thumbUrl" class="pointer"/>
-            </v-carousel-item>
-         </v-carousel>
-         <v-img v-else :src="galleryImage.thumbUrl"/>
+         <v-carousel-item v-for="image in galleryImages" :key="image.id">
+            <CachedImg :src="image.thumbUrl" class="pointer"/>
+         </v-carousel-item>
+      </v-carousel>
+      <v-img v-else :src="galleryImage.thumbUrl"/>
 
       <div v-if="showText" :class="textMargin">
          <div class="text-body-2">

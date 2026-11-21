@@ -14,7 +14,10 @@
          <ion-tab-button @click="toRoute(Route.SEARCH)" :class="{ 'tab-selected': isRoute(Route.SEARCH) }">
             <Icon icon="mdi-magnify" />
          </ion-tab-button>
-         <ion-tab-button @click="toSiteRoute(Route.RECENT)" :class="{ 'tab-selected': isRoute(Route.RECENT) }">
+         <ion-tab-button v-if="userExists" @click="toRoute(Route.CAMERA)" :class="{ 'tab-selected': isRoute(Route.CAMERA) }">
+            <Icon icon="mdi-camera" />
+         </ion-tab-button>
+         <ion-tab-button v-else @click="toSiteRoute(Route.RECENT)" :class="{ 'tab-selected': isRoute(Route.RECENT) }">
             <Icon icon="mdi-history" />
          </ion-tab-button>
          <ion-tab-button v-if="userExists" @click="toUserRoute()" :class="{ 'tab-selected': isRoute(Route.USER) }">
@@ -67,8 +70,8 @@
       await authMgr.init()
       
       console.log("window.location.hostname", window.location.hostname)
-
       setBadge(notificationStore.myActiveNotifications.length)
+      localStore.resetAppId()
 
       setWindowSize()
       window.addEventListener('resize', setWindowSize)

@@ -7,6 +7,8 @@
    - add gallery.shortName
 */
 export const versions = [   
+   ["v1.9.0",  "11/20/26"], // Show CameraView in footer when user logged in
+                            // Open CameraView to taking a photo if one isn't waiting for upload
    ["v1.8.1",  "11/19/26"], // Update hit/notificationAccess per Firebase auth/storage reversion
    ["v1.8.0",  "11/19/26"], // Update authMgr, item/userAccess as part of Firebase auth/storage reversion from 
                             // @capacitor-firebase back to @/firebase.  Issue exposed by CameraView unable to validate

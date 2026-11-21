@@ -2,12 +2,14 @@ import { computed } from 'vue'
 import { defineStore } from 'pinia'
 import { Timestamp } from "firebase/firestore"
 import { useLocalStorage } from '@vueuse/core'
+import { dateUuid } from '@/utils/utils'
 import { DefaultWall, State } from '@/utils/constants'
 
 /*
    Local storage
       site-wall - {}
       my-wall - {}
+      app-id
       device-id
       camera-gallery-id
 */
@@ -21,6 +23,14 @@ export const useLocalStore = defineStore('local', () => {
    const myWall = computed(() => fixDates(myWallLocal.value))
    function setMyWall(wall) { myWallLocal.value = wall }
    
+   const appId = useLocalStorage('app-id', null)
+   function resetAppId() { 
+      if (!appId.value) {
+         console.log("Resetting appId")
+         appId.value = dateUuid()
+      }
+   }
+
    const deviceId = useLocalStorage('device-id', null)
    function setDeviceId(id) { deviceId.value = id }
 
@@ -50,6 +60,7 @@ export const useLocalStore = defineStore('local', () => {
    function getTimestamp(dateObj) { return new Timestamp(dateObj.seconds, dateObj.nanoseconds) }
    
    return { siteWall, setSiteWall, myWall, setMyWall, 
+            appId, resetAppId, 
             deviceId, setDeviceId, 
             cameraGalleryId, setCameraGalleryId, 
             cameraItemState, setCameraItemState }

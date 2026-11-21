@@ -6,9 +6,12 @@
       <template #title>{{ Route.CAMERA.display }}</template>
       <template #right><span class="mr-8"></span></template>
    </Header>
-   <div class="photo-container ion-margin-bottom mx-5">
+   <div class="position-relative photo-container ion-margin-bottom mx-5">
       <ion-img v-if="photoUrl" :src="photoUrl" alt="Captured photo"></ion-img>
       <p v-else>No photo selected.</p>
+      <div v-if="photoUrl" class="position-absolute bottom-0 right-0">
+        <IconButton icon="mdi-close-circle" @click.stop="deletePhoto" size="med" style="background-color:white" class="admin-link mr-2 mb-2"/>  
+      </div>
    </div>
    <div class="mt-5 d-flex justify-center">
       <BlueBtn text="Take Photo" @click="takePhoto" class="mr-5"/>
@@ -31,6 +34,7 @@
 
 <script setup>
    import { computed, ref } from 'vue'
+   import { onIonViewWillEnter } from '@ionic/vue'
    import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
    import { auth, storage } from '@/firebase'
    import { ref as storageRef } from 'firebase/storage'
@@ -63,8 +67,12 @@
    const uploadStatus = ref("")  
    const isRecording  = ref(false)
 
+   onIonViewWillEnter(() => {
+      // console.log("CameraView onIonViewWillEnter")
+      if (!photoUrl.value) { takePhoto() }
+   })
+
    const takePhoto = async () => {
-      await checkConnection()
       try {
          const image = await Camera.getPhoto({
             quality: 90,
@@ -81,6 +89,8 @@
          if (error.errorMessage != "User cancelled photos app") { console.error('takePhoto error', error) }
       }
    }
+
+   const deletePhoto = () => { photoUrl.value = null }
 
    const startAudioRecording = async () => {
       try {
