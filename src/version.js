@@ -1,12 +1,11 @@
 /*
    New codebase for ionic capacitor app.  App will be too different from the pwa to maintain 
-   in a branch and eventually pull to main.  Common code will eventually be pulled into 
-   componenets/libraries
-
-   Future:
-   - add gallery.shortName
+   in a branch and eventually pull to main.  Common code may eventually be pulled into 
+   componenets/libraries, but that is probably more trouble than worth it because there are 
+   divergences almost everywhere
 */
 export const versions = [   
+   ["v1.10.2", "11/22/26"], // Save every photo after taken
    ["v1.10.1", "11/21/26"], // Save images locally in capacitor/filesystem
    ["v1.10.0", "11/21/26"], // Initial CameraView saving images locally
    ["v1.9.0",  "11/20/26"], // Show CameraView in footer when user logged in

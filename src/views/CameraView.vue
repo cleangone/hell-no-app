@@ -9,30 +9,26 @@
    <div class="position-relative photo-container ion-margin-bottom mx-5">
       <ion-img v-if="currImage" :src="currImage.photoUrl" alt="Captured photo"></ion-img>
       <p v-else>No photo selected.</p>
-      <div v-if="currImage" class="position-absolute bottom-0 right-0">
-        <IconButton icon="mdi-close-circle" @click.stop="deletePhoto" size="med" style="background-color:white" class="admin-link mr-2 mb-2"/>  
+      <div v-if="currImage && hasAudio" class="position-absolute bottom-0 right-0">
+         <IconButton icon="mdi-volume-high" @click.stop="playAudio"   size="med" style="background-color:white" class="pa-1 mr-2 mb-2 admin-link"/>  
+         <IconButton icon="mdi-volume-mute" @click.stop="deleteAudio" size="med" style="background-color:white" class="pa-1 mr-2 mb-2 admin-link"/> 
       </div>
    </div>
    <div class="mt-5 d-flex justify-center">
       <BlueBtn text="Take Photo" @click="takePhoto" class="mr-5"/>
       <BlueBtn v-if="isRecording" text="Stop Recording" @click="stopAudioRecording"/>
       <BlueBtn v-else text="Record Audio" @click="startAudioRecording"/>
+      <BlueBtn v-if="currImage" text="Upload" @click="addItem" :disabled="!canUpload" class="ml-5"/>
    </div>
    <HorizontalDiv class="mt-5 mx-10 d-flex justify-center align-center">
       <v-select v-model="selectedGalleryId" label="Gallery" :items="galleryOptions" clearable density="compact" hide-details class="mr-5"/>
       <BlueBtn :text="isPublic ? State.PUBLIC : State.PRIVATE" @click="toggleState" class="my-4"/>
    </HorizontalDiv>
-   <div class="mt-5 d-flex justify-center">
-      <BlueBtn v-if="currImage" text="Upload" @click="addItem" :disabled="!canUpload" class="mr-5"/>
-      <BlueBtn v-if="currImage" text="Save" @click="saveImage" :disabled="isSavedImage" class="mr-5"/>
-      <IconButton v-if="hasAudio" icon="mdi-volume-high" @click="playAudio" size="med" class="mr-2 admin-link"/>  
-      <IconButton v-if="hasAudio" icon="mdi-volume-mute" @click="deleteAudio" size="med" class="admin-link"/>  
-   </div>
    <div v-if="uploadStatus" class="mt-5 d-flex justify-center">{{ uploadStatus }}</div>
    
-   <v-row align-content="start" justify="space-around" density="compact" class="mt-5 mb-2">
-      <div v-for="image in localStore.savedPhotos.images" class="position-relative">
-         <ion-img :src="image.photoUrl" @click.stop="showSavedImage(image)" :style="{ width:'100px' }"/>
+   <v-row align-content="start" justify="space-around" density="compact" class="mt-5 mx-2 mb-2">
+      <div v-for="image in localStore.savedPhotos.images" class="position-relative mb-2">
+         <ion-img :src="image.photoUrl" @click.stop="showSavedImage(image)" :style="{ width:'95px' }"/>
          <div class="position-absolute bottom-0 right-0">
          <IconButton icon="mdi-close-circle" @click.stop="deleteSavedImage(image.id)" size="med" style="background-color:white" class="admin-link mr-2 mb-2"/>  
          </div>
@@ -94,20 +90,19 @@
          })
 
          const base64Url = `data:image/${image.format};base64,${image.base64String}`
-         const photoUrl = await createThumbOfWidth(base64Url, windowWidth.value) 
+         const photoUrl = await createThumb(base64Url, windowWidth.value) 
          currImage.value = { 
             id: dateUuid(), 
             photoUrl: photoUrl, 
             base64Image: image.base64String 
          }
          uploadStatus.value = ""
+         saveImage()
       } 
       catch (error) {
          if (error.errorMessage != "User cancelled photos app") { console.error('takePhoto error', error) }
       }
    }
-
-   const deletePhoto = () => { currImage.value = null }
 
    const startAudioRecording = async () => {
       try {
@@ -163,12 +158,12 @@
          })
          localStore.savedPhotos.ids.push(currImage.value.id)
       }
-      currImage.value = null
+      // currImage.value = null
    }
    
    const deleteSavedImage = async (imageId) => { 
       const imageIndex = localStore.savedPhotos.images.findIndex((image) => image.id === imageId)
-      if (imageIndex !== -1) { 
+      if (imageIndex != -1) { 
          const savedImage = localStore.savedPhotos.images[imageIndex]
          const fileToDelete = { directory: savedImage.fileDir, path: savedImage.filePath } 
          console.log("Deleting file", fileToDelete)
@@ -179,11 +174,16 @@
             console.warn('Error deleteing file', error)
          }
 
+         // adjust currImage
+         if (imageIndex > 0) { currImage.value = localStore.savedPhotos.images[imageIndex-1] }
+         else if (localStore.savedPhotos.images.length > 1) { currImage.value = localStore.savedPhotos.images[1] }
+         else { currImage.value = null }
+         
          localStore.savedPhotos.images.splice(imageIndex, 1) 
       }
 
       const idIndex = localStore.savedPhotos.ids.findIndex((id) => id === imageId)
-      if (imageIndex !== -1) { localStore.savedPhotos.ids.splice(idIndex, 1) }
+      if (idIndex != -1) { localStore.savedPhotos.ids.splice(idIndex, 1) }
   
       console.log("savedPhotos after deleteSavedImage", localStore.savedPhotos)
    }
@@ -308,33 +308,7 @@
       }
    }
 
-   // const createThumbnailUrl = (photoUrl, maxSize = 160, quality = 0.7) => {
-   //    return new Promise((resolve, reject) => {
-   //       const img = new Image()
-   //       img.onload = () => {
-   //          const scale = Math.min(1, maxSize / Math.max(img.width, img.height))
-   //          const width = Math.max(1, Math.round(img.width * scale))
-   //          const height = Math.max(1, Math.round(img.height * scale))
-
-   //          const canvas = document.createElement('canvas')
-   //          canvas.width = width
-   //          canvas.height = height
-
-   //          const ctx = canvas.getContext('2d')
-   //          if (!ctx) {
-   //          reject(new Error('Could not get 2D canvas context'))
-   //          return
-   //          }
-
-   //          ctx.drawImage(img, 0, 0, width, height)
-   //          resolve(canvas.toDataURL('image/jpeg', quality))
-   //       }
-   //       img.onerror = (err) => reject(err)
-   //       img.src = photoUrl
-   //    })
-   // }
-
-   const createThumbOfWidth = (photoUrl, targetWidth, quality = 0.7) => {
+   const createThumb = (photoUrl, targetWidth, quality = 0.7) => {
       return new Promise((resolve, reject) => {
          const img = new Image()
          img.onload = () => {
