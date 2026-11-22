@@ -24,15 +24,15 @@
    </HorizontalDiv>
    <div class="mt-5 d-flex justify-center">
       <BlueBtn v-if="currImage" text="Upload" @click="addItem" :disabled="!canUpload" class="mr-5"/>
-      <BlueBtn v-if="currImage" text="Save" @click="saveImage" :disabled="imageSaved" class="mr-5"/>
+      <BlueBtn v-if="currImage" text="Save" @click="saveImage" :disabled="isSavedImage" class="mr-5"/>
       <IconButton v-if="hasAudio" icon="mdi-volume-high" @click="playAudio" size="med" class="mr-2 admin-link"/>  
       <IconButton v-if="hasAudio" icon="mdi-volume-mute" @click="deleteAudio" size="med" class="admin-link"/>  
    </div>
    <div v-if="uploadStatus" class="mt-5 d-flex justify-center">{{ uploadStatus }}</div>
    
    <v-row align-content="start" justify="space-around" density="compact" class="mt-5 mb-2">
-      <div v-for="image in savedImages" class="position-relative">
-         <ion-img :src="image.photoUrl" @click.stop="showImage(image)" :style="{ width:'100px' }"/>
+      <div v-for="image in localStore.savedPhotos.images" class="position-relative">
+         <ion-img :src="image.photoUrl" @click.stop="showSavedImage(image)" :style="{ width:'100px' }"/>
          <div class="position-absolute bottom-0 right-0">
          <IconButton icon="mdi-close-circle" @click.stop="deleteSavedImage(image.id)" size="med" style="background-color:white" class="admin-link mr-2 mb-2"/>  
          </div>
@@ -44,6 +44,7 @@
 
 <script setup>
    import { computed, ref } from 'vue'
+   import { useWindowSize } from '@vueuse/core'
    import { onIonViewWillEnter } from '@ionic/vue'
    import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
    import { Filesystem, Directory } from '@capacitor/filesystem'
@@ -65,6 +66,7 @@
    import { dateUuid } from '@/utils/utils'
    import { ImageType, ItemType, Route, State } from '@/utils/constants'
   
+   const { width: windowWidth } = useWindowSize()
    const userStore    = useUserStore()
    const itemStore    = useItemStore()   
    const galleryMgr   = useGalleryMgr()
@@ -72,15 +74,12 @@
    const audioMgr     = useAudioMgr()
    const localStore   = useLocalStore()
    const imageHandler = useAddItemImageHandler()
-   const currImage    = ref(null) // { id, photoUrl, base64Image }
+   const currImage    = ref(null) // { id, photoUrl, base64Image, fileDir, filePath } - either base64Image or fileDir/Path set),
    const canUpload    = ref(true)  
    const uploadStatus = ref("")  
    const isRecording  = ref(false)
-   const savedImages  = ref([])  
-   const savedIds     = ref(new Set())  
-
+   
    onIonViewWillEnter(() => {
-      // console.log("CameraView onIonViewWillEnter")
       checkConnection()
       if (!currImage.value) { takePhoto() }
    })
@@ -91,11 +90,14 @@
             quality: 90,
             allowEditing: false,
             resultType: CameraResultType.Base64, 
-            source: CameraSource.Camera  //Camera, Photos, Prompt
+            source: CameraSource.Camera  // Camera, Photos, Prompt
          })
 
-         currImage.value = { id: dateUuid(), 
-            photoUrl: `data:image/${image.format};base64,${image.base64String}`, 
+         const base64Url = `data:image/${image.format};base64,${image.base64String}`
+         const photoUrl = await createThumbOfWidth(base64Url, windowWidth.value) 
+         currImage.value = { 
+            id: dateUuid(), 
+            photoUrl: photoUrl, 
             base64Image: image.base64String 
          }
          uploadStatus.value = ""
@@ -137,24 +139,53 @@
    const isPublic = computed(() => itemState.value == State.PUBLIC)
    const toggleState = () => { localStore.setCameraItemState(isPublic.value ? State.PRIVATE : State.PUBLIC) }
 
-   const imageSaved = computed(() => savedIds.value.has(currImage.value.id) )
-   
-   const saveImage = () => { 
-      if (!savedIds.value.has(currImage.value.id)) {
-         savedImages.value.push(currImage.value)
-         savedIds.value.add(currImage.value.id)
+   const isSavedImage = computed(() => localStore.savedPhotos.ids.includes(currImage.value.id) )
+   const showSavedImage = (savedImage) => { currImage.value = savedImage }
+
+   const saveImage = async () => { 
+      if (!localStore.savedPhotos.ids.includes(currImage.value.id)) {
+         const fileDir = Directory.Data
+         const filePath = `saved-photos/${currImage.value.id}`
+         
+         const savedFile = await Filesystem.writeFile({
+            directory: fileDir,
+            path: filePath,
+            data: currImage.value.base64Image,
+            recursive: true,
+         })
+         console.log("savedFile", savedFile)
+
+         localStore.savedPhotos.images.push({
+            id: currImage.value.id,
+            photoUrl: currImage.value.photoUrl,
+            fileDir: fileDir,
+            filePath: filePath
+         })
+         localStore.savedPhotos.ids.push(currImage.value.id)
       }
       currImage.value = null
    }
    
-   const showImage = (image) => { currImage.value = image }
+   const deleteSavedImage = async (imageId) => { 
+      const imageIndex = localStore.savedPhotos.images.findIndex((image) => image.id === imageId)
+      if (imageIndex !== -1) { 
+         const savedImage = localStore.savedPhotos.images[imageIndex]
+         const fileToDelete = { directory: savedImage.fileDir, path: savedImage.filePath } 
+         console.log("Deleting file", fileToDelete)
+         try {
+            await Filesystem.deleteFile(fileToDelete)
+         } 
+         catch (error) {
+            console.warn('Error deleteing file', error)
+         }
 
-   const deleteSavedImage = (id) => { 
-      const index = savedImages.value.findIndex((image) => image.id === id)
-      if (index !== -1) { 
-         savedImages.value.splice(index, 1) 
-         savedIds.value.delete(id) 
+         localStore.savedPhotos.images.splice(imageIndex, 1) 
       }
+
+      const idIndex = localStore.savedPhotos.ids.findIndex((id) => id === imageId)
+      if (imageIndex !== -1) { localStore.savedPhotos.ids.splice(idIndex, 1) }
+  
+      console.log("savedPhotos after deleteSavedImage", localStore.savedPhotos)
    }
 
    const addItem = async () => {
@@ -176,8 +207,21 @@
          audioMgr.deleteAudio()
       }
 
-      // convert base64
-      const byteCharacters = atob(currImage.value.base64Image)
+      console.log("Getting base64Image", currImage.value)
+      let base64Image = currImage.value.base64Image ?? null
+      if (!base64Image && currImage.value.fileDir && currImage.value.filePath) {
+         const fileToRead = { directory: currImage.value.fileDir, path: currImage.value.filePath }
+         console.log("Reading file", fileToRead)
+         const result = await Filesystem.readFile(fileToRead)
+         console.log("Read result", result)
+         base64Image = result.data
+      }
+      if (!base64Image) {
+         uploadStatus.value = "Upload failed - cannot retrieve saved image"
+         return
+      }
+      
+      const byteCharacters = atob(base64Image)
       const byteNumbers = new Array(byteCharacters.length)
       for (let i = 0; i < byteCharacters.length; i++) {
          byteNumbers[i] = byteCharacters.charCodeAt(i);
@@ -218,7 +262,7 @@
                itemStore.setItem(item)
 
                uploadStatus.value = "Photo uploaded"
-               if (imageSaved.value) { deleteSavedImage(currImage.value.id) }
+               if (isSavedImage.value) { deleteSavedImage(currImage.value.id) }
                currImage.value = null
                console.log("waitForThumbUrls")
                imageMgr.waitForThumbUrls(imageSet, imageHandler,  { itemId:item.id })        
@@ -262,6 +306,58 @@
             canUpload.value = false
          }
       }
+   }
+
+   // const createThumbnailUrl = (photoUrl, maxSize = 160, quality = 0.7) => {
+   //    return new Promise((resolve, reject) => {
+   //       const img = new Image()
+   //       img.onload = () => {
+   //          const scale = Math.min(1, maxSize / Math.max(img.width, img.height))
+   //          const width = Math.max(1, Math.round(img.width * scale))
+   //          const height = Math.max(1, Math.round(img.height * scale))
+
+   //          const canvas = document.createElement('canvas')
+   //          canvas.width = width
+   //          canvas.height = height
+
+   //          const ctx = canvas.getContext('2d')
+   //          if (!ctx) {
+   //          reject(new Error('Could not get 2D canvas context'))
+   //          return
+   //          }
+
+   //          ctx.drawImage(img, 0, 0, width, height)
+   //          resolve(canvas.toDataURL('image/jpeg', quality))
+   //       }
+   //       img.onerror = (err) => reject(err)
+   //       img.src = photoUrl
+   //    })
+   // }
+
+   const createThumbOfWidth = (photoUrl, targetWidth, quality = 0.7) => {
+      return new Promise((resolve, reject) => {
+         const img = new Image()
+         img.onload = () => {
+            const scale = Math.min(1, targetWidth / img.width)
+            const width = Math.max(1, Math.round(img.width * scale))
+            const height = Math.max(1, Math.round(img.height * scale))
+
+            const canvas = document.createElement('canvas')
+            canvas.width = width
+            canvas.height = height
+
+            const ctx = canvas.getContext('2d')
+            if (!ctx) {
+               reject(new Error('Could not get 2D canvas context'))
+               return
+            }
+
+            ctx.drawImage(img, 0, 0, width, height)
+            resolve(canvas.toDataURL('image/jpeg', quality))
+         }
+         img.onerror = (err) => reject(err)
+         img.src = photoUrl
+      })
    }
 </script>
 

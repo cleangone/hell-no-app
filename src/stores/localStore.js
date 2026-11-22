@@ -40,6 +40,8 @@ export const useLocalStore = defineStore('local', () => {
    const cameraItemState = useLocalStorage('camera-item-state', State.PUBLIC)
    function setCameraItemState(state) { cameraItemState.value = state }
 
+   const savedPhotos = useLocalStorage('saved-photos', { images: [], ids: [] }) // ids an array instead of Set() because of serialization
+
    function fixObjs(localObjs) {
       const objs = []
       for (const localObj of localObjs) {
@@ -60,8 +62,6 @@ export const useLocalStore = defineStore('local', () => {
    function getTimestamp(dateObj) { return new Timestamp(dateObj.seconds, dateObj.nanoseconds) }
    
    return { siteWall, setSiteWall, myWall, setMyWall, 
-            appId, resetAppId, 
-            deviceId, setDeviceId, 
-            cameraGalleryId, setCameraGalleryId, 
-            cameraItemState, setCameraItemState }
+            appId, resetAppId, deviceId, setDeviceId, 
+            cameraGalleryId, setCameraGalleryId, cameraItemState, setCameraItemState, savedPhotos }
 })
