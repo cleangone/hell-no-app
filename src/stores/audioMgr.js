@@ -7,43 +7,48 @@ import { dateUuid } from '@/utils/utils'
       
 export const useAudioMgr = defineStore('audioMgr', () => {  
    const userStore   = useUserStore() 
-   const audioBlob   = ref(null)
+   const audioChunks = ref([])
    let mediaRecorder = null
    
    async function startRecording() {
-      audioBlob.value = null
+      audioChunks.value = []
       const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4'
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       mediaRecorder = new MediaRecorder(stream, { mimeType })
-      const audioChunks = []
-
+      
       mediaRecorder.ondataavailable = (event) => {
-         // console.log("mediaRecorder.ondataavailable")
-         if (event.data && event.data.size > 0) { audioChunks.push(event.data) }
-      }
-      mediaRecorder.onstop = () => {
-         audioBlob.value = new Blob(audioChunks, { type: 'audio/webm' })
+         if (event.data && event.data.size > 0) { audioChunks.value.push(event.data) }
       }
 
       mediaRecorder.start()
       console.log("Recording started")
    }
 
-   async function stopRecording() {
-      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+   // not declared async because already returns promise containing the audioBlob
+   function stopRecording() {
+      return new Promise((resolve) => {
+         if (!mediaRecorder || mediaRecorder.state === "inactive") {
+            resolve(null)
+            return
+         }
+
+         const mimeType = mediaRecorder.mimeType || 'audio/webm'
+         mediaRecorder.onstop = () => {
+            const audioBlob = audioChunks.value.length ? new Blob(audioChunks.value, { type: mimeType }) : null
+            resolve(audioBlob)
+         }
+
          mediaRecorder.stop()
-         // stop all media stream tracks to turn off the microphone indicator light
+         // Stop all media stream tracks to turn off the microphone indicator light
          mediaRecorder.stream.getTracks().forEach(track => track.stop())
-      }
+      })
    }
 
-   const hasAudio = computed(() => audioBlob.value != null)
+   function playAudio(audioBlob) {
+      if (!audioBlob) return
+      console.log("playAudio - audioBlob{bytes:" + audioBlob.size + ", type:" + audioBlob.type + "}")
 
-   function playAudio() {
-      if (!audioBlob.value) return
-      console.log("playAudio - audioBlob{bytes:" + audioBlob.value.size + ", type:" + audioBlob.value.type + "}")
-
-      const audioUrl = URL.createObjectURL(audioBlob.value)
+      const audioUrl = URL.createObjectURL(audioBlob)
       const audioElement = new Audio(audioUrl)
 
       audioElement.play().catch((error) => {
@@ -51,22 +56,13 @@ export const useAudioMgr = defineStore('audioMgr', () => {
       })
    }
 
-   function playAudioUrl(audioUrl) {
-      const audioElement = new Audio(audioUrl)
-      audioElement.play().catch((error) => {
-         console.error("Error playing audio:", error)
-      })
-   }
-
-   function deleteAudio() { audioBlob.value = null }
-
-   async function uploadAudio() {
-      const audioSet = createAudioSet() 
+   async function uploadAudio(audioBlob) {
+      const audioSet = createAudioSet(audioBlob) 
       const audioRef = storageRef(storage, audioSet.filePath)
       
       try {
-         const snapshot = await uploadBytes(audioRef, audioBlob.value)
-         console.log("Uploaded a audio blob successfully!", snapshot)
+         const snapshot = await uploadBytes(audioRef, audioBlob)
+         console.log("Successfully uploaded audioBlob", snapshot)
 
          const downloadURL = await getDownloadURL(snapshot.ref)
          audioSet.url = downloadURL
@@ -78,16 +74,16 @@ export const useAudioMgr = defineStore('audioMgr', () => {
       return audioSet
    }
 
-   function createAudioSet() {
+   function createAudioSet(audioBlob) {
       const id = dateUuid()
       const dir = "audio/" + userStore.userId + "/"
       const filePath = dir + id 
       return { 
          id: id, 
-         mimeType: audioBlob.value.type,
+         mimeType: audioBlob.type,
          filePath: filePath,
       }
    }
 
-   return { startRecording, stopRecording, hasAudio, playAudio, playAudioUrl, deleteAudio, uploadAudio }
+   return { startRecording, stopRecording, playAudio, uploadAudio } 
 })

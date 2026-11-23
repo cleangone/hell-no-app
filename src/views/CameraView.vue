@@ -6,13 +6,15 @@
       <template #title>{{ Route.CAMERA.display }}</template>
       <template #right><span class="mr-8"></span></template>
    </Header>
-   <div class="position-relative photo-container ion-margin-bottom mx-5">
-      <ion-img v-if="currImage" :src="currImage.photoUrl" alt="Captured photo"></ion-img>
-      <p v-else>No photo selected.</p>
-      <div v-if="currImage && hasAudio" class="position-absolute bottom-0 right-0">
-         <IconButton icon="mdi-volume-high" @click.stop="playAudio"   size="med" style="background-color:white" class="pa-1 mr-2 mb-2 admin-link"/>  
-         <IconButton icon="mdi-volume-mute" @click.stop="deleteAudio" size="med" style="background-color:white" class="pa-1 mr-2 mb-2 admin-link"/> 
+   <div class="photo-container ion-margin-bottom mx-5">
+      <div v-if="currImage" class="position-relative">
+         <ion-img :src="currImage.photoUrl" alt="Captured photo"/>
+         <div v-if="currImage.audioBlob" class="position-absolute bottom-0 right-0">
+            <IconButton icon="mdi-volume-high" @click.stop="playAudio"   size="med" style="background-color:white" class="pa-1 mr-2 mb-2 admin-link"/>  
+            <IconButton icon="mdi-volume-mute" @click.stop="deleteAudio" size="med" style="background-color:white" class="pa-1 mr-2 mb-2 admin-link"/> 
+         </div>
       </div>
+      <p v-else>No photo</p>
    </div>
    <div class="mt-5 d-flex justify-center">
       <BlueBtn text="Take Photo" @click="takePhoto" class="mr-5"/>
@@ -27,10 +29,10 @@
    <div v-if="uploadStatus" class="mt-5 d-flex justify-center">{{ uploadStatus }}</div>
    
    <v-row align-content="start" justify="space-around" density="compact" class="mt-5 mx-2 mb-2">
-      <div v-for="image in localStore.savedPhotos.images" class="position-relative mb-2">
-         <ion-img :src="image.photoUrl" @click.stop="showSavedImage(image)" :style="{ width:'95px' }"/>
+      <div v-for="(image, index) in localStore.savedPhotos" class="position-relative mb-2">
+         <ion-img :src="image.photoUrl" @click.stop="showImage(index)" :style="{ width:'95px' }"/>
          <div class="position-absolute bottom-0 right-0">
-         <IconButton icon="mdi-close-circle" @click.stop="deleteSavedImage(image.id)" size="med" style="background-color:white" class="admin-link mr-2 mb-2"/>  
+         <IconButton icon="mdi-close-circle" @click.stop="deleteImage(index)" size="med" style="background-color:white" class="admin-link mr-2 mb-2"/>  
          </div>
       </div>
    </v-row>
@@ -70,39 +72,35 @@
    const audioMgr     = useAudioMgr()
    const localStore   = useLocalStore()
    const imageHandler = useAddItemImageHandler()
-   const currImage    = ref(null) // { id, photoUrl, base64Image, fileDir, filePath } - either base64Image or fileDir/Path set),
+   const currImageIndex = ref(-1) 
    const canUpload    = ref(true)  
    const uploadStatus = ref("")  
    const isRecording  = ref(false)
    
    onIonViewWillEnter(() => {
       checkConnection()
-      if (!currImage.value) { takePhoto() }
+      if (localStore.savedPhotos.length) { currImageIndex.value = 0 }
+      else { takePhoto() }
    })
 
    const takePhoto = async () => {
+      uploadStatus.value = ""
       try {
-         const image = await Camera.getPhoto({
+         const cameraImage = await Camera.getPhoto({
             quality: 90,
             allowEditing: false,
             resultType: CameraResultType.Base64, 
             source: CameraSource.Camera  // Camera, Photos, Prompt
          })
 
-         const base64Url = `data:image/${image.format};base64,${image.base64String}`
-         const photoUrl = await createThumb(base64Url, windowWidth.value) 
-         currImage.value = { 
-            id: dateUuid(), 
-            photoUrl: photoUrl, 
-            base64Image: image.base64String 
-         }
-         uploadStatus.value = ""
-         saveImage()
+         currImageIndex.value = await saveImage(cameraImage)
       } 
       catch (error) {
          if (error.errorMessage != "User cancelled photos app") { console.error('takePhoto error', error) }
       }
    }
+
+   const currImage = computed(() => currImageIndex.value == -1 ? null : localStore.savedPhotos[currImageIndex.value])
 
    const startAudioRecording = async () => {
       try {
@@ -115,14 +113,14 @@
       }
    }
 
-   const stopAudioRecording = () => {
+   const stopAudioRecording = async () => {
       isRecording.value = false
-      audioMgr.stopRecording()
+      const audioBlob = await audioMgr.stopRecording()
+      if (audioBlob) { currImage.value.audioBlob = audioBlob }
    }
 
-   const hasAudio = computed(() => audioMgr.hasAudio)
-   const playAudio   = () => { audioMgr.playAudio() } 
-   const deleteAudio = () => { audioMgr.deleteAudio() }
+   const playAudio   = () => { audioMgr.playAudio(currImage.value.audioBlob) } 
+   const deleteAudio = () => { currImage.value.audioBlob = null }
 
    const galleryOptions = computed(() => galleryMgr.myGalleryOptions)
    const selectedGalleryId = computed({ 
@@ -134,58 +132,29 @@
    const isPublic = computed(() => itemState.value == State.PUBLIC)
    const toggleState = () => { localStore.setCameraItemState(isPublic.value ? State.PRIVATE : State.PUBLIC) }
 
-   const isSavedImage = computed(() => localStore.savedPhotos.ids.includes(currImage.value.id) )
-   const showSavedImage = (savedImage) => { currImage.value = savedImage }
-
-   const saveImage = async () => { 
-      if (!localStore.savedPhotos.ids.includes(currImage.value.id)) {
-         const fileDir = Directory.Data
-         const filePath = `saved-photos/${currImage.value.id}`
-         
-         const savedFile = await Filesystem.writeFile({
-            directory: fileDir,
-            path: filePath,
-            data: currImage.value.base64Image,
-            recursive: true,
-         })
-         console.log("savedFile", savedFile)
-
-         localStore.savedPhotos.images.push({
-            id: currImage.value.id,
-            photoUrl: currImage.value.photoUrl,
-            fileDir: fileDir,
-            filePath: filePath
-         })
-         localStore.savedPhotos.ids.push(currImage.value.id)
-      }
-      // currImage.value = null
-   }
+   const showImage = (index) => { currImageIndex.value = index }
    
-   const deleteSavedImage = async (imageId) => { 
-      const imageIndex = localStore.savedPhotos.images.findIndex((image) => image.id === imageId)
-      if (imageIndex != -1) { 
-         const savedImage = localStore.savedPhotos.images[imageIndex]
-         const fileToDelete = { directory: savedImage.fileDir, path: savedImage.filePath } 
-         console.log("Deleting file", fileToDelete)
-         try {
-            await Filesystem.deleteFile(fileToDelete)
-         } 
-         catch (error) {
-            console.warn('Error deleteing file', error)
-         }
-
-         // adjust currImage
-         if (imageIndex > 0) { currImage.value = localStore.savedPhotos.images[imageIndex-1] }
-         else if (localStore.savedPhotos.images.length > 1) { currImage.value = localStore.savedPhotos.images[1] }
-         else { currImage.value = null }
-         
-         localStore.savedPhotos.images.splice(imageIndex, 1) 
+   const deleteImage = async (index) => { 
+      const savedImage = localStore.savedPhotos[index]
+      const fileToDelete = { directory: savedImage.fileDir, path: savedImage.filePath } 
+      console.log("Deleting file", fileToDelete)
+      try {
+         await Filesystem.deleteFile(fileToDelete)
+      } 
+      catch (error) {
+         console.warn('Error deleteing file', error)
       }
 
-      const idIndex = localStore.savedPhotos.ids.findIndex((id) => id === imageId)
-      if (idIndex != -1) { localStore.savedPhotos.ids.splice(idIndex, 1) }
-  
-      console.log("savedPhotos after deleteSavedImage", localStore.savedPhotos)
+      // adjust currImageIndex
+      if (index > 0) { currImageIndex.value = index - 1 }
+      else if (localStore.savedPhotos.length > 1) { 
+         // index == 0, and there is more than one saved image
+         currImageIndex.value = 0 
+      }
+      else { currImageIndex.value = -1 }
+      
+      localStore.savedPhotos.splice(index, 1) 
+      console.log("savedPhotos after deleteImage", localStore.savedPhotos)
    }
 
    const addItem = async () => {
@@ -200,16 +169,14 @@
       imageSet.dimensions = dimensions;
 
       let audioSet = null
-      if (hasAudio.value) {
+      if (currImage.value.audioBlob) {
          uploadStatus.value = "Uploading Audio"
-         audioSet = await audioMgr.uploadAudio()
-         // console.log("audioSet", audioSet)
-         audioMgr.deleteAudio()
+         audioSet = await audioMgr.uploadAudio(currImage.value.audioBlob)
       }
 
       console.log("Getting base64Image", currImage.value)
-      let base64Image = currImage.value.base64Image ?? null
-      if (!base64Image && currImage.value.fileDir && currImage.value.filePath) {
+      let base64Image = null
+      if (currImage.value.fileDir && currImage.value.filePath) {
          const fileToRead = { directory: currImage.value.fileDir, path: currImage.value.filePath }
          console.log("Reading file", fileToRead)
          const result = await Filesystem.readFile(fileToRead)
@@ -262,8 +229,7 @@
                itemStore.setItem(item)
 
                uploadStatus.value = "Photo uploaded"
-               if (isSavedImage.value) { deleteSavedImage(currImage.value.id) }
-               currImage.value = null
+               deleteImage(currImageIndex.value)
                console.log("waitForThumbUrls")
                imageMgr.waitForThumbUrls(imageSet, imageHandler,  { itemId:item.id })        
             })
@@ -271,6 +237,33 @@
             console.log("thumbnails done")
          }
       )
+   }
+
+   // return index of newly saved image
+   const saveImage = async (cameraImage) => { 
+      const imageId = dateUuid()
+      const fileDir = Directory.Data
+      const filePath = `saved-photos/${imageId}`
+      
+      const savedFile = await Filesystem.writeFile({
+         directory: fileDir,
+         path: filePath,
+         data: cameraImage.base64String,
+         recursive: true,
+      })
+      console.log("savedFile", savedFile)
+
+      const base64Url = `data:image/${cameraImage.format};base64,${cameraImage.base64String}`
+      const photoUrl = await createThumb(base64Url, windowWidth.value) 
+
+      localStore.savedPhotos.push({
+         id:       imageId,
+         photoUrl: photoUrl,
+         fileDir:  fileDir,
+         filePath: filePath
+      })
+
+      return localStore.savedPhotos.length - 1
    }
 
    const getImageDimensions = (src) => {

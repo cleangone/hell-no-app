@@ -40,7 +40,7 @@ export const useLocalStore = defineStore('local', () => {
    const cameraItemState = useLocalStorage('camera-item-state', State.PUBLIC)
    function setCameraItemState(state) { cameraItemState.value = state }
 
-   const savedPhotos = useLocalStorage('saved-photos', { images: [], ids: [] }) // ids an array instead of Set() because of serialization
+   const savedPhotos = useLocalStorage('saved-photos', [])
 
    function fixObjs(localObjs) {
       const objs = []

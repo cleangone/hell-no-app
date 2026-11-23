@@ -5,6 +5,7 @@
    divergences almost everywhere
 */
 export const versions = [   
+   ["v1.10.3", "11/23/26"], // Hold audio for each saved photos 
    ["v1.10.2", "11/22/26"], // Save every photo after taken
    ["v1.10.1", "11/21/26"], // Save images locally in capacitor/filesystem
    ["v1.10.0", "11/21/26"], // Initial CameraView saving images locally
