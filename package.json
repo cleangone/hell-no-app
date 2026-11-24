@@ -21,6 +21,7 @@
     "@capacitor/splash-screen": "^8.0.2",
     "@capacitor/status-bar": "^8.0.4",
     "@capawesome/capacitor-badge": "^8.0.4",
+    "@capawesome/capacitor-password-autofill": "^0.1.2",
     "@capgo/capacitor-asset-cache": "^8.1.6",
     "@ckeditor/ckeditor5-build-classic": "^41.4.2",
     "@ckeditor/ckeditor5-vue": "^5.1.0",
