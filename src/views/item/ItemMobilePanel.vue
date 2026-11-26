@@ -96,7 +96,6 @@
       if (viewStore.isInitialized && props.origin != ItemOrigin.EXTERNAL) { showNav.value = true }
       currItem.value = props.item
       initializeScrollItems()
-      setTimeout(() => { scrollVisible.value = true }, 1000)
    })
 
    watch(swipeEleRef, (newValue) => {
@@ -147,6 +146,7 @@
       if (Math.abs(deltaY) > 10 && Math.abs(deltaY) > Math.abs(deltaX)) {
          console.log('deltaY', deltaY)
          swipeVisible.value = false
+         scrollVisible.value = true 
          window.removeEventListener('pointermove', handlePointerMove)
       }
    }

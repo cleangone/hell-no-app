@@ -1,5 +1,5 @@
 <template>
-   <div ref="swipeEle" :style="{transform:transform, transition:transition, touchAction:'pan-y'}">
+   <div ref="swipeEle" :style="{transform:transform, transition:transition, touchAction:'pan-y'}" class="swipe-full-height">
       <v-img v-if="showImage" :src="imageUrl">
          <div v-if="isFavorite" class="pa-3 d-flex fill-height align-start justify-end">
              <Icon icon="mdi-heart" />
@@ -8,9 +8,7 @@
       <div v-if="showText" class="pb-16 mt-n2 pt-3 px-1 text-left swipe-container">
          <ItemArtistYear :item="props.item" />
          <div v-if="populated(props.item.subtitle)" class="font-weight-medium">{{ props.item.subtitle }}</div>
-         <div v-html="props.item.desc" class="pb-16"></div>
-         <!-- hack to ensure top slide covers bottom - issues w/ ion/min-height -->
-         <div v-if="props.item.isTop" v-for="i in 5" :key="i" class="pb-16"></div>
+         <div v-html="props.item.desc"></div>
       </div>
    </div>
  </template>
@@ -51,12 +49,6 @@
          // otherwise the text will display first causing a flash when the image is displayed
          showImage.value = true 
          setTimeout(() => { showText.value  = true }, 500) 
-
-         
-         // console.log("min-height", props.item.name, windowHeight.value) 
-         // top slide needs to fill the screen to keep the bot from showing behind a shorter top  
-         // slideStyle.value = "min-height:" + windowHeight.value + "px;"
-         // slideStyle.value = "padding-bottom: 200px;"
       }
       else {
          // bottom slide display delayed until after top
@@ -105,7 +97,6 @@
    })
    
    const imageUrl = computed(() => itemMgr.mobileImageUrl(props.item.primaryImage))
-   const artist   = computed(() => props.item.primaryArtist ? props.item.primaryArtist.fullName : null)
    
    const transform = computed(() => {
       const { x, y } = position.value
@@ -151,4 +142,8 @@
 </script>
 
 <style>
+.swipe-full-height {
+  min-height: 100dvh;
+  background-color: var(--color-background);
+}
 </style>

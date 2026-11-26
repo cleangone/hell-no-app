@@ -9,6 +9,7 @@
 
 */
 export const versions = [   
+   ["v1.12.2", "11/26/26"], // Fix SwipeItem swipe to not not show any of bottom/scroll image 
    ["v1.12.1", "11/26/26"], // Fix empty wall at startup
    ["v1.12.0", "11/25/26"], // Re-enable dark mode
    ["v1.11.0", "11/24/26"], // Add ios login autofill
