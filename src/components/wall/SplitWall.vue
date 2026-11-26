@@ -1,6 +1,6 @@
 <template>
    <div class="wall-container px-3">
-      <SwipeRow :wallRow="topRow" :rowHeight="topHeight" :showAvatars="showUserAvatars"/>
+      <SwipeRow v-if="topRow" :wallRow="topRow" :rowHeight="topHeight" :showAvatars="showUserAvatars"/>
       <SwipeRow v-if="botRow" :wallRow="botRow" :rowHeight="botHeight"/>
    </div>
 </template>
@@ -25,7 +25,6 @@
    })
    
    const wallItems = computed(() => {
-      // console.log("wall", props.wall)
       const maxWallItems = props.wall.maxWallItems ? props.wall.maxWallItems : Defaults.MAX_WALL_ITEMS
       
       // fill wall with user wall items - these will be items from all user if site wall, or items
@@ -35,8 +34,7 @@
          const randomUserWallItems = randomizeArray(props.wall.userWallItems)
          allWallItems.push(...randomUserWallItems.slice(0, maxWallItems))
       }
-      // console.log("userWallItems", allWallItems)
-     
+
       const userWallItemIds = allWallItems.map((obj) => obj.itemId) 
       const filledWallItems = randomizeArray([...props.wall.wallItems])
       for (const wallItem of filledWallItems) { 
@@ -141,7 +139,7 @@
       return rows
    }) 
 
-   const topRow = computed(() => slideRows.value[0])
+   const topRow = computed(() => slideRows.value[0] ?? null)
    const botRow = computed(() => slideRows.value[1] ?? null)
    const totalHeight = computed(() => props.wall.wallRows > 1 ? props.rowHeight * 2 : props.rowHeight)
    const topHeight   = computed(() => props.wall.wallRows > 1 ? totalHeight.value * .8 : totalHeight.value)

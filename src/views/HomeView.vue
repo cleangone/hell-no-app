@@ -178,7 +178,7 @@
 
    const displayWall = computed(() => {
       const wall = viewMgr.solo ? myDisplayWall.value : siteDisplayWall.value
-
+      
       // todo - move this to mgr - logic duplicated in UserView
       // handle corner case of moving to/from mobile view
       // check xs instead of mobile - tablets not limited to 1 row
@@ -195,7 +195,8 @@
 
       // use currWall if it exists - prevent flashing of retrieved after display of one from local store
       if (currSiteWall.value) { return currSiteWall.value }
-      if (wall.wallRows) { currSiteWall.value = wall }
+      if (wall.wallRows && wall.wallItems.length) { currSiteWall.value = wall }
+
       return wall
    })
 

@@ -9,6 +9,7 @@
 
 */
 export const versions = [   
+   ["v1.12.1", "11/26/26"], // Fix empty wall at startup
    ["v1.12.0", "11/25/26"], // Re-enable dark mode
    ["v1.11.0", "11/24/26"], // Add ios login autofill
    ["v1.10.3", "11/23/26"], // Hold audio for each saved photos 
