@@ -14,7 +14,7 @@
                   <!-- mobile -->
                   <div v-if="viewMgr.isMobile"> 
                      <v-row class="d-flex align-center text-subtitle-1 mx-0 mt-0">
-                        <RouterLink v-for="contact in getEmailContacts(thread)" :to="Route.USER.url + contact.userId" class="mr-2">{{contact.username }}</RouterLink>
+                        <RouterLink v-for="contact in getEmailContacts(thread)" :to="Route.USER.url + contact.userId" class="admin-link mr-2">{{contact.username }}</RouterLink>
                         {{ thread.name }} {{ getEmailCountText(thread) }}
                      </v-row>
                      <v-row class="d-flex justify-end text-overline mx-0 mt-n2 mb-0">
@@ -67,8 +67,8 @@
                         <ItemThumb :item="getItem(email.itemId)" :origin="ItemOrigin.EXTERNAL"/>
                      </div>
                      <div class="ml-2">
-                        <div>To: <RouterLink :to="Route.USER.url + email.toContact.userId" class="ml-2">{{ email.toContact.username }}</RouterLink></div>
-                        <div>From: <RouterLink :to="Route.USER.url + email.fromContact.userId" class="ml-2">{{ email.fromContact.username }}</RouterLink></div>
+                        <div>To: <RouterLink :to="Route.USER.url + email.toContact.userId" class="admin-link ml-2">{{ email.toContact.username }}</RouterLink></div>
+                        <div>From: <RouterLink :to="Route.USER.url + email.fromContact.userId" class="admin-link ml-2">{{ email.fromContact.username }}</RouterLink></div>
                         <div>{{ email.content }}</div>
                      </div>
                   </div>

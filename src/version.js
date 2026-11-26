@@ -3,8 +3,13 @@
    in a branch and eventually pull to main.  Common code may eventually be pulled into 
    componenets/libraries, but that is probably more trouble than worth it because there are 
    divergences almost everywhere
+
+   - fix itemView scroll/swipe - use swipe from gallery playItems
+   - fix no wall items at startup
+
 */
 export const versions = [   
+   ["v1.12.0", "11/25/26"], // Re-enable dark mode
    ["v1.11.0", "11/24/26"], // Add ios login autofill
    ["v1.10.3", "11/23/26"], // Hold audio for each saved photos 
    ["v1.10.2", "11/22/26"], // Save every photo after taken

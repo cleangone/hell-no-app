@@ -34,7 +34,7 @@
       <template #title>{{ title }}</template>
       <template #right>
          <ShakeIcon v-if="activeNotificationsExist" icon="mdi-bell-ring" size="small" @click="toRoute(Route.MESSAGE)" class="mr-1"/>
-         <!-- <Icon v-else-if="user" icon="mdi-camera" @click="toRoute(Route.CAMERA)"/>       -->
+         <DarkButton v-else/>
       </template>
    </Header>
 

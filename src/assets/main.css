@@ -8,6 +8,20 @@
   font-weight: normal;
 }
 
+ion-app,
+ion-content,
+ion-footer,
+.persistent-footer,
+ion-tab-bar {
+  --background: var(--color-background);
+  --color: var(--color-text);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  transition:
+    color 0.5s,
+    background-color 0.5s;
+}
+
 a, .blue, .icon-btn {
   text-decoration: none;
   color: var(--color-link); /* changes based on .dark */

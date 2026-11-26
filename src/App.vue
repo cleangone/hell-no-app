@@ -44,7 +44,6 @@
    import { useViewStore }    from '@/stores/viewStore'
    import { useViewMgr }      from '@/stores/viewMgr'
    import { useLocalStore }   from '@/stores/localStore'
-   import DarkButton          from '@/components/util/DarkButton.vue'
    import Icon                from '@/components/util/icon/Icon.vue'
    import ToggleIcon          from '@/components/util/icon/ToggleIcon.vue'
    import IconButton          from '@/components/util/IconButton.vue'
@@ -178,6 +177,7 @@
 </script>
 
 <style>
+
 /* app is full viewport height as a flex column */
 ion-app.app-root-container {
   display: flex !important;
@@ -189,6 +189,7 @@ ion-app.app-root-container {
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
+  background: var(--color-background);
 }
 
 /* router content takes up middle space */
@@ -203,8 +204,7 @@ ion-app.app-root-container {
   display: block !important;
   flex: 0 0 auto !important;
   width: 100% !important;
-  /* background-color: #ffffff !important; */
-  background-color: white !important;
+  background-color: var(--color-background);
   box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.1);
   /* padding-bottom: env(safe-area-inset-bottom, 0px) !important; */
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) * 0.33) !important;
@@ -213,7 +213,7 @@ ion-app.app-root-container {
 
 /* Tab bar sizing */
 .persistent-footer ion-tab-bar {
-  --background: #ffffff;
+  --background: var(--color-background);
   --border: none;
   height: 44px !important;
 }
@@ -229,8 +229,8 @@ ion-tab-button > * {
 }
 
 ion-tab-button.tab-selected {
-  background-color: #f4f5f8; /* Replace with your preferred active background color */
-  --background: #f4f5f8;     /* Ensures Ionic's internal background variable is covered */
+  background-color: var(--color-background-soft);
+  --background: var(--color-background-soft);
 }
 
 .app { 
