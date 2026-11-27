@@ -34,15 +34,15 @@
                            <v-list-item-title>Swap Back from Profile</v-list-item-title>
                         </v-list-item> -->
                         <v-list-item v-if="invisibleItemsExist" @click="toRoute(Route.INVISIBLE)">
-                           <template v-slot:prepend><v-icon icon="mdi-incognito" class="icon-btn"></v-icon></template>
+                           <template v-slot:prepend><v-icon icon="mdi-incognito" class="menu-icon"></v-icon></template>
                            <v-list-item-title>My Invisibles</v-list-item-title>
                         </v-list-item>
                         <v-list-item @click="toRoute(Route.CAMERA)">
-                           <template v-slot:prepend><v-icon icon="mdi-camera" class="icon-btn"></v-icon></template>
+                           <template v-slot:prepend><v-icon icon="mdi-camera" class="menu-icon"></v-icon></template>
                            <v-list-item-title>Camera</v-list-item-title>
                         </v-list-item>
                         <v-list-item @click="toRoute(Route.ACCOUNT)">
-                           <template v-slot:prepend><v-icon icon="mdi-cog" class="icon-btn"></v-icon></template>
+                           <template v-slot:prepend><v-icon icon="mdi-cog" class="menu-icon"></v-icon></template>
                            <v-list-item-title>Account</v-list-item-title>
                         </v-list-item>
                         <v-list-item @click="logout">

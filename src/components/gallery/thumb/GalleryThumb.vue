@@ -12,15 +12,15 @@
             
          <div v-if="isParent || isChild" class="position-absolute bottom-0 right-0">
             <v-icon v-if="isParent" icon="mdi-folder-image" @click.stop="$emit(Emit.TOGGLE)" 
-               style="background-color:white" class="icon-rounded admin-link mr-1 mb-1"/>
+               style="background-color:white" class="icon-rounded admin-link"/>
             <v-icon v-if="isChild"  icon="mdi-close-circle"  @click.stop="$emit(Emit.CLOSE)" 
-               style="background-color:white" class="icon-circle admin-link mr-1 mb-1"/>
+               style="background-color:white" class="icon-circle admin-link"/>
          </div>
       </div>
       <div v-if="showText" :class="textMargin">
          <div class="text-body-2">
-            <span :class="nameClass">{{ name }}</span>
-            <span v-if="visibleItemCount" class="ml-1">({{ visibleItemCount }})</span>
+            <span :class="nameClass" class="font-weight-bold">{{ name }} &nbsp;</span>
+            <span v-if="visibleItemCount" class="text-no-break">({{ visibleItemCount }})</span>
          </div>
          <UserDateText :user="fromUser" :date="showDateModified ? gallery.dateContentModified : null" class="text-body-2"/>
       </div>
@@ -71,7 +71,7 @@
    const carouselHeight   = computed(() => cardWidth.value * 9 / 16)
    const carouselInterval = computed(() => 4000 + Math.floor(Math.random() * 4000)) // random bet 4-8 secs 
    const name             = computed(() => smallThumb.value && props.gallery.shortName ? props.gallery.shortName : props.gallery.name)
-   const nameClass        = computed(() => smallThumb.value ? "text-caption" : "font-weight-bold")
+   const nameClass        = computed(() => smallThumb.value ? "text-caption" : "")
    const visibleItemCount = computed(() => viewMgr.galleryItemCount(props.gallery))
    const showUser         = computed(() => !props.bypassShowUser && viewStore.galleryThumbOptions.includes(GalleryThumbOptions.USER))
    const showDateModified = computed(() => viewStore.galleryThumbOptions.includes(GalleryThumbOptions.UPDATED))
@@ -115,9 +115,13 @@
 .icon-rounded {
   border-radius: 3px;
   padding: 4px;
+  margin-right: 2px;
+  margin-bottom: 2px;
 }
 .icon-circle {
   border-radius: 50%;
   padding: 4px;
+  margin-right: 2px;
+  margin-bottom: 2px;
 }
 </style>
