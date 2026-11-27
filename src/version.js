@@ -3,12 +3,9 @@
    in a branch and eventually pull to main.  Common code may eventually be pulled into 
    componenets/libraries, but that is probably more trouble than worth it because there are 
    divergences almost everywhere
-
-   - fix itemView scroll/swipe - use swipe from gallery playItems
-   - fix no wall items at startup
-
 */
 export const versions = [   
+   ["v1.13.0", "11/27/26"], // Move show/hide child gallery icons to inside image
    ["v1.12.2", "11/26/26"], // Fix SwipeItem swipe to not not show any of bottom/scroll image 
    ["v1.12.1", "11/26/26"], // Fix empty wall at startup
    ["v1.12.0", "11/25/26"], // Re-enable dark mode

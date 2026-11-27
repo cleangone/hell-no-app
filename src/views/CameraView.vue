@@ -32,7 +32,7 @@
       <div v-for="(image, index) in localStore.savedPhotos" class="position-relative mb-2">
          <ion-img :src="image.photoUrl" @click.stop="showImage(index)" :style="{ width:'95px' }"/>
          <div class="position-absolute bottom-0 right-0">
-         <IconButton icon="mdi-close-circle" @click.stop="deleteImage(index)" size="med" style="background-color:white" class="admin-link mr-2 mb-2"/>  
+            <IconButton icon="mdi-close-circle" @click.stop="deleteImage(index)" size="med" style="background-color:white" class="admin-link mr-2 mb-2"/>  
          </div>
       </div>
    </v-row>

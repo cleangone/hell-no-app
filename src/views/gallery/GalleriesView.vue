@@ -50,12 +50,11 @@
          <UserThumbSwiper :users="avatarUsers" @userId="selectUser"/>
       </div>
       <!-- galleries -->
-      <!-- <v-row justify="space-around"  density="compact" class="mt-5 mb-md-4" > -->
       <v-row align="start" align-content="start" justify="space-around" density="compact" class="mt-5 mb-md-4">
          <GalleryThumb v-for="gallery in selectedGalleries" :key="gallery.id" :gallery="gallery" 
             :bypassShowUser="bypassShowUser" :showChildImages="!showChildGalleries" 
-            :parentIcon="getElderIcon(gallery)" @toggle="toggleExpandedId(gallery.id)"
-            :childIcon="getChildIcon(gallery)"  @close="closeChild(gallery)"/>
+            :isParent="isParent(gallery)" :isChild="isChild(gallery)"
+            @toggle="toggleExpandedId(gallery.id)" @close="closeChild(gallery)"/>
       </v-row>
    </v-container>
 </ion-content>
@@ -215,14 +214,9 @@
 
    const childGalleriesExist = computed(() => elderIdToFamilyGalleries.value.size)
 
-   const getChildIcon = (gallery) => { return gallery.parentGalleryId ? "mdi-close-circle" : null }
-   const getElderIcon = (gallery) => { 
-      if (!gallery.parentGalleryId && gallery.childGalleryIds?.length) { 
-         return expandedElderIds.value.has(gallery.id) ? "mdi-folder-multiple-image" : "mdi-folder-image"
-      }
-      return null
-   }
-   
+   const isParent = (gallery) => { return !gallery.parentGalleryId && gallery.childGalleryIds?.length }
+   const isChild  = (gallery) => { return gallery.parentGalleryId ? true : false }   
+
    const closeChild = (gallery) => { toggleExpandedId(getElderId(gallery)) }
    const toggleExpandedId = (galleryId) => {    
       if (expandedElderIds.value.has(galleryId)) { expandedElderIds.value.delete(galleryId) } 

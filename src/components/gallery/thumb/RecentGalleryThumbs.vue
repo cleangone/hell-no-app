@@ -6,7 +6,7 @@
       </div>
       <v-row justify="space-around">
          <GalleryThumb v-for="gallery in thumbGalleries" :key="gallery.id" :gallery="gallery" 
-            :size="ThumbSize.MED" :bypassShowUser="bypassShowUser" showChildImages dense />
+            :size="ThumbSize.MED" :bypassShowUser="bypassShowUser" showChildImages />
       </v-row>
    </v-container>
 </template>
