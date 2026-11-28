@@ -1,12 +1,15 @@
 <template>
-   <v-btn :icon="props.icon" variant="text" :disabled="props.disabled" :size="size" :density="density" class="icon-btn"></v-btn>
+   <v-btn :icon="icon" variant="text" :disabled="disabled" :size="btnSize" :slim="slim" :density="density" class="icon-btn"/>
 </template>
 
 <script setup>
    import { computed } from 'vue'
    
-   const props = defineProps({ icon:String, disabled:Boolean, size:String, xs:Boolean, density:String })
+   const props = defineProps({ icon:String, disabled:Boolean, 
+      xs:Boolean, sm:Boolean,  slim: Boolean,
+      size:    { type: String, default: 'unrecognized' }, // x-small, small, default, large, x-large, any number (pixels)
+      density: { type: String, default: 'default' }  })   // default, comfortable, compact
    
-   const size    = computed(() => props.xs ? "x-small" : (props.size ? props.size : "small"))
-   const density = computed(() => props.density ? props.density : "default")
+   // having an unrecognized size causes vuetify to not apply a .v-btn--size-* class
+   const btnSize = computed(() => props.xs ? "x-small" : (props.sm ? "small" : props.size))
 </script>

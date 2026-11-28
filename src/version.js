@@ -5,6 +5,7 @@
    divergences almost everywhere
 */
 export const versions = [   
+   ["v1.13.1", "11/27/26"], // Refactor Back/IconButton
    ["v1.13.0", "11/27/26"], // Move show/hide child gallery icons to inside image
    ["v1.12.2", "11/26/26"], // Fix SwipeItem swipe to not not show any of bottom/scroll image 
    ["v1.12.1", "11/26/26"], // Fix empty wall at startup

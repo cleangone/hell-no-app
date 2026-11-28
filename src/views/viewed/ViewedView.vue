@@ -1,18 +1,14 @@
 <template>
 <ion-page>
    <ion-content>  
-      <!-- header -->
-      <div class="scrolling-header-container">
-         <ion-toolbar class="custom-scrolling-toolbar">
-            <ion-buttons slot="start"><BackButton/></ion-buttons>
-            <ion-title class="text-center text-h6">{{ title }}</ion-title>
-            <ion-buttons slot="end">
-               <ViewedSortButton class="mr-2"/>
-               <ThumbSizeButton class="mr-2"/>
-            </ion-buttons>
-         </ion-toolbar>
-      </div>
-
+      <Header>
+         <template #left><BackButton class="mr-8"/></template>
+         <template #title>{{ title }}</template>
+         <template #right>
+            <ViewedSortButton class="mr-1"/>
+            <ThumbSizeButton/>
+         </template>
+      </Header>
       <v-container class="mt-4 pa-0 pb-3 width-100">
          <v-row no-gutters class="d-flex align-center flex-nowrap">
             <v-col v-if="viewMgr.isDeskTop" cols="2" class="flex-grow-0 flex-shrink-0"></v-col>
@@ -47,6 +43,7 @@
    import ItemThumb        from '@/components/item/thumb/ItemThumb.vue'
    import ItemThumbConfig  from '@/components/item/thumb/ItemThumbConfig.vue'
    import BackButton       from '@/components/util/BackButton.vue'  
+   import Header           from '@/components/util/Header.vue'
    import ThumbSizeButton  from '@/components/util/ThumbSizeButton.vue'  
    import ViewedSortButton from './ViewedSortButton.vue'  
    import { isOwned, toSortedDateViewedAsc } from '@/utils/utils'  

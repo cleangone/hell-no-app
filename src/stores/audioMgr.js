@@ -49,8 +49,16 @@ export const useAudioMgr = defineStore('audioMgr', () => {
       console.log("playAudio - audioBlob{bytes:" + audioBlob.size + ", type:" + audioBlob.type + "}")
 
       const audioUrl = URL.createObjectURL(audioBlob)
-      const audioElement = new Audio(audioUrl)
+      playAudioUrl(audioUrl)
+      // const audioElement = new Audio(audioUrl)
 
+      // audioElement.play().catch((error) => {
+      //    console.error("Error playing audio:", error)
+      // })
+   }
+
+   function playAudioUrl(audioUrl) {
+      const audioElement = new Audio(audioUrl)
       audioElement.play().catch((error) => {
          console.error("Error playing audio:", error)
       })
@@ -85,5 +93,5 @@ export const useAudioMgr = defineStore('audioMgr', () => {
       }
    }
 
-   return { startRecording, stopRecording, playAudio, uploadAudio } 
+   return { startRecording, stopRecording, playAudio, playAudioUrl, uploadAudio } 
 })
