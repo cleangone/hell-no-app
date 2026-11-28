@@ -2,7 +2,7 @@
 <ion-page>
    <ion-content> 
       <Header>
-         <template #left><BackButton class="mr-16"/></template>
+         <template #left><BackButton class="ml-n1 mr-16"/></template>
          <template #title>{{ Route.SEARCH.display }}</template>
          <template #right>
             <SortButton :sortByDate="sortByDate" @click="sortByDate=!sortByDate" class="mr-1"/>
@@ -10,7 +10,7 @@
             <ItemThumbConfig class="mr-2"/>
          </template>
       </Header>
-      <v-row class="d-flex justify-start align-center mt-2 mx-1">
+      <v-row class="d-flex justify-start align-center mt-2 mx-5">
          <v-text-field v-model="searchQuery" prepend-inner-icon="mdi-magnify" placeholder="Search" density="compact" @keyup.enter="search()" class="search"/>
          <BlueBtn text="Search" @click="search()" :disabled="!validQuery" class="ml-2 mb-4"/>
       </v-row>

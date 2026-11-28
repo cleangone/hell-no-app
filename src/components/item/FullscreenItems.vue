@@ -17,7 +17,7 @@
                      <IconButton icon="mdi-chevron-right" @click="next()" size="med"/>
                   </v-col>
                   <v-col cols="2" class="d-flex justify-end align-center flex-grow-0 flex-shrink-0 ">
-                     <span v-if="isPlaying && countdown">{{ timerCurrSeconds }}</span>                  
+                     <span v-if="isPlaying && countdownDisplay">{{ countdownDisplay }}</span>                  
                   </v-col>
                </v-row>
             </div>
@@ -114,7 +114,16 @@
       return 0
    }
 
-   const countdown = computed(() => timerCurrSeconds.value && timerCurrSeconds.value <= 3)
+   const countdownDisplay = computed(() => {
+      if (timerCurrSeconds.value && timerCurrSeconds.value < 6) {
+         let display = ""
+         for (var i=0; i<timerCurrSeconds.value; i++) { 
+            display += '. '
+         }
+         return display
+      }
+      else { return null }
+   })
    
    const prev = () => { 
       isPlaying.value = false
@@ -129,7 +138,7 @@
       transition.value = Slide.LEFT 
       itemIndex.value = itemIndex.value == items.value.length - 1 ? 0 : itemIndex.value + 1 
 
-      const nextIndex = itemIndex.value == items.value.length - 1 ? 0 : itemIndex.value + 1 
+      // const nextIndex = itemIndex.value == items.value.length - 1 ? 0 : itemIndex.value + 1 
       // if (nextIndex) { viewStore.loadImage(items.value[itemIndex.value].primaryImage.url) }  
    }
 
