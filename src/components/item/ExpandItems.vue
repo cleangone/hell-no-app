@@ -1,5 +1,6 @@
 <template>
-   <IconButton @click="showFullscreen=true" icon="mdi-arrow-expand" :class="buttonClass"/> 
+   <!-- buttonClass was used to identify the button pressed in the ItemView arrow logic  -->
+   <IconButton @click="showFullscreen=true" icon="mdi-arrow-expand" sm :class="buttonClass"/> 
    
    <FullscreenItems v-if="showFullscreen" :items="items" :item="item" :backgroundImage="backgroundImage" @done="done()"/>
 </template>

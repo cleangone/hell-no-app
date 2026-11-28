@@ -1,5 +1,5 @@
 <template>
-   <IconButton icon="mdi-chevron-left" @click="ionRouter.back()" class="back-btn ml-n2"/> 
+   <IconButton icon="mdi-chevron-left" @click="ionRouter.back()" class="back-btn"/> 
 </template>
 
 <script setup>

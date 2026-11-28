@@ -17,9 +17,10 @@
       </DefineTemplate>
 
       <Header>
-         <template #left><BackButton class="mr-8"/></template>
+         <template #left><BackButton :class="backBtnMargin" class="ml-n2"/></template>
          <template #title>{{ galleryName }} Gallery</template>
          <template #right>
+            <PlayItems v-if="!viewMgr.isXs" :items="galleryItems" class="mr-1"/>
             <ThumbSizeButton class="mr-1"/>
             <ItemThumbConfig/> 
          </template>
@@ -29,7 +30,6 @@
             <img v-if="backgroundImage" :src="backgroundImage.url" class="background" :style="backgroundStyle"/>
             <div class="content">
                <div style="clear:both"></div>
-               <PlayItems v-if="!viewMgr.isXs" :items="galleryItems"/>
                <GalleryParentLink :gallery="gallery" style="text-align: center; display: block; width: 100%;"/>
                <ReuseTemplate/>
             </div>
@@ -160,7 +160,8 @@
       if (!viewMgr.galleryIsVisibleToUser(gallery)) { router.push(Route.HOME.url) }
       return gallery 
    })
-      
+   
+   const backBtnMargin     = computed(() => viewMgr.isXs ? "mr-8" : "mr-16" ) // balance 1 or 2 extra icons
    const contentStyle      = computed(() => "min-height:" + windowHeight.value + "px;")
    const galleryId         = computed(() => gallery.value ? gallery.value.id : "")
    const galleryName       = computed(() => gallery.value ? gallery.value.name : "")

@@ -2,7 +2,7 @@
 <ion-page>
 <ion-content> 
    <Header>
-      <template #left><BackButton/></template>
+      <template #left><BackButton class="ml-n1"/></template>
       <template #title>{{ itemName }}</template>
       <template #right>
          <span class="mr-8"></span>

@@ -2,7 +2,7 @@
 <ion-page>
 <ion-content :fullscreen="true">
    <Header>
-      <template #left><BackButton class="mr-16"/></template>
+      <template #left><BackButton class="ml-n2 mr-16"/></template>
       <template #title>{{ Route.GALLERIES.display }}</template>
       <template #right>
          <SortButton :sortByDate="sortByDate" @click="sortByDate=!sortByDate" class="mr-1"/>
