@@ -40,7 +40,7 @@
       </Transition>
       <!-- infinite scroll -->
       <div v-if="scrollVisible" class="ml-2 mr-4"> 
-        <ScrollItem :item="props.item" :items="viewStoreItems"/>
+        <MobileItem :item="props.item" :items="viewStoreItems"/>
          <template v-for="item in scrollItems" :key="item.id">
             <div v-if="item.id != props.item.id" class="mt-5">
                <div class="text-center text-h6">{{ item.name }}</div>
@@ -51,7 +51,7 @@
                   </span>
                </div>
             </div>
-            <ScrollItem :item="item" :items="viewStoreItems"/>
+            <MobileItem :item="item" :items="viewStoreItems"/>
          </template>
          <ion-infinite-scroll @ionInfinite="loadItems">
             <ion-infinite-scroll-content loading-spinner="bubbles" loading-text="Loading...">
@@ -69,7 +69,7 @@
    import { useGalleryStore } from '@/stores/galleryStore'
    import { useViewStore }    from '@/stores/viewStore'
    import { useViewMgr }      from '@/stores/viewMgr'
-   import ScrollItem          from './ScrollItem.vue'
+   import MobileItem          from './MobileItem.vue'
    import SwipeItem           from '@/components/item/SwipeItem.vue'
    import { Emit, ItemNavAction, ItemOrigin, Route } from '@/utils/constants'
 

@@ -26,7 +26,7 @@ export const useViewMgr = defineStore('viewMgr', () => {
       // lg: 1280,
       // xl: 1920,
       // xxl: 2560,
-   const { width: windowWidth } = useWindowSize()
+   const { width: windowWidth, height: windowHeight } = useWindowSize()
    const authMgr      = useAuthMgr()
    const userStore    = useUserStore()
    const itemMgr      = useItemMgr()
@@ -71,7 +71,7 @@ export const useViewMgr = defineStore('viewMgr', () => {
 
    const isStandalone = computed(() => window.matchMedia('(display-mode: standalone)').matches)
    const isXs         = computed(() => xs.value)
-   const isWide       = computed(() => windowWidth.value > 1150)
+   const isWide       = computed(() => windowWidth.value > 1000 && windowWidth.value > windowHeight.value)
    const isMobile     = computed(() => {
          const iosDevice = navigator.userAgent.match(/iPhone|iPod/) // ipad no longer matches
          if (xs.value || (isStandalone.value && iosDevice != null)) { return true }
